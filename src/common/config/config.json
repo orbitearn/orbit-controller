@@ -1,0 +1,41 @@
+{
+  "CHAINS": [
+    {
+      "NAME": "neutron",
+      "PREFIX": "neutron",
+      "OPTIONS": [
+        {
+          "TYPE": "main",
+          "DENOM": "untrn",
+          "CHAIN_ID": "neutron-1",
+          "RPC_LIST": [
+            "https://rpc.cosmos.directory/neutron"
+          ],
+          "GAS_PRICE_AMOUNT": 0.0053,
+          "STORE_CODE_GAS_MULTIPLIER": 21.5,
+          "CONTRACTS": [
+            {
+              "WASM": "staking.wasm",
+              "LABEL": "staking",
+              "INIT_MSG": "{}",
+              "MIGRATE_MSG": "{}",
+              "UPDATE_MSG": "{}",
+              "CODE": 0,
+              "ADDRESS": "neutron19q93n64nyet24ynvw04qjqmejffkmyxakdvl08sf3n3yeyr92lrs2makhx"
+            },
+            {
+              "WASM": "voter.wasm",
+              "LABEL": "voter",
+              "INIT_MSG": "{}",
+              "MIGRATE_MSG": "{}",
+              "UPDATE_MSG": "{}",
+              "CODE": 0,
+              "ADDRESS": "neutron13l5nw6fh4xascjfyru5pe9w5ur8rp7svzl7hhkdh7jfdk3fup75quz9zy5"
+            }
+          ],
+          "IBC": []
+        }
+      ]
+    }
+  ]
+}

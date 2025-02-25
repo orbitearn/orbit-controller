@@ -1,0 +1,63 @@
+{
+  "name": "equinox-voter-controller",
+  "version": "1.1.0",
+  "description": "",
+  "main": "./src/backend/index.ts",
+  "private": true,
+  "engines": {
+    "node": ">=18.x"
+  },
+  "scripts": {
+    "call": "ts-node ./src/backend/services/call-contract.ts",
+    "json": "ts-node ./src/backend/services/generate-json.ts",
+    "start": "ts-node --project ./src/backend/tsconfig.json ./src/backend/index.ts",
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "capture": "ts-node ./src/backend/services/capture.ts",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EclipsePad/equinox-voter-controller"
+  },
+  "keywords": [],
+  "author": "M. Daeva",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/EclipsePad/equinox-voter-controller/issues"
+  },
+  "homepage": "https://github.com/EclipsePad/equinox-voter-controller#readme",
+  "dependencies": {
+    "@chain-registry/types": "^0.18.0",
+    "@cosmjs/cosmwasm-stargate": "^0.32.2",
+    "@cosmjs/stargate": "^0.32.2",
+    "@types/mongoose": "5.10.5",
+    "axios": "^1.6.7",
+    "chain-registry": "^1.28.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "decimal.js": "^10.4.3",
+    "dotenv": "^16.4.1",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
+    "mongodb": "^6.12.0",
+    "mongoose": "5.10.19",
+    "ts-node": "^10.9.2",
+    "util": "^0.12.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/crypto-js": "^4.2.2",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.11.16",
+    "@types/pako": "^2.0.3",
+    "cosmjs-types": "^0.9.0",
+    "cross-env": "^7.0.3",
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.7",
+    "pako": "^2.1.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.3.3"
+  }
+}
