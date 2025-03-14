@@ -1,6 +1,5 @@
-import { StakingQueryClient } from "../codegen/Staking.client";
-import { VoterMsgComposer } from "../codegen/Voter.message-composer";
-import { VoterQueryClient } from "../codegen/Voter.client";
+import { BankQueryClient } from "../codegen/Bank.client";
+import { BankMsgComposer } from "../codegen/Bank.message-composer";
 
 import CONFIG_JSON from "../config/config.json";
 import { getLast, getPaginationAmount, l, logAndReturn } from "../utils";
@@ -35,16 +34,12 @@ import {
   ContractInfo,
 } from "../interfaces";
 import {
-  UserListResponse,
-  UserListResponseItem,
-  WeightAllocationItem,
-} from "../codegen/Voter.types";
-import {
-  Addr,
-  LockerInfo,
-  QueryEssenceListResponseItem,
-  StakerInfo,
-} from "../codegen/Staking.types";
+  AssetItem,
+  CurrencyForToken,
+  Token,
+  UserInfoResponse,
+  WeightItem,
+} from "../codegen/Bank.types";
 
 function addSingleTokenToComposerObj(
   obj: MsgExecuteContractEncodeObject,
@@ -104,25 +99,21 @@ function getSingleTokenExecMsg(
   );
 }
 
+function getSymbol(token: Token) {
+  return "native" in token ? token.native.denom : token.cw20.address;
+}
+
 function getContracts(contracts: ContractInfo[]) {
-  let STAKING_CONTRACT: ContractInfo | undefined;
-  let VOTER_CONTRACT: ContractInfo | undefined;
+  let BANK_CONTRACT: ContractInfo | undefined;
 
   try {
-    STAKING_CONTRACT = getContractByLabel(contracts, "staking");
-  } catch (error) {
-    l(error);
-  }
-
-  try {
-    VOTER_CONTRACT = getContractByLabel(contracts, "voter");
+    BANK_CONTRACT = getContractByLabel(contracts, "bank");
   } catch (error) {
     l(error);
   }
 
   return {
-    STAKING_CONTRACT,
-    VOTER_CONTRACT,
+    BANK_CONTRACT,
   };
 }
 
@@ -137,7 +128,7 @@ async function getCwExecHelpers(
     OPTION: { CONTRACTS },
   } = getChainOptionById(CHAIN_CONFIG, chainId);
 
-  const { VOTER_CONTRACT } = getContracts(CONTRACTS);
+  const { BANK_CONTRACT } = getContracts(CONTRACTS);
 
   const cwClient = await getCwClient(rpc, owner, signer);
   if (!cwClient) throw new Error("cwClient is not found!");
@@ -145,9 +136,9 @@ async function getCwExecHelpers(
   const signingClient = cwClient.client as SigningCosmWasmClient;
   const _signAndBroadcast = signAndBroadcastWrapper(signingClient, owner);
 
-  const voterMsgComposer = new VoterMsgComposer(
+  const bankMsgComposer = new BankMsgComposer(
     owner,
-    VOTER_CONTRACT?.ADDRESS || ""
+    BANK_CONTRACT?.ADDRESS || ""
   );
 
   async function _msgWrapperWithGasPrice(
@@ -207,30 +198,187 @@ async function getCwExecHelpers(
     return tx;
   }
 
-  // voter
+  // bank
 
-  async function cwPushByAdmin(gasPrice: string) {
-    return await _msgWrapperWithGasPrice(
-      [voterMsgComposer.pushByAdmin()],
-      gasPrice,
-      1.5
-    );
-  }
-
-  async function cwPlaceVoteAsDao(
-    weightAllocation: WeightAllocationItem[],
+  async function cwDepositUsdc(
+    usdcAmount: number,
+    token: TokenUnverified,
     gasPrice: string
   ) {
     return await _msgWrapperWithGasPrice(
-      [voterMsgComposer.placeVoteAsDao({ weightAllocation })],
-      gasPrice,
-      1.5
+      [
+        addSingleTokenToComposerObj(
+          bankMsgComposer.depositUsdc(),
+          usdcAmount,
+          token
+        ),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwWithdrawAusdc(ausdcAmount: number, gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [bankMsgComposer.withdrawAusdc({ ausdcAmount: ausdcAmount?.toString() })],
+      gasPrice
+    );
+  }
+
+  async function cwDepositAusdc(
+    ausdcAmount: number,
+    token: TokenUnverified,
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        addSingleTokenToComposerObj(
+          bankMsgComposer.depositAusdc(),
+          ausdcAmount,
+          token
+        ),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwWithdrawUsdc(ausdcAmount: number, gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [bankMsgComposer.withdrawUsdc({ ausdcAmount: ausdcAmount?.toString() })],
+      gasPrice
+    );
+  }
+
+  async function cwEnableDca(
+    fraction: number,
+    weights: WeightItem[],
+    { swaps }: { swaps?: number },
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        bankMsgComposer.enableDca({
+          fraction: fraction?.toString(),
+          weights,
+          swaps,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwDisableDca(gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [bankMsgComposer.disableDca()],
+      gasPrice
+    );
+  }
+
+  async function cwClaimAssets(gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [bankMsgComposer.claimAssets()],
+      gasPrice
+    );
+  }
+
+  async function cwClaimAndSwap(
+    rewards: number,
+    usdcYield: number,
+    assets: AssetItem[],
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        bankMsgComposer.claimAndSwap({
+          rewards: rewards.toString(),
+          usdcYield: usdcYield.toString(),
+          assets,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwRegisterAsset(
+    token: TokenUnverified,
+    decimals: number,
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [bankMsgComposer.registerAsset({ token, decimals })],
+      gasPrice
+    );
+  }
+
+  async function cwAcceptAdminRole(gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [bankMsgComposer.acceptAdminRole()],
+      gasPrice
+    );
+  }
+
+  async function cwUpdateConfig(
+    {
+      admin,
+      controller,
+      usdc,
+      ausdc,
+      totalUsdcLimit,
+    }: {
+      admin?: string;
+      controller?: string;
+      usdc?: string;
+      ausdc?: string;
+      totalUsdcLimit?: number;
+    },
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        bankMsgComposer.updateConfig({
+          admin,
+          controller,
+          usdc,
+          ausdc,
+          totalUsdcLimit: totalUsdcLimit?.toString(),
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwPause(gasPrice: string) {
+    return await _msgWrapperWithGasPrice([bankMsgComposer.pause()], gasPrice);
+  }
+
+  async function cwUnpause(gasPrice: string) {
+    return await _msgWrapperWithGasPrice([bankMsgComposer.unpause()], gasPrice);
+  }
+
+  async function cwSetYieldRate(value: number, gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [bankMsgComposer.setYieldRate({ value: value.toString() })],
+      gasPrice
     );
   }
 
   return {
     utils: { cwTransferAdmin, cwMigrateMultipleContracts },
-    voter: { cwPushByAdmin, cwPlaceVoteAsDao },
+    bank: {
+      cwDepositUsdc,
+      cwWithdrawAusdc,
+      cwDepositAusdc,
+      cwWithdrawUsdc,
+      cwEnableDca,
+      cwDisableDca,
+      cwClaimAssets,
+      cwClaimAndSwap,
+      cwRegisterAsset,
+      cwAcceptAdminRole,
+      cwUpdateConfig,
+      cwPause,
+      cwUnpause,
+      cwSetYieldRate,
+    },
   };
 }
 
@@ -240,218 +388,63 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
     OPTION: { CONTRACTS },
   } = getChainOptionById(CHAIN_CONFIG, chainId);
 
-  const { STAKING_CONTRACT, VOTER_CONTRACT } = getContracts(CONTRACTS);
+  const { BANK_CONTRACT } = getContracts(CONTRACTS);
 
   const cwClient = await getCwClient(rpc);
   if (!cwClient) throw new Error("cwClient is not found!");
 
   const cosmwasmQueryClient: CosmWasmClient = cwClient.client;
 
-  const stakingQueryClient = new StakingQueryClient(
+  const bankQueryClient = new BankQueryClient(
     cosmwasmQueryClient,
-    STAKING_CONTRACT?.ADDRESS || ""
+    BANK_CONTRACT?.ADDRESS || ""
   );
 
-  const voterQueryClient = new VoterQueryClient(
-    cosmwasmQueryClient,
-    VOTER_CONTRACT?.ADDRESS || ""
-  );
-
-  // staking
+  // bank
 
   async function cwQueryConfig(isDisplayed: boolean = false) {
-    const res = await stakingQueryClient.queryConfig();
+    const res = await bankQueryClient.config();
     return logAndReturn(res, isDisplayed);
   }
 
-  async function cwQueryBalances(isDisplayed: boolean = false) {
-    const res = await stakingQueryClient.queryBalances();
+  async function cwQueryPauseState(isDisplayed: boolean = false) {
+    const res = await bankQueryClient.pauseState();
     return logAndReturn(res, isDisplayed);
   }
 
-  async function cwQueryRewardsReductionInfo(isDisplayed: boolean = false) {
-    const res = await stakingQueryClient.queryRewardsReductionInfo();
-    return logAndReturn(res, isDisplayed);
-  }
-
-  async function pQueryStakerList(
-    maxPaginationAmount: number,
-    maxCount: number = 0,
-    isDisplayed: boolean = false
-  ): Promise<[Addr, StakerInfo][]> {
-    const paginationAmount = getPaginationAmount(maxPaginationAmount, maxCount);
-
-    let allItems: [Addr, StakerInfo][] = [];
-    let lastItem: string | undefined = undefined;
-    let count: number = 0;
-
-    while (lastItem !== "" && count < (maxCount || count + 1)) {
-      const stakerListResponse: [Addr, StakerInfo][] =
-        await stakingQueryClient.queryStakerInfoList({
-          amount: paginationAmount,
-          startFrom: lastItem,
-        });
-
-      lastItem = getLast(stakerListResponse)?.[0] || "";
-      allItems = [...allItems, ...stakerListResponse];
-      count += stakerListResponse.length;
-      l({ count });
-    }
-
-    if (maxCount) {
-      allItems = allItems.slice(0, maxCount);
-    }
-
-    return logAndReturn(allItems, isDisplayed);
-  }
-
-  async function pQueryLockerList(
-    maxPaginationAmount: number,
-    maxCount: number = 0,
-    isDisplayed: boolean = false
-  ): Promise<[Addr, LockerInfo[]][]> {
-    const paginationAmount = getPaginationAmount(maxPaginationAmount, maxCount);
-
-    let allItems: [Addr, LockerInfo[]][] = [];
-    let lastItem: string | undefined = undefined;
-    let count: number = 0;
-
-    while (lastItem !== "" && count < (maxCount || count + 1)) {
-      const lockerListResponse: [Addr, LockerInfo[]][] =
-        await stakingQueryClient.queryLockerInfoList({
-          amount: paginationAmount,
-          startFrom: lastItem,
-        });
-
-      lastItem = getLast(lockerListResponse)?.[0] || "";
-      allItems = [...allItems, ...lockerListResponse];
-      count += lockerListResponse.length;
-      l({ count });
-    }
-
-    if (maxCount) {
-      allItems = allItems.slice(0, maxCount);
-    }
-
-    return logAndReturn(allItems, isDisplayed);
-  }
-
-  async function pQueryStakingEssenceList(
-    blockTime: number,
-    maxPaginationAmount: number,
-    maxCount: number = 0,
-    isDisplayed: boolean = false
-  ): Promise<QueryEssenceListResponseItem[]> {
-    const paginationAmount = getPaginationAmount(maxPaginationAmount, maxCount);
-
-    let allItems: QueryEssenceListResponseItem[] = [];
-    let lastItem: string | undefined = undefined;
-    let count: number = 0;
-
-    while (lastItem !== "" && count < (maxCount || count + 1)) {
-      const stakingEssenceList: QueryEssenceListResponseItem[] =
-        await stakingQueryClient.queryStakingEssenceList({
-          blockTime,
-          amount: paginationAmount,
-          startFrom: lastItem,
-        });
-
-      lastItem = getLast(stakingEssenceList)?.user || "";
-      allItems = [...allItems, ...stakingEssenceList];
-      count += stakingEssenceList.length;
-      l({ count });
-    }
-
-    if (maxCount) {
-      allItems = allItems.slice(0, maxCount);
-    }
-
-    return logAndReturn(allItems, isDisplayed);
-  }
-
-  async function pQueryLockingEssenceList(
-    maxPaginationAmount: number,
-    maxCount: number = 0,
-    isDisplayed: boolean = false
-  ): Promise<QueryEssenceListResponseItem[]> {
-    const paginationAmount = getPaginationAmount(maxPaginationAmount, maxCount);
-
-    let allItems: QueryEssenceListResponseItem[] = [];
-    let lastItem: string | undefined = undefined;
-    let count: number = 0;
-
-    while (lastItem !== "" && count < (maxCount || count + 1)) {
-      const lockingEssenceList: QueryEssenceListResponseItem[] =
-        await stakingQueryClient.queryLockingEssenceList({
-          amount: paginationAmount,
-          startFrom: lastItem,
-        });
-
-      lastItem = getLast(lockingEssenceList)?.user || "";
-      allItems = [...allItems, ...lockingEssenceList];
-      count += lockingEssenceList.length;
-      l({ count });
-    }
-
-    if (maxCount) {
-      allItems = allItems.slice(0, maxCount);
-    }
-
-    return logAndReturn(allItems, isDisplayed);
-  }
-
-  // voter
-
-  async function cwQueryEstimatedRewards(
-    user?: string,
+  async function cwQueryDistributionState(
+    { address }: { address?: string },
     isDisplayed: boolean = false
   ) {
-    const res = await voterQueryClient.estimatedRewards({ user });
+    const res = await bankQueryClient.distributionState({ address });
     return logAndReturn(res, isDisplayed);
   }
 
-  async function cwQueryOptimizationData(isDisplayed: boolean = false) {
-    const res = await voterQueryClient.optimizationData();
+  async function cwQueryAsset(symbol: string, isDisplayed: boolean = false) {
+    const res = await bankQueryClient.asset({ symbol });
     return logAndReturn(res, isDisplayed);
   }
 
-  async function cwQueryOperationStatus(isDisplayed: boolean = false) {
-    const res = await voterQueryClient.operationStatus();
-    return logAndReturn(res, isDisplayed);
-  }
-
-  async function cwQueryEpochInfo(isDisplayed: boolean = false) {
-    const res = await voterQueryClient.epochInfo();
-    return logAndReturn(res, isDisplayed);
-  }
-
-  async function cwQueryVoterInfo(isDisplayed: boolean = false) {
-    const res = await voterQueryClient.voterInfo({});
-    return logAndReturn(res, isDisplayed);
-  }
-
-  async function pQueryUserList(
+  async function pQueryAssetList(
     maxPaginationAmount: number,
     maxCount: number = 0,
     isDisplayed: boolean = false
-  ): Promise<UserListResponseItem[]> {
+  ) {
     const paginationAmount = getPaginationAmount(maxPaginationAmount, maxCount);
 
-    let allItems: UserListResponseItem[] = [];
+    let allItems: CurrencyForToken[] = [];
     let lastItem: string | undefined = undefined;
     let count: number = 0;
 
     while (lastItem !== "" && count < (maxCount || count + 1)) {
-      const userListResponse: UserListResponse =
-        await voterQueryClient.userList({
-          amount: paginationAmount,
-          startFrom: lastItem,
-        });
+      const listResponse: CurrencyForToken[] = await bankQueryClient.assetList({
+        amount: paginationAmount,
+        startFrom: lastItem,
+      });
 
-      lastItem = getLast(userListResponse.list)?.address || "";
-      allItems = [...allItems, ...userListResponse.list];
-      count += userListResponse.list.length;
-      l({ count });
+      lastItem = getSymbol(getLast(listResponse)?.token) || "";
+      allItems = [...allItems, ...listResponse];
+      count += listResponse.length;
     }
 
     if (maxCount) {
@@ -459,25 +452,101 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
     }
 
     return logAndReturn(allItems, isDisplayed);
+  }
+
+  async function cwQueryAusdcPrice(isDisplayed: boolean = false) {
+    const res = await bankQueryClient.ausdcPrice();
+    return logAndReturn(Number(res), isDisplayed);
+  }
+
+  async function cwQueryAppInfo(isDisplayed: boolean = false) {
+    const res = await bankQueryClient.appInfo();
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function cwQueryUserInfo(
+    address: string,
+    { ausdcPriceNext }: { ausdcPriceNext?: number },
+    isDisplayed: boolean = false
+  ) {
+    const res = await bankQueryClient.userInfo({
+      address,
+      ausdcPriceNext: ausdcPriceNext?.toString(),
+    });
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function pQueryUserInfoList(
+    maxPaginationAmount: number,
+    maxCount: number = 0,
+    isDisplayed: boolean = false
+  ) {
+    const paginationAmount = getPaginationAmount(maxPaginationAmount, maxCount);
+
+    let allItems: UserInfoResponse[] = [];
+    let lastItem: string | undefined = undefined;
+    let count: number = 0;
+
+    while (lastItem !== "" && count < (maxCount || count + 1)) {
+      const listResponse: UserInfoResponse[] =
+        await bankQueryClient.userInfoList({
+          amount: paginationAmount,
+          startFrom: lastItem,
+        });
+
+      lastItem = getLast(listResponse)?.address || "";
+      allItems = [...allItems, ...listResponse];
+      count += listResponse.length;
+    }
+
+    if (maxCount) {
+      allItems = allItems.slice(0, maxCount);
+    }
+
+    return logAndReturn(allItems, isDisplayed);
+  }
+
+  async function cwQueryBalances(
+    address: string,
+    isDisplayed: boolean = false
+  ) {
+    const res = await bankQueryClient.balances({ address });
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function cwQueryBlockTime(isDisplayed: boolean = false) {
+    const res = await bankQueryClient.blockTime();
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function cwQueryYieldRate(
+    distributionPeriod: number,
+    isDisplayed: boolean = false
+  ) {
+    const res = await bankQueryClient.yieldRate({ distributionPeriod });
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function cwQueryRewards(isDisplayed: boolean = false) {
+    const res = await bankQueryClient.rewards();
+    return logAndReturn(res, isDisplayed);
   }
 
   return {
-    staking: {
+    bank: {
       cwQueryConfig,
+      cwQueryPauseState,
+      cwQueryDistributionState,
+      cwQueryAsset,
+      pQueryAssetList,
+      cwQueryAusdcPrice,
+      cwQueryAppInfo,
+      cwQueryUserInfo,
+      pQueryUserInfoList,
       cwQueryBalances,
-      cwQueryRewardsReductionInfo,
-      pQueryStakerList,
-      pQueryLockerList,
-      pQueryStakingEssenceList,
-      pQueryLockingEssenceList,
-    },
-    voter: {
-      cwQueryEstimatedRewards,
-      cwQueryOptimizationData,
-      cwQueryOperationStatus,
-      cwQueryEpochInfo,
-      cwQueryVoterInfo,
-      pQueryUserList,
+      cwQueryBlockTime,
+      cwQueryYieldRate,
+      cwQueryRewards,
     },
   };
 }

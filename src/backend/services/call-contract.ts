@@ -13,12 +13,12 @@ import {
   getCwExecHelpers,
   getCwQueryHelpers,
 } from "../../common/account/cw-helpers";
-import {
-  calcEstimatedDaoProfit,
-  calcOptimizedDaoWeights,
-} from "../helpers/math";
 import { getAllPrices } from "../helpers";
 import { VOTER } from "../constants";
+
+function calcAusdcPrice(totalUsdcGross: number, totalAusdc: number) {
+  return !totalAusdc ? 1 : totalUsdcGross / totalAusdc;
+}
 
 async function main() {
   try {
@@ -43,67 +43,31 @@ async function main() {
     const sgQueryHelpers = await getSgQueryHelpers(RPC);
     const sgExecHelpers = await getSgExecHelpers(RPC, owner, signer);
 
-    const { voter } = await getCwQueryHelpers(chainId, RPC);
+    const { bank } = await getCwQueryHelpers(chainId, RPC);
     const h = await getCwExecHelpers(chainId, RPC, owner, signer);
 
     const { getBalance, getAllBalances } = sgQueryHelpers;
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
 
-    // const users = await voter.pQueryUserList(15);
-    // await writeSnapshot("voters", users);
+    const getNextAusdcPrice = async () => {
+      const appInfo = await bank.cwQueryAppInfo();
+      const rewards = await bank.cwQueryRewards();
+      const ausdcPrice = await bank.cwQueryAusdcPrice();
+      const nextAusdcPrice = calcAusdcPrice(
+        Number(appInfo.usdc_net) + Number(rewards),
+        Number(appInfo.ausdc.minted)
+      );
 
-    const {
-      elector_essence,
-      dao_essence,
-      slacker_essence,
-      elector_weights: electorWeights,
-      dao_weights: daoWeights,
-      bribes,
-    } = await voter.cwQueryOptimizationData();
-    const symbols = [
-      ...new Set(bribes.flatMap((x) => x.rewards).map((x) => x.symbol)),
-    ];
-    const prices = await getAllPrices(symbols);
-    const electorEssence = Number(elector_essence);
-    const daoEssence = Number(dao_essence);
-    const slackerEssence = Number(slacker_essence);
+      return Math.min(nextAusdcPrice, ausdcPrice);
+    };
 
-    if (!electorWeights.length) {
-      return;
-    }
+    const nextAusdcPrice = await getNextAusdcPrice();
+    //  const priceList = await getAllPrices();
 
-    const optimizedDaoWeights = calcOptimizedDaoWeights(
-      electorEssence,
-      daoEssence,
-      slackerEssence,
-      electorWeights,
-      bribes,
-      prices,
-      VOTER.OPTIMIZER.ITERATIONS,
-      VOTER.OPTIMIZER.DECIMAL_PLACES
-    );
-
-    const maxDaoProfit = calcEstimatedDaoProfit(
-      electorEssence,
-      daoEssence,
-      slackerEssence,
-      electorWeights,
-      optimizedDaoWeights,
-      bribes,
-      prices
-    );
-    const daoProfit = calcEstimatedDaoProfit(
-      electorEssence,
-      daoEssence,
-      slackerEssence,
-      electorWeights,
-      daoWeights,
-      bribes,
-      prices
-    );
-
-    li(1 - daoProfit / maxDaoProfit);
+    // let next_ausdc_price = get_next_ausdc_price(&h)?;
+    //   let (rewards, usdc_yield, assets) = get_distribution_params(&h, next_ausdc_price);
+    //   h.bank_try_claim_and_swap(owner, rewards, usdc_yield, &assets)?;
   } catch (error) {
     l(error);
   }
