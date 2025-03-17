@@ -477,6 +477,7 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
   }
 
   async function pQueryUserInfoList(
+    { ausdcPriceNext }: { ausdcPriceNext?: number },
     maxPaginationAmount: number,
     maxCount: number = 0,
     isDisplayed: boolean = false
@@ -490,6 +491,7 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
     while (lastItem !== "" && count < (maxCount || count + 1)) {
       const listResponse: UserInfoResponse[] =
         await bankQueryClient.userInfoList({
+          ausdcPriceNext: ausdcPriceNext?.toString(),
           amount: paginationAmount,
           startFrom: lastItem,
         });

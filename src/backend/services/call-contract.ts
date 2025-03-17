@@ -14,7 +14,33 @@ import {
   getCwQueryHelpers,
 } from "../../common/account/cw-helpers";
 import { getAllPrices } from "../helpers";
-import { VOTER } from "../constants";
+import { BANK } from "../constants";
+import { AssetItem } from "../../common/codegen/Bank.types";
+
+function dedupVector<T>(arr: T[]): T[] {
+  return [...new Set(arr)];
+}
+
+function calcMergedAssetList(
+  assetsA: AssetItem[],
+  assetsB: AssetItem[]
+): AssetItem[] {
+  const rewardsSymbolList = dedupVector(
+    [...assetsA, ...assetsB].map((x) => x.symbol)
+  );
+
+  return rewardsSymbolList.reduce((acc, symbol) => {
+    const amountA = assetsA.find((x) => x.symbol === symbol)?.amount || "";
+    const amountB = assetsB.find((x) => x.symbol === symbol)?.amount || "";
+    const amount = (Number(amountA) + Number(amountB)).toString();
+
+    if (amount) {
+      acc.push({ symbol, amount });
+    }
+
+    return acc;
+  }, [] as AssetItem[]);
+}
 
 function calcAusdcPrice(totalUsdcGross: number, totalAusdc: number) {
   return !totalAusdc ? 1 : totalUsdcGross / totalAusdc;
@@ -22,7 +48,7 @@ function calcAusdcPrice(totalUsdcGross: number, totalAusdc: number) {
 
 async function main() {
   try {
-    const chainId = "neutron-1";
+    const chainId = "pion-1"; // TODO:  const chainId = "neutron-1";
     const configJsonStr = await readFile(PATH_TO_CONFIG_JSON, {
       encoding: ENCODING,
     });
@@ -62,11 +88,26 @@ async function main() {
       return Math.min(nextAusdcPrice, ausdcPrice);
     };
 
-    const nextAusdcPrice = await getNextAusdcPrice();
-    //  const priceList = await getAllPrices();
+    const ausdcPriceNext = await getNextAusdcPrice();
+    // const priceList = await getAllPrices();
 
-    // let next_ausdc_price = get_next_ausdc_price(&h)?;
-    //   let (rewards, usdc_yield, assets) = get_distribution_params(&h, next_ausdc_price);
+    const userInfoList = await bank.pQueryUserInfoList(
+      { ausdcPriceNext },
+      BANK.PAGINATION_AMOUNT
+    );
+
+    const [rewards, usdcYield, assets] = userInfoList.reduce(
+      ([rewards, usdc_yield, assets], cur) => {
+        return [
+          rewards + Number(cur.user_yield.next.total),
+          usdc_yield + Number(cur.user_yield.next.usdc),
+          calcMergedAssetList(assets, cur.user_yield.next.assets),
+        ];
+      },
+      [0, 0, []] as [number, number, AssetItem[]]
+    );
+    li({ rewards, usdcYield, assets });
+
     //   h.bank_try_claim_and_swap(owner, rewards, usdc_yield, &assets)?;
   } catch (error) {
     l(error);

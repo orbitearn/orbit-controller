@@ -11,18 +11,8 @@ export const STAKING = {
   DB_ESSENCE_SNAPSHOT_HOUR: 22, // UTC
 };
 
-export const VOTER = {
+export const BANK = {
   PAGINATION_AMOUNT: 15,
-  PUSH_PERIOD: 60, // seconds
-  SETTLE_PERIOD: 10, // seconds
-  REBALANCER: {
-    PERIOD: 60 * 60, // seconds
-    THRESHOLD: 0.05,
-  },
-  OPTIMIZER: {
-    ITERATIONS: 100,
-    DECIMAL_PLACES: 3,
-  },
 };
 
 export const SNAPSHOT = {
