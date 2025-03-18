@@ -10,7 +10,7 @@ import { MONGODB, PORT, SEED } from "./envs";
 import { ChainConfig } from "../common/interfaces";
 import { getChainOptionById } from "../common/config/config-utils";
 import { getSigner } from "./account/signer";
-import { addEssence, addVoteResults, addVoters } from "./db/requests";
+import { AppRequest, UserRequest } from "./db/requests";
 import { getEssence } from "./middleware/api";
 import { DatabaseClient } from "./db/client";
 import { BANK, CHAIN_ID, MS_PER_SECOND, SNAPSHOT } from "./constants";
@@ -97,18 +97,7 @@ app.listen(PORT, async () => {
   console.clear();
   l(`\n✔️ Server is running on PORT: ${PORT}`);
 
-  // schedule essence snapshot for db
-  // new ScheduledTaskRunner().scheduleTask(
-  //   STAKING.DB_ESSENCE_SNAPSHOT_HOUR,
-  //   async () => {
-  //     const essence = await getEssence();
-  //     await dbClient.connect();
-  //     await addEssence(essence);
-  //     await dbClient.disconnect();
-  //   }
-  // );
-
-  // service to update voter state and make voters snapshots
+  // service to claim and swap orbit rewards and save data in db
   let isAusdcPriceUpdated = true;
   while (true) {
     await wait(BANK.CYCLE_PERIOD_MIN * MS_PER_SECOND);
@@ -117,7 +106,7 @@ app.listen(PORT, async () => {
     const { update_date: lastUpdateDate } = await bank.cwQueryDistributionState(
       {}
     );
-    const blockTime = await bank.cwQueryBlockTime();
+    let blockTime = await bank.cwQueryBlockTime();
     const nextUpdateDate = lastUpdateDate + BANK.DISTRIBUTION_PERIOD;
 
     if (blockTime < nextUpdateDate) {
@@ -139,6 +128,8 @@ app.listen(PORT, async () => {
       const [rewards, usdcYield, assets] = calcClaimAndSwapData(userInfoList);
 
       await h.bank.cwClaimAndSwap(rewards, usdcYield, assets, gasPrice);
+
+      blockTime = await bank.cwQueryBlockTime();
       isAusdcPriceUpdated = false;
     } catch (error) {
       l(error);
@@ -148,11 +139,18 @@ app.listen(PORT, async () => {
     try {
       if (!isAusdcPriceUpdated) {
         const ausdcPrice = await bank.cwQueryAusdcPrice();
-        // await writeSnapshot(SNAPSHOT.VOTERS, users);
+        const assetList = (
+          await bank.pQueryAssetList(BANK.PAGINATION_AMOUNT)
+        ).map((x) => x.token);
 
-        // await dbClient.connect();
-        // await addVoters(users, id);
-        // await dbClient.disconnect();
+        // TODO: get symbols, query prices, merge with ausdc
+
+        await dbClient.connect();
+        const { counter } = await bank.cwQueryDistributionState({});
+        await AppRequest.addDataItem(blockTime, counter, [
+          { asset: "ausdc", price: ausdcPrice },
+        ]);
+        await dbClient.disconnect();
 
         isAusdcPriceUpdated = true;
       }

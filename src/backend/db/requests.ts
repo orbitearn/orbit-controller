@@ -1,133 +1,114 @@
-import { EssenceModel, VoteResultsModel, VotersModel } from "./models";
-import { IEssence, IVoteResults, IVoters } from "./types";
+import { AppDataModel, UserDataModel } from "./models";
+import { AssetPrice, IAppDataDocument, IUserDataDocument } from "./types";
 
-export async function addEssence(essence: IEssence) {
-  const model = new EssenceModel({
-    essence,
-  });
+export class AppRequest {
+  static async addDataItem(
+    timestamp: number,
+    counter: number,
+    assetPrices: AssetPrice[],
+    createdAt: Date = new Date()
+  ): Promise<IAppDataDocument> {
+    try {
+      const model = new AppDataModel({
+        timestamp,
+        counter,
+        assetPrices,
+        createdAt,
+      });
 
-  return await model.save();
-}
-
-export async function getEssence() {
-  return await EssenceModel.find();
-}
-
-export async function getEssenceByLatestDate() {
-  return await EssenceModel.findOne().sort({ createdAt: -1 });
-}
-
-export async function getEssenceInDateRange(from: Date, to: Date = new Date()) {
-  return await EssenceModel.find({
-    createdAt: {
-      $gte: from,
-      $lte: to,
-    },
-  });
-}
-
-export async function addVoters(
-  voters: IVoters,
-  epochId: number,
-  createdAt: Date = new Date()
-) {
-  try {
-    const model = new VotersModel({
-      voters,
-      epoch_id: epochId,
-      createdAt,
-    });
-
-    return await model.save();
-  } catch (error) {
-    if ((error as any).code === 11_000) {
-      throw new Error(`Data for epoch ${epochId} already exists`);
+      return await model.save();
+    } catch (error) {
+      if ((error as any).code === 11000) {
+        throw new Error(
+          `App data for timestamp ${timestamp} or counter ${counter} already exists`
+        );
+      }
+      throw error;
     }
-    throw error;
+  }
+
+  static async getDataByTimestamp(
+    timestamp: number
+  ): Promise<IAppDataDocument | null> {
+    return await AppDataModel.findOne({ timestamp });
+  }
+
+  static async getDataByCounter(
+    counter: number
+  ): Promise<IAppDataDocument | null> {
+    return await AppDataModel.findOne({ counter });
+  }
+
+  static async getDataByLastCounter(): Promise<IAppDataDocument | null> {
+    return await AppDataModel.findOne().sort({ counter: -1 }).limit(1);
+  }
+
+  static async getDataInTimestampRange(
+    from: number,
+    to: number
+  ): Promise<IAppDataDocument[]> {
+    return await AppDataModel.find({
+      timestamp: {
+        $gte: from,
+        $lte: to,
+      },
+    }).sort({ timestamp: 1 });
+  }
+
+  static async getDataInCounterRange(
+    from: number,
+    to: number
+  ): Promise<IAppDataDocument[]> {
+    return await AppDataModel.find({
+      counter: {
+        $gte: from,
+        $lte: to,
+      },
+    }).sort({ counter: 1 });
   }
 }
 
-export async function getVoters() {
-  return await VotersModel.find();
-}
+export class UserRequest {
+  static async addDataItem(
+    address: string,
+    asset: string,
+    amount: number,
+    timestamp: number,
+    createdAt: Date = new Date()
+  ): Promise<IUserDataDocument> {
+    try {
+      const model = new UserDataModel({
+        address,
+        asset,
+        amount,
+        timestamp,
+        createdAt,
+      });
 
-export async function getVotersByLatestDate() {
-  return await VotersModel.findOne().sort({ createdAt: -1 });
-}
-
-export async function getVotersInDateRange(from: Date, to: Date = new Date()) {
-  return await VotersModel.find({
-    createdAt: {
-      $gte: from,
-      $lte: to,
-    },
-  });
-}
-
-export async function getVotersByEpoch(epochId: number) {
-  return await VotersModel.findOne({ epoch_id: epochId });
-}
-
-export async function getVotersByLatestEpoch() {
-  return await VotersModel.findOne().sort({ epoch_id: -1 }).limit(1);
-}
-
-export async function getVotersInEpochRange(from: number, to: number) {
-  return await VotersModel.find({
-    epochId: {
-      $gte: from,
-      $lte: to,
-    },
-  }).sort({ epoch_id: 1 });
-}
-
-export async function addVoteResults(voteResults: IVoteResults) {
-  try {
-    const model = new VoteResultsModel(voteResults);
-    return await model.save();
-  } catch (error) {
-    if ((error as any).code === 11000) {
-      throw new Error(
-        `Vote results for epoch ${voteResults.epoch_id} already exist`
-      );
+      return await model.save();
+    } catch (error) {
+      throw error;
     }
-    throw error;
   }
-}
 
-export async function getVoteResults() {
-  return await VoteResultsModel.find();
-}
+  static async getDataByTimestamp(
+    address: string,
+    timestamp: number
+  ): Promise<IUserDataDocument | null> {
+    return await UserDataModel.findOne({ address, timestamp });
+  }
 
-export async function getVoteResultsByLatestDate() {
-  return await VoteResultsModel.findOne().sort({ createdAt: -1 });
-}
-
-export async function getVoteResultsInDateRange(
-  from: Date,
-  to: Date = new Date()
-) {
-  return await VoteResultsModel.find({
-    createdAt: {
-      $gte: from,
-      $lte: to,
-    },
-  });
-}
-
-export async function getVoteResultsByEpoch(epochId: number) {
-  return await VoteResultsModel.findOne({ epoch_id: epochId });
-}
-
-export async function getVoteResultsByLatestEpoch() {
-  return await VoteResultsModel.findOne().sort({ epoch_id: -1 }).limit(1);
-}
-
-export async function getVoteResultsInEpochRange(from: number, to: number) {
-  return await VoteResultsModel.find({
-    epochId: {
-      $gte: from,
-      $lte: to,
-    },
-  }).sort({ epoch_id: 1 });
+  static async getDataInTimestampRange(
+    address: string,
+    from: number,
+    to: number
+  ): Promise<IUserDataDocument[]> {
+    return await UserDataModel.find({
+      address,
+      timestamp: {
+        $gte: from,
+        $lte: to,
+      },
+    }).sort({ timestamp: 1 });
+  }
 }

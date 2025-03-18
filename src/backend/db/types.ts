@@ -1,31 +1,24 @@
 import { Document, SchemaOptions } from "mongoose";
-import {
-  UserListResponseItem,
-  VoteResults,
-} from "../../common/codegen/Voter.types";
 
-export type IEssence = [string, number][];
-export interface IEssenceSchema {
-  essence: IEssence;
-}
-export interface IEssenceDocument extends Document {
-  essence: IEssence;
-}
+export type AssetPrice = {
+  asset: string;
+  price: number;
+};
 
-export type IVoters = UserListResponseItem[];
-export interface IVotersSchema {
-  voters: IVoters;
-  epoch_id: number;
+export interface IAppDataSchema {
+  timestamp: number;
+  counter: number;
+  assetPrices: AssetPrice[];
 }
-export interface IVotersDocument extends IVotersSchema, Document {}
+export interface IAppDataDocument extends IAppDataSchema, Document {}
 
-export type IVoteResults = VoteResults;
-export interface IVoteResultsDocument extends IVoteResults, Document {}
-
-// to validate string numbers: Uint128, Decimal
-export function isStringNumber(value: string): boolean {
-  return !isNaN(Number(value));
+export interface IUserDataSchema {
+  asset: string;
+  amount: number;
+  timestamp: number;
+  address: string;
 }
+export interface IUserDataDocument extends IUserDataSchema, Document {}
 
 export function getSchemaOptions(collection: string): SchemaOptions {
   return {
