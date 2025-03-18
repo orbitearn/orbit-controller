@@ -1,6 +1,10 @@
 import { AstroportPool, TokenInfo } from "../../common/interfaces";
 import { Request } from "../../common/utils/index";
-import { PriceItem } from "./math";
+
+export interface PriceItem {
+  price: string;
+  symbol: string;
+}
 
 interface TokensResponse {
   result: {

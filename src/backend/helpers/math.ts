@@ -1,35 +1,44 @@
-import { Decimal } from "decimal.js";
-import { floor, getLast } from "../../common/utils";
+import { AssetItem, UserInfoResponse } from "../../common/codegen/Bank.types";
 
-export interface PriceItem {
-  price: string;
-  symbol: string;
+function dedupVector<T>(arr: T[]): T[] {
+  return [...new Set(arr)];
 }
 
-// function correctWeights(
-//   weights: WeightAllocationItem[],
-//   decimalPlaces: number
-// ): WeightAllocationItem[] {
-//   const k = new Decimal(10).pow(decimalPlaces);
+function calcMergedAssetList(
+  assetsA: AssetItem[],
+  assetsB: AssetItem[]
+): AssetItem[] {
+  const rewardsSymbolList = dedupVector(
+    [...assetsA, ...assetsB].map((x) => x.symbol)
+  );
 
-//   // Sort weights and apply rounding
-//   const sortedWeights = weights.sort((a, b) =>
-//     new Decimal(a.weight).sub(new Decimal(b.weight)).toNumber()
-//   );
-//   const result = sortedWeights.slice(0, -1).map(({ lp_token, weight }) => ({
-//     lp_token,
-//     weight: new Decimal(weight).mul(k).round().div(k).toString(),
-//   }));
+  return rewardsSymbolList.reduce((acc, symbol) => {
+    const amountA = assetsA.find((x) => x.symbol === symbol)?.amount || "";
+    const amountB = assetsB.find((x) => x.symbol === symbol)?.amount || "";
+    const amount = (Number(amountA) + Number(amountB)).toString();
 
-//   // Calculate and set the last weight to ensure sum is 1
-//   const sumOthers = result.reduce(
-//     (acc, { weight }) => acc.add(new Decimal(weight)),
-//     new Decimal(0)
-//   );
-//   const lastWeight: WeightAllocationItem = {
-//     lp_token: getLast(sortedWeights)?.lp_token || "",
-//     weight: new Decimal(1).sub(sumOthers).toString(),
-//   };
+    if (amount) {
+      acc.push({ symbol, amount });
+    }
 
-//   return [...result, lastWeight].filter((x) => Number(x.weight) && x.lp_token);
-// }
+    return acc;
+  }, [] as AssetItem[]);
+}
+
+export function calcAusdcPrice(totalUsdcGross: number, totalAusdc: number) {
+  return !totalAusdc ? 1 : totalUsdcGross / totalAusdc;
+}
+
+// returns [rewards, usdcYield, assets]
+export function calcClaimAndSwapData(
+  userInfoList: UserInfoResponse[]
+): [number, number, AssetItem[]] {
+  return userInfoList.reduce(
+    ([rewards, usdc_yield, assets], cur) => [
+      rewards + Number(cur.user_yield.next.total),
+      usdc_yield + Number(cur.user_yield.next.usdc),
+      calcMergedAssetList(assets, cur.user_yield.next.assets),
+    ],
+    [0, 0, []] as [number, number, AssetItem[]]
+  );
+}
