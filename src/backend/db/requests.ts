@@ -1,19 +1,22 @@
 import { AppDataModel, UserDataModel } from "./models";
-import { AssetPrice, IAppDataDocument, IUserDataDocument } from "./types";
+import {
+  AssetPrice,
+  IAppDataDocument,
+  IUserDataDocument,
+  toDate,
+} from "./types";
 
 export class AppRequest {
   static async addDataItem(
-    timestamp: number,
+    timestamp: Date | number,
     counter: number,
-    assetPrices: AssetPrice[],
-    createdAt: Date = new Date()
+    assetPrices: AssetPrice[]
   ): Promise<IAppDataDocument> {
     try {
       const model = new AppDataModel({
-        timestamp,
+        timestamp: toDate(timestamp),
         counter,
         assetPrices,
-        createdAt,
       });
 
       return await model.save();
@@ -28,9 +31,9 @@ export class AppRequest {
   }
 
   static async getDataByTimestamp(
-    timestamp: number
+    timestamp: Date | number
   ): Promise<IAppDataDocument | null> {
-    return await AppDataModel.findOne({ timestamp });
+    return await AppDataModel.findOne({ timestamp: toDate(timestamp) });
   }
 
   static async getDataByCounter(
@@ -44,13 +47,13 @@ export class AppRequest {
   }
 
   static async getDataInTimestampRange(
-    from: number,
-    to: number
+    from: Date | number,
+    to: Date | number
   ): Promise<IAppDataDocument[]> {
     return await AppDataModel.find({
       timestamp: {
-        $gte: from,
-        $lte: to,
+        $gte: toDate(from),
+        $lte: toDate(to),
       },
     }).sort({ timestamp: 1 });
   }
@@ -73,16 +76,14 @@ export class UserRequest {
     address: string,
     asset: string,
     amount: number,
-    timestamp: number,
-    createdAt: Date = new Date()
+    timestamp: Date | number
   ): Promise<IUserDataDocument> {
     try {
       const model = new UserDataModel({
         address,
         asset,
         amount,
-        timestamp,
-        createdAt,
+        timestamp: toDate(timestamp),
       });
 
       return await model.save();
@@ -93,21 +94,24 @@ export class UserRequest {
 
   static async getDataByTimestamp(
     address: string,
-    timestamp: number
+    timestamp: Date | number
   ): Promise<IUserDataDocument | null> {
-    return await UserDataModel.findOne({ address, timestamp });
+    return await UserDataModel.findOne({
+      address,
+      timestamp: toDate(timestamp),
+    });
   }
 
   static async getDataInTimestampRange(
     address: string,
-    from: number,
-    to: number
+    from: Date | number,
+    to: Date | number
   ): Promise<IUserDataDocument[]> {
     return await UserDataModel.find({
       address,
       timestamp: {
-        $gte: from,
-        $lte: to,
+        $gte: toDate(from),
+        $lte: toDate(to),
       },
     }).sort({ timestamp: 1 });
   }

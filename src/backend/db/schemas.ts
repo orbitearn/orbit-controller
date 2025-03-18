@@ -22,8 +22,9 @@ const AssetPriceSchema = new Schema(
 export const AppDataSchema = new Schema<IAppDataSchema>(
   {
     timestamp: {
-      type: Number,
+      type: Date,
       required: true,
+      default: Date.now,
     },
     counter: {
       type: Number,
@@ -37,10 +38,6 @@ export const AppDataSchema = new Schema<IAppDataSchema>(
       type: [AssetPriceSchema],
       required: true,
       default: [],
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
     },
   },
   getSchemaOptions("app_data")
@@ -63,16 +60,13 @@ export const UserDataSchema = new Schema<IUserDataSchema>(
       },
     },
     timestamp: {
-      type: Number,
+      type: Date,
       required: true,
+      default: Date.now,
     },
     address: {
       type: String,
       required: true,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
     },
   },
   getSchemaOptions("user_data")
