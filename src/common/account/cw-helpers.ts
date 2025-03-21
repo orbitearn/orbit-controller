@@ -284,6 +284,8 @@ async function getCwExecHelpers(
     rewards: number,
     usdcYield: number,
     assets: AssetItem[],
+    feeAmount: number,
+    prices: [string, number][], // [symbol, price][]
     gasPrice: string
   ) {
     return await _msgWrapperWithGasPrice(
@@ -292,6 +294,8 @@ async function getCwExecHelpers(
           rewards: rewards.toString(),
           usdcYield: usdcYield.toString(),
           assets,
+          feeAmount: feeAmount.toString(),
+          prices: prices.map(([symbol, price]) => [symbol, price.toString()]),
         }),
       ],
       gasPrice
@@ -301,10 +305,16 @@ async function getCwExecHelpers(
   async function cwRegisterAsset(
     token: TokenUnverified,
     decimals: number,
+    price: number,
     gasPrice: string
   ) {
     return await _msgWrapperWithGasPrice(
-      [bankMsgComposer.registerAsset({ token, decimals })],
+      [
+        bankMsgComposer.registerAsset({
+          asset: { token, decimals },
+          price: price.toString(),
+        }),
+      ],
       gasPrice
     );
   }

@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Uint128, InstantiateMsg, ExecuteMsg, Binary, Decimal, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, DistributionState, Boolean, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse } from "./Bank.types";
+import { Decimal, Uint128, InstantiateMsg, ExecuteMsg, Binary, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, DistributionState, Boolean, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse } from "./Bank.types";
 export interface BankReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<Config>;
@@ -236,31 +236,37 @@ export interface BankInterface extends BankReadOnlyInterface {
   claimAssets: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   claimAndSwap: ({
     assets,
+    feeAmount,
+    prices,
     rewards,
     usdcYield
   }: {
     assets: AssetItem[];
+    feeAmount: Uint128;
+    prices: string[][];
     rewards: Uint128;
     usdcYield: Uint128;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   registerAsset: ({
-    decimals,
-    token
+    asset,
+    price
   }: {
-    decimals: number;
-    token: TokenUnverified;
+    asset: CurrencyForTokenUnverified;
+    price: Decimal;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   acceptAdminRole: (fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
   updateConfig: ({
     admin,
     ausdc,
     controller,
+    feeRate,
     totalUsdcLimit,
     usdc
   }: {
     admin?: string;
     ausdc?: string;
     controller?: string;
+    feeRate?: Decimal;
     totalUsdcLimit?: Uint128;
     usdc?: string;
   }, fee?: number | StdFee | "auto", memo?: string, _funds?: Coin[]) => Promise<ExecuteResult>;
@@ -375,32 +381,38 @@ export class BankClient extends BankQueryClient implements BankInterface {
   };
   claimAndSwap = async ({
     assets,
+    feeAmount,
+    prices,
     rewards,
     usdcYield
   }: {
     assets: AssetItem[];
+    feeAmount: Uint128;
+    prices: string[][];
     rewards: Uint128;
     usdcYield: Uint128;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       claim_and_swap: {
         assets,
+        fee_amount: feeAmount,
+        prices,
         rewards,
         usdc_yield: usdcYield
       }
     }, fee, memo, _funds);
   };
   registerAsset = async ({
-    decimals,
-    token
+    asset,
+    price
   }: {
-    decimals: number;
-    token: TokenUnverified;
+    asset: CurrencyForTokenUnverified;
+    price: Decimal;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
     return await this.client.execute(this.sender, this.contractAddress, {
       register_asset: {
-        decimals,
-        token
+        asset,
+        price
       }
     }, fee, memo, _funds);
   };
@@ -413,12 +425,14 @@ export class BankClient extends BankQueryClient implements BankInterface {
     admin,
     ausdc,
     controller,
+    feeRate,
     totalUsdcLimit,
     usdc
   }: {
     admin?: string;
     ausdc?: string;
     controller?: string;
+    feeRate?: Decimal;
     totalUsdcLimit?: Uint128;
     usdc?: string;
   }, fee: number | StdFee | "auto" = "auto", memo?: string, _funds?: Coin[]): Promise<ExecuteResult> => {
@@ -427,6 +441,7 @@ export class BankClient extends BankQueryClient implements BankInterface {
         admin,
         ausdc,
         controller,
+        fee_rate: feeRate,
         total_usdc_limit: totalUsdcLimit,
         usdc
       }

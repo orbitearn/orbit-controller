@@ -11,10 +11,11 @@ import { ChainConfig } from "../common/interfaces";
 import { getChainOptionById } from "../common/config/config-utils";
 import { getSigner } from "./account/signer";
 import { AppRequest, UserRequest } from "./db/requests";
-import { getEssence } from "./middleware/api";
 import { DatabaseClient } from "./db/client";
 import { BANK, CHAIN_ID, MS_PER_SECOND, SNAPSHOT } from "./constants";
-import { getAllPrices } from "./helpers";
+import { extractPrices, getAllPrices, getTokenSymbol } from "./helpers";
+import { calcAusdcPrice, calcClaimAndSwapData } from "./helpers/math";
+import { AssetPrice } from "./db/types";
 import {
   getCwExecHelpers,
   getCwQueryHelpers,
@@ -26,7 +27,6 @@ import {
   ScheduledTaskRunner,
   writeSnapshot,
 } from "./services/utils";
-import { calcAusdcPrice, calcClaimAndSwapData } from "./helpers/math";
 
 const dbClient = new DatabaseClient(MONGODB, "orbit_controller");
 
@@ -114,20 +114,33 @@ app.listen(PORT, async () => {
     }
 
     // pause, collect and process data, claim and swap
+    let priceList: [string, number][] = [];
     const isPaused = await bank.cwQueryPauseState();
     try {
       if (!isPaused) {
         await h.bank.cwPause(gasPrice);
       }
 
+      priceList = extractPrices(await getAllPrices());
       const ausdcPriceNext = await getNextAusdcPrice();
       const userInfoList = await bank.pQueryUserInfoList(
         { ausdcPriceNext },
         BANK.PAGINATION_AMOUNT
       );
-      const [rewards, usdcYield, assets] = calcClaimAndSwapData(userInfoList);
+      const [rewards, usdcYield, assets, feeSum] =
+        calcClaimAndSwapData(userInfoList);
 
-      await h.bank.cwClaimAndSwap(rewards, usdcYield, assets, gasPrice);
+      // TODO: remove condition
+      if (rewards) {
+        await h.bank.cwClaimAndSwap(
+          rewards,
+          usdcYield,
+          assets,
+          feeSum,
+          priceList,
+          gasPrice
+        );
+      }
 
       blockTime = await bank.cwQueryBlockTime();
       isAusdcPriceUpdated = false;
@@ -135,56 +148,30 @@ app.listen(PORT, async () => {
       l(error);
     }
 
-    // add aUSDC price in DB
+    // add asset prices in DB
     try {
       if (!isAusdcPriceUpdated) {
-        const ausdcPrice = await bank.cwQueryAusdcPrice();
-        const assetList = (
-          await bank.pQueryAssetList(BANK.PAGINATION_AMOUNT)
-        ).map((x) => x.token);
+        if (!priceList.length) {
+          priceList = extractPrices(await getAllPrices());
+        }
 
-        // TODO: get symbols, query prices, merge with ausdc
+        const { counter } = await bank.cwQueryDistributionState({});
+        const { ausdc: ausdcSymbol } = await bank.cwQueryConfig();
+        const ausdcPrice = await bank.cwQueryAusdcPrice();
+        const assetPrices: AssetPrice[] = [
+          { asset: ausdcSymbol, price: ausdcPrice },
+          ...priceList.map(([asset, price]) => ({
+            asset,
+            price,
+          })),
+        ];
 
         await dbClient.connect();
-        const { counter } = await bank.cwQueryDistributionState({});
-        await AppRequest.addDataItem(blockTime, counter, [
-          { asset: "ausdc", price: ausdcPrice },
-        ]);
+        await AppRequest.addDataItem(blockTime, counter, assetPrices);
         await dbClient.disconnect();
 
         isAusdcPriceUpdated = true;
       }
     } catch (error) {}
-
-    // try {
-    //   const { rewards_claim_stage } = await voter.cwQueryOperationStatus();
-    //   l({ isSnapshotUpdated, rewardsClaimStage: rewards_claim_stage });
-
-    //   // make snapshot single time when votes will be applied
-    //   if (!isSnapshotUpdated && rewards_claim_stage === "unclaimed") {
-    //     const users = await voter.pQueryUserList(VOTER.PAGINATION_AMOUNT);
-    //     await writeSnapshot(SNAPSHOT.VOTERS, users);
-
-    //     await dbClient.connect();
-    //     await addVoters(users, id);
-    //     await dbClient.disconnect();
-
-    //     isSnapshotUpdated = true;
-    //   }
-
-    //   // update db single time when rewards will be updated, reset snapshot flag
-    //   if (isSnapshotUpdated && rewards_claim_stage === "swapped") {
-    //     const { vote_results } = await voter.cwQueryVoterInfo();
-    //     const voteResults = getLast(vote_results);
-
-    //     await dbClient.connect();
-    //     await addVoteResults(voteResults);
-    //     await dbClient.disconnect();
-
-    //     isSnapshotUpdated = false;
-    //   }
-    // } catch (error) {
-    //   l(error);
-    // }
   }
 });

@@ -1,10 +1,10 @@
 import { getSigner } from "../account/signer";
 import { getLast, l, li, wait } from "../../common/utils";
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
 import { ENCODING, PATH_TO_CONFIG_JSON, writeSnapshot } from "./utils";
 import { getChainOptionById } from "../../common/config/config-utils";
-import { SEED } from "../envs";
+import { rootPath, SEED } from "../envs";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,
@@ -13,7 +13,7 @@ import {
   getCwExecHelpers,
   getCwQueryHelpers,
 } from "../../common/account/cw-helpers";
-import { getAllPrices } from "../helpers";
+import { extractPrices, getAllPrices } from "../helpers";
 import { BANK } from "../constants";
 import { AssetItem } from "../../common/codegen/Bank.types";
 import { calcAusdcPrice, calcClaimAndSwapData } from "../helpers/math";
@@ -60,18 +60,9 @@ async function main() {
       return Math.min(nextAusdcPrice, ausdcPrice);
     };
 
-    const ausdcPriceNext = await getNextAusdcPrice();
-    // const priceList = await getAllPrices();
-
-    const userInfoList = await bank.pQueryUserInfoList(
-      { ausdcPriceNext },
-      BANK.PAGINATION_AMOUNT
-    );
-
-    const [rewards, usdcYield, assets] = calcClaimAndSwapData(userInfoList);
-    li({ rewards, usdcYield, assets });
-
-    //   h.bank_try_claim_and_swap(owner, rewards, usdc_yield, &assets)?;
+    const priceList = await getAllPrices();
+    const prices = extractPrices(priceList);
+    li(prices);
   } catch (error) {
     l(error);
   }

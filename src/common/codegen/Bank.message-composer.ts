@@ -8,7 +8,7 @@ import { Coin } from "@cosmjs/amino";
 import { MsgExecuteContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { MsgExecuteContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { toUtf8 } from "@cosmjs/encoding";
-import { Uint128, InstantiateMsg, ExecuteMsg, Binary, Decimal, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, DistributionState, Boolean, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse } from "./Bank.types";
+import { Decimal, Uint128, InstantiateMsg, ExecuteMsg, Binary, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, DistributionState, Boolean, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse } from "./Bank.types";
 export interface BankMsg {
   contractAddress: string;
   sender: string;
@@ -46,31 +46,37 @@ export interface BankMsg {
   claimAssets: (_funds?: Coin[]) => MsgExecuteContractEncodeObject;
   claimAndSwap: ({
     assets,
+    feeAmount,
+    prices,
     rewards,
     usdcYield
   }: {
     assets: AssetItem[];
+    feeAmount: Uint128;
+    prices: string[][];
     rewards: Uint128;
     usdcYield: Uint128;
   }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
   registerAsset: ({
-    decimals,
-    token
+    asset,
+    price
   }: {
-    decimals: number;
-    token: TokenUnverified;
+    asset: CurrencyForTokenUnverified;
+    price: Decimal;
   }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
   acceptAdminRole: (_funds?: Coin[]) => MsgExecuteContractEncodeObject;
   updateConfig: ({
     admin,
     ausdc,
     controller,
+    feeRate,
     totalUsdcLimit,
     usdc
   }: {
     admin?: string;
     ausdc?: string;
     controller?: string;
+    feeRate?: Decimal;
     totalUsdcLimit?: Uint128;
     usdc?: string;
   }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
@@ -246,10 +252,14 @@ export class BankMsgComposer implements BankMsg {
   };
   claimAndSwap = ({
     assets,
+    feeAmount,
+    prices,
     rewards,
     usdcYield
   }: {
     assets: AssetItem[];
+    feeAmount: Uint128;
+    prices: string[][];
     rewards: Uint128;
     usdcYield: Uint128;
   }, _funds?: Coin[]): MsgExecuteContractEncodeObject => {
@@ -261,6 +271,8 @@ export class BankMsgComposer implements BankMsg {
         msg: toUtf8(JSON.stringify({
           claim_and_swap: {
             assets,
+            fee_amount: feeAmount,
+            prices,
             rewards,
             usdc_yield: usdcYield
           }
@@ -270,11 +282,11 @@ export class BankMsgComposer implements BankMsg {
     };
   };
   registerAsset = ({
-    decimals,
-    token
+    asset,
+    price
   }: {
-    decimals: number;
-    token: TokenUnverified;
+    asset: CurrencyForTokenUnverified;
+    price: Decimal;
   }, _funds?: Coin[]): MsgExecuteContractEncodeObject => {
     return {
       typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
@@ -283,8 +295,8 @@ export class BankMsgComposer implements BankMsg {
         contract: this.contractAddress,
         msg: toUtf8(JSON.stringify({
           register_asset: {
-            decimals,
-            token
+            asset,
+            price
           }
         })),
         funds: _funds
@@ -308,12 +320,14 @@ export class BankMsgComposer implements BankMsg {
     admin,
     ausdc,
     controller,
+    feeRate,
     totalUsdcLimit,
     usdc
   }: {
     admin?: string;
     ausdc?: string;
     controller?: string;
+    feeRate?: Decimal;
     totalUsdcLimit?: Uint128;
     usdc?: string;
   }, _funds?: Coin[]): MsgExecuteContractEncodeObject => {
@@ -327,6 +341,7 @@ export class BankMsgComposer implements BankMsg {
             admin,
             ausdc,
             controller,
+            fee_rate: feeRate,
             total_usdc_limit: totalUsdcLimit,
             usdc
           }

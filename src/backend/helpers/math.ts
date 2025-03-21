@@ -29,16 +29,17 @@ export function calcAusdcPrice(totalUsdcGross: number, totalAusdc: number) {
   return !totalAusdc ? 1 : totalUsdcGross / totalAusdc;
 }
 
-// returns [rewards, usdcYield, assets]
+// returns [rewards, usdcYield, assets, feeSum]
 export function calcClaimAndSwapData(
   userInfoList: UserInfoResponse[]
-): [number, number, AssetItem[]] {
+): [number, number, AssetItem[], number] {
   return userInfoList.reduce(
-    ([rewards, usdc_yield, assets], cur) => [
+    ([rewards, usdc_yield, assets, feeSum], cur) => [
       rewards + Number(cur.user_yield.next.total),
       usdc_yield + Number(cur.user_yield.next.usdc),
       calcMergedAssetList(assets, cur.user_yield.next.assets),
+      feeSum + Number(cur.fee_next),
     ],
-    [0, 0, []] as [number, number, AssetItem[]]
+    [0, 0, [], 0] as [number, number, AssetItem[], number]
   );
 }

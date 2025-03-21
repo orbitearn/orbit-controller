@@ -4,10 +4,12 @@
 * and run the @cosmwasm/ts-codegen generate command to regenerate this file.
 */
 
+export type Decimal = string;
 export type Uint128 = string;
 export interface InstantiateMsg {
   ausdc?: string | null;
   controller?: string | null;
+  fee_rate?: Decimal | null;
   total_usdc_limit?: Uint128 | null;
   usdc?: string | null;
 }
@@ -38,11 +40,16 @@ export type ExecuteMsg = {
 } | {
   claim_and_swap: {
     assets: AssetItem[];
+    fee_amount: Uint128;
+    prices: [string, Decimal][];
     rewards: Uint128;
     usdc_yield: Uint128;
   };
 } | {
-  register_asset: CurrencyForTokenUnverified;
+  register_asset: {
+    asset: CurrencyForTokenUnverified;
+    price: Decimal;
+  };
 } | {
   accept_admin_role: {};
 } | {
@@ -50,6 +57,7 @@ export type ExecuteMsg = {
     admin?: string | null;
     ausdc?: string | null;
     controller?: string | null;
+    fee_rate?: Decimal | null;
     total_usdc_limit?: Uint128 | null;
     usdc?: string | null;
   };
@@ -63,7 +71,6 @@ export type ExecuteMsg = {
   };
 };
 export type Binary = string;
-export type Decimal = string;
 export type TokenUnverified = {
   native: {
     denom: string;
@@ -179,6 +186,7 @@ export interface Config {
   admin: Addr;
   ausdc: string;
   controller: Addr;
+  fee_rate: Decimal;
   total_usdc_limit: Uint128;
   usdc: string;
 }
@@ -193,6 +201,7 @@ export interface UserInfoResponse {
   ausdc: AusdcInfo;
   dca: DcaResponse;
   deposited_usdc: Uint128;
+  fee_next: Uint128;
   usdc: Uint128;
   user_yield: UserYield;
 }

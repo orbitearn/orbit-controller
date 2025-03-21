@@ -7,7 +7,7 @@ export const REPLENISHED_INITIALLY = 3_100_000 * 1e6;
 
 export const BANK = {
   PAGINATION_AMOUNT: 15,
-  DISTRIBUTION_PERIOD: 30 * 60, // seconds
+  DISTRIBUTION_PERIOD: 2 * 60, // seconds
   CYCLE_PERIOD_MIN: 10, // seconds
 };
 
