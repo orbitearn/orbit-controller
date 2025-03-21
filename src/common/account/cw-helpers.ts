@@ -217,7 +217,10 @@ async function getCwExecHelpers(
     );
   }
 
-  async function cwWithdrawAusdc(ausdcAmount: number, gasPrice: string) {
+  async function cwWithdrawAusdc(
+    { ausdcAmount }: { ausdcAmount?: number },
+    gasPrice: string
+  ) {
     return await _msgWrapperWithGasPrice(
       [bankMsgComposer.withdrawAusdc({ ausdcAmount: ausdcAmount?.toString() })],
       gasPrice
@@ -241,7 +244,10 @@ async function getCwExecHelpers(
     );
   }
 
-  async function cwWithdrawUsdc(ausdcAmount: number, gasPrice: string) {
+  async function cwWithdrawUsdc(
+    { ausdcAmount }: { ausdcAmount?: number },
+    gasPrice: string
+  ) {
     return await _msgWrapperWithGasPrice(
       [bankMsgComposer.withdrawUsdc({ ausdcAmount: ausdcAmount?.toString() })],
       gasPrice

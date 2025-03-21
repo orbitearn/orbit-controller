@@ -11,14 +11,8 @@ export const BANK = {
   CYCLE_PERIOD_MIN: 10, // seconds
 };
 
-export const SNAPSHOT = {
-  STAKERS: "stakers",
-  LOCKERS: "lockers",
-  STAKING_ESSENCE: "staking-essence",
-  LOCKING_ESSENCE: "locking-essence",
-  VOTERS: "voters",
-};
-
+// TODO: Profit API: profit = sum(amount_i * (price - price_i))
+// TODO: Average entry price API: average_entry_price = sum(amount_i * price_i) / sum(amount_i)
 export const ROUTE = {
   GET_FILE_DATES: "/get-file-dates",
   GET_STAKERS: "/get-stakers",

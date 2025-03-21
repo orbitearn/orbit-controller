@@ -4,7 +4,7 @@ import { readFile, writeFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
 import { ENCODING, PATH_TO_CONFIG_JSON, writeSnapshot } from "./utils";
 import { getChainOptionById } from "../../common/config/config-utils";
-import { rootPath, SEED } from "../envs";
+import { MONGODB, rootPath, USER_SEED } from "../envs";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,
@@ -17,6 +17,11 @@ import { extractPrices, getAllPrices } from "../helpers";
 import { BANK } from "../constants";
 import { AssetItem } from "../../common/codegen/Bank.types";
 import { calcAusdcPrice, calcClaimAndSwapData } from "../helpers/math";
+import { UserRequest } from "../db/requests";
+import { AssetPrice } from "../db/types";
+import { DatabaseClient } from "../db/client";
+
+const dbClient = new DatabaseClient(MONGODB, "orbit_controller");
 
 async function main() {
   try {
@@ -36,7 +41,8 @@ async function main() {
 
     const gasPrice = `${GAS_PRICE_AMOUNT}${DENOM}`;
 
-    const { signer, owner } = await getSigner(PREFIX, SEED);
+    // local interchain alice: neutron1q5u23ppwrf7jvns33u9rm2xu8u37wyy64xj4zs
+    const { signer, owner } = await getSigner(PREFIX, USER_SEED);
 
     const sgQueryHelpers = await getSgQueryHelpers(RPC);
     const sgExecHelpers = await getSgExecHelpers(RPC, owner, signer);
@@ -48,21 +54,29 @@ async function main() {
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
 
-    const getNextAusdcPrice = async () => {
-      const appInfo = await bank.cwQueryAppInfo();
-      const rewards = await bank.cwQueryRewards();
-      const ausdcPrice = await bank.cwQueryAusdcPrice();
-      const nextAusdcPrice = calcAusdcPrice(
-        Number(appInfo.usdc_net) + Number(rewards),
-        Number(appInfo.ausdc.minted)
-      );
+    // const { usdc } = await bank.cwQueryConfig();
+    // await h.bank.cwDepositUsdc(
+    //   10_000 * 1e6,
+    //   { native: { denom: usdc } },
+    //   gasPrice
+    // );
 
-      return Math.min(nextAusdcPrice, ausdcPrice);
-    };
+    const blockTime = await bank.cwQueryBlockTime();
+    const userInfo = await bank.cwQueryUserInfo(owner, {});
+    // userInfo.user_yield.pending.assets.map(x => x.)
 
-    const priceList = await getAllPrices();
-    const prices = extractPrices(priceList);
-    li(prices);
+    await dbClient.connect();
+    try {
+      await UserRequest.addData(owner, [], blockTime);
+      l("Prices are stored in DB");
+    } catch (_) {}
+    await dbClient.disconnect();
+
+    // await h.bank.cwWithdrawUsdc({}, gasPrice);
+
+    await bank.cwQueryUserInfo(owner, {}, true);
+
+    // TODO: add [asset, amount, timestamp][] per user DB request
   } catch (error) {
     l(error);
   }

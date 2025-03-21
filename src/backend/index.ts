@@ -12,7 +12,7 @@ import { getChainOptionById } from "../common/config/config-utils";
 import { getSigner } from "./account/signer";
 import { AppRequest, UserRequest } from "./db/requests";
 import { DatabaseClient } from "./db/client";
-import { BANK, CHAIN_ID, MS_PER_SECOND, SNAPSHOT } from "./constants";
+import { BANK, CHAIN_ID, MS_PER_SECOND } from "./constants";
 import { extractPrices, getAllPrices, getTokenSymbol } from "./helpers";
 import { calcAusdcPrice, calcClaimAndSwapData } from "./helpers/math";
 import { AssetPrice } from "./db/types";
@@ -130,17 +130,15 @@ app.listen(PORT, async () => {
       const [rewards, usdcYield, assets, feeSum] =
         calcClaimAndSwapData(userInfoList);
 
-      // TODO: remove condition
-      if (rewards) {
-        await h.bank.cwClaimAndSwap(
-          rewards,
-          usdcYield,
-          assets,
-          feeSum,
-          priceList,
-          gasPrice
-        );
-      }
+      await h.bank.cwClaimAndSwap(
+        rewards,
+        usdcYield,
+        assets,
+        feeSum,
+        priceList,
+        gasPrice
+      );
+      l("Rewards are distributed");
 
       blockTime = await bank.cwQueryBlockTime();
       isAusdcPriceUpdated = false;
@@ -167,7 +165,10 @@ app.listen(PORT, async () => {
         ];
 
         await dbClient.connect();
-        await AppRequest.addDataItem(blockTime, counter, assetPrices);
+        try {
+          await AppRequest.addDataItem(blockTime, counter, assetPrices);
+          l("Prices are stored in DB");
+        } catch (_) {}
         await dbClient.disconnect();
 
         isAusdcPriceUpdated = true;

@@ -1,3 +1,5 @@
+import { AssetItem } from "../../common/codegen/Bank.types";
+import { getLast } from "../../common/utils";
 import { AppDataModel, UserDataModel } from "./models";
 import {
   AssetPrice,
@@ -87,6 +89,27 @@ export class UserRequest {
       });
 
       return await model.save();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async addData(
+    address: string,
+    assetList: AssetItem[],
+    timestamp: Date | number
+  ): Promise<IUserDataDocument> {
+    try {
+      const date = toDate(timestamp);
+      const documents = assetList.map(({ symbol, amount }) => ({
+        address,
+        asset: symbol,
+        amount,
+        timestamp: date,
+      }));
+      const result = await UserDataModel.insertMany(documents);
+
+      return getLast(result);
     } catch (error) {
       throw error;
     }
