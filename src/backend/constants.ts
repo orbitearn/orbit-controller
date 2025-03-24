@@ -12,14 +12,6 @@ export const BANK = {
 };
 
 // TODO: Profit API: profit = sum(amount_i * (price - price_i))
-// TODO: Average entry price API: average_entry_price = sum(amount_i * price_i) / sum(amount_i)
 export const ROUTE = {
-  GET_FILE_DATES: "/get-file-dates",
-  GET_STAKERS: "/get-stakers",
-  GET_LOCKERS: "/get-lockers",
-  GET_DISTRIBUTED_REWARDS: "/get-distributed-rewards",
-  GET_STAKING_ESSENCE: "/get-staking-essence",
-  GET_LOCKING_ESSENCE: "/get-locking-essence",
-  GET_ESSENCE: "/get-essence",
-  GET_VOTERS: "/get-voters",
+  GET_AVERAGE_ENTRY_PRICE: "/average-entry-price",
 };

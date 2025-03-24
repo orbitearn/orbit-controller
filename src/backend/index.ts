@@ -6,7 +6,7 @@ import { api } from "./routes/api";
 import rateLimit from "express-rate-limit";
 import { readFile } from "fs/promises";
 import * as h from "helmet";
-import { MONGODB, PORT, SEED } from "./envs";
+import { MONGODB, ORBIT_CONTROLLER, PORT, SEED } from "./envs";
 import { ChainConfig } from "../common/interfaces";
 import { getChainOptionById } from "../common/config/config-utils";
 import { getSigner } from "./account/signer";
@@ -20,15 +20,9 @@ import {
   getCwExecHelpers,
   getCwQueryHelpers,
 } from "../common/account/cw-helpers";
-import {
-  ENCODING,
-  getLocalBlockTime,
-  PATH_TO_CONFIG_JSON,
-  ScheduledTaskRunner,
-  writeSnapshot,
-} from "./services/utils";
+import { ENCODING, PATH_TO_CONFIG_JSON } from "./services/utils";
 
-const dbClient = new DatabaseClient(MONGODB, "orbit_controller");
+const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
 const limiter = rateLimit({
   windowMs: 60 * MS_PER_SECOND, // 1 minute

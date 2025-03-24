@@ -1,12 +1,13 @@
 import { getSigner } from "../account/signer";
-import { floor, getLast, l, li, wait } from "../../common/utils";
+import { floor, getLast, l, li, Request, wait } from "../../common/utils";
 import { readFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
 import { ENCODING, PATH_TO_CONFIG_JSON } from "./utils";
 import { getChainOptionById } from "../../common/config/config-utils";
-import { MONGODB, USER_SEED } from "../envs";
+import { MONGODB, ORBIT_CONTROLLER, USER_SEED, BASE_URL } from "../envs";
 import { getDbHandlerWrapper } from "../helpers";
 import { DatabaseClient } from "../db/client";
+import { ROUTE } from "../constants";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,
@@ -16,7 +17,8 @@ import {
   getCwQueryHelpers,
 } from "../../common/account/cw-helpers";
 
-const dbClient = new DatabaseClient(MONGODB, "orbit_controller");
+const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
+// const req = new Request({ baseURL: BASE_URL + "/api" });
 
 async function main() {
   try {
@@ -88,11 +90,26 @@ async function main() {
       ausdc: { minted },
     } = await bank.cwQueryUserInfo(owner, {}, true);
     const ausdcAmount = floor(Number(minted) / 2);
+    // const { usdc } = await bank.cwQueryConfig();
+    // const ausdcAmount = floor(Number(minted));
 
     // example of wrapped user action
     const txRes = await dbHandlerWrapper(
-      async () => await h.bank.cwWithdrawUsdc({ ausdcAmount }, gasPrice)
+      async () => await h.bank.cwClaimAssets(gasPrice)
     );
+
+    // const txRes = await dbHandlerWrapper(
+    //   async () => await h.bank.cwWithdrawUsdc({ ausdcAmount }, gasPrice)
+    // );
+
+    // const txRes = await dbHandlerWrapper(
+    //   async () =>
+    //     await h.bank.cwDepositUsdc(
+    //       10_000 * 1e6,
+    //       { native: { denom: usdc } },
+    //       gasPrice
+    //     )
+    // );
 
     // check user state
     await bank.cwQueryUserInfo(owner, {}, true);
