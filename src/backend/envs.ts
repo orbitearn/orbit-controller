@@ -16,5 +16,7 @@ const e = process.env as { [key: string]: string };
 export const IS_PRODUCTION = e.IS_PRODUCTION === "true",
   PORT = e.PORT,
   SEED = e.SEED,
+  USER_SEED = e.USER_SEED,
   BASE_URL = e.BASE_URL,
-  MONGODB = e.MONGODB;
+  MONGODB = e.MONGODB,
+  ORBIT_CONTROLLER = e.ORBIT_CONTROLLER;

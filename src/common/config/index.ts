@@ -2,8 +2,8 @@ import { ChainConfig } from "../../common/interfaces";
 import { $, toJson } from "./config-utils";
 
 export type NetworkName = "NEUTRON";
-export type Wasm = "staking.wasm" | "voter.wasm";
-export type Label = "staking" | "voter";
+export type Wasm = "bank.wasm";
+export type Label = "bank";
 
 export const ADDRESS = {
   WORKER: "",
@@ -22,6 +22,30 @@ export const CHAIN_CONFIG: ChainConfig = {
       NAME: "neutron",
       PREFIX: "neutron",
       OPTIONS: [
+        // TODO: NEUTRON test
+        {
+          TYPE: "test",
+          DENOM: "untrn",
+          CHAIN_ID: "pion-1",
+          RPC_LIST: ["https://rpc-falcron.pion-1.ntrn.tech:443"],
+          GAS_PRICE_AMOUNT: 0.0053,
+          STORE_CODE_GAS_MULTIPLIER: 21.5,
+          CONTRACTS: [
+            {
+              WASM: "bank.wasm",
+              LABEL: "bank",
+              INIT_MSG: toJson({}),
+              MIGRATE_MSG: toJson({}),
+              UPDATE_MSG: toJson({}),
+              CODE: 11275,
+              ADDRESS:
+                "neutron1y9fwqlu8m9zfq96jnhqaey3lf4cpyztv80x66urke0t3hjuk3h2qgh6vrn",
+            },
+          ],
+          IBC: [],
+        },
+
+        // TODO: NEUTRON main
         {
           TYPE: "main",
           DENOM: "untrn",
@@ -31,25 +55,13 @@ export const CHAIN_CONFIG: ChainConfig = {
           STORE_CODE_GAS_MULTIPLIER: 21.5,
           CONTRACTS: [
             {
-              WASM: "staking.wasm",
-              LABEL: "staking",
+              WASM: "bank.wasm",
+              LABEL: "bank",
               INIT_MSG: toJson({}),
               MIGRATE_MSG: toJson({}),
               UPDATE_MSG: toJson({}),
               CODE: 0,
-              ADDRESS:
-                "neutron19q93n64nyet24ynvw04qjqmejffkmyxakdvl08sf3n3yeyr92lrs2makhx",
-            },
-
-            {
-              WASM: "voter.wasm",
-              LABEL: "voter",
-              INIT_MSG: toJson({}),
-              MIGRATE_MSG: toJson({}),
-              UPDATE_MSG: toJson({}),
-              CODE: 0,
-              ADDRESS:
-                "neutron13l5nw6fh4xascjfyru5pe9w5ur8rp7svzl7hhkdh7jfdk3fup75quz9zy5",
+              ADDRESS: "",
             },
           ],
           IBC: [],

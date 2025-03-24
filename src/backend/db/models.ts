@@ -1,19 +1,13 @@
 import { model } from "mongoose";
-import {
-  IEssenceDocument,
-  IVoteResultsDocument,
-  IVotersDocument,
-} from "./types";
-import { EssenceSchema, VoteResultsSchema, VotersSchema } from "./schemas";
+import { IAppDataDocument, IUserDataDocument } from "./types";
+import { AppDataSchema, UserDataSchema } from "./schemas";
 
-export const EssenceModel = model<IEssenceDocument>(
-  "essence_model",
-  EssenceSchema
+export const AppDataModel = model<IAppDataDocument>(
+  "app_data_model",
+  AppDataSchema
 );
 
-export const VotersModel = model<IVotersDocument>("voters_model", VotersSchema);
-
-export const VoteResultsModel = model<IVoteResultsDocument>(
-  "vote_results_model",
-  VoteResultsSchema
+export const UserDataModel = model<IUserDataDocument>(
+  "user_data_model",
+  UserDataSchema
 );

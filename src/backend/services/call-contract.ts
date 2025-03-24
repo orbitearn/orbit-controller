@@ -1,10 +1,13 @@
 import { getSigner } from "../account/signer";
-import { getLast, l, li, wait } from "../../common/utils";
+import { floor, getLast, l, li, Request, wait } from "../../common/utils";
 import { readFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
-import { ENCODING, PATH_TO_CONFIG_JSON, writeSnapshot } from "./utils";
+import { ENCODING, PATH_TO_CONFIG_JSON } from "./utils";
 import { getChainOptionById } from "../../common/config/config-utils";
-import { SEED } from "../envs";
+import { MONGODB, ORBIT_CONTROLLER, USER_SEED, BASE_URL } from "../envs";
+import { getDbHandlerWrapper } from "../helpers";
+import { DatabaseClient } from "../db/client";
+import { ROUTE } from "../constants";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,
@@ -13,16 +16,13 @@ import {
   getCwExecHelpers,
   getCwQueryHelpers,
 } from "../../common/account/cw-helpers";
-import {
-  calcEstimatedDaoProfit,
-  calcOptimizedDaoWeights,
-} from "../helpers/math";
-import { getAllPrices } from "../helpers";
-import { VOTER } from "../constants";
+
+const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
+// const req = new Request({ baseURL: BASE_URL + "/api" });
 
 async function main() {
   try {
-    const chainId = "neutron-1";
+    const chainId = "pion-1"; // TODO:  const chainId = "neutron-1";
     const configJsonStr = await readFile(PATH_TO_CONFIG_JSON, {
       encoding: ENCODING,
     });
@@ -38,72 +38,81 @@ async function main() {
 
     const gasPrice = `${GAS_PRICE_AMOUNT}${DENOM}`;
 
-    const { signer, owner } = await getSigner(PREFIX, SEED);
+    // local interchain alice: neutron1q5u23ppwrf7jvns33u9rm2xu8u37wyy64xj4zs
+    const { signer, owner } = await getSigner(PREFIX, USER_SEED);
 
     const sgQueryHelpers = await getSgQueryHelpers(RPC);
     const sgExecHelpers = await getSgExecHelpers(RPC, owner, signer);
 
-    const { voter } = await getCwQueryHelpers(chainId, RPC);
+    const { bank } = await getCwQueryHelpers(chainId, RPC);
     const h = await getCwExecHelpers(chainId, RPC, owner, signer);
 
     const { getBalance, getAllBalances } = sgQueryHelpers;
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
 
-    // const users = await voter.pQueryUserList(15);
-    // await writeSnapshot("voters", users);
+    // const { usdc } = await bank.cwQueryConfig();
+    // await h.bank.cwDepositUsdc(
+    //   10_000 * 1e6,
+    //   { native: { denom: usdc } },
+    //   gasPrice
+    // );
 
+    // await h.bank.cwEnableDca(
+    //   0.5,
+    //   [
+    //     {
+    //       symbol:
+    //         "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+    //       weight: "0.75",
+    //     },
+    //     {
+    //       symbol:
+    //         "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+    //       weight: "0.25",
+    //     },
+    //   ],
+    //   { swaps: 5 },
+    //   gasPrice
+    // );
+    // await bank.cwQueryUserInfo(owner, {}, true);
+
+    // every user action must be wrapped with dbHandlerWrapper
+    const dbHandlerWrapper = await getDbHandlerWrapper(
+      dbClient,
+      chainId,
+      RPC,
+      owner
+    );
+
+    // get args for cwWithdrawUsdc to withdraw 1/2 of available usdc
     const {
-      elector_essence,
-      dao_essence,
-      slacker_essence,
-      elector_weights: electorWeights,
-      dao_weights: daoWeights,
-      bribes,
-    } = await voter.cwQueryOptimizationData();
-    const symbols = [
-      ...new Set(bribes.flatMap((x) => x.rewards).map((x) => x.symbol)),
-    ];
-    const prices = await getAllPrices(symbols);
-    const electorEssence = Number(elector_essence);
-    const daoEssence = Number(dao_essence);
-    const slackerEssence = Number(slacker_essence);
+      ausdc: { minted },
+    } = await bank.cwQueryUserInfo(owner, {}, true);
+    const ausdcAmount = floor(Number(minted) / 2);
+    // const { usdc } = await bank.cwQueryConfig();
+    // const ausdcAmount = floor(Number(minted));
 
-    if (!electorWeights.length) {
-      return;
-    }
-
-    const optimizedDaoWeights = calcOptimizedDaoWeights(
-      electorEssence,
-      daoEssence,
-      slackerEssence,
-      electorWeights,
-      bribes,
-      prices,
-      VOTER.OPTIMIZER.ITERATIONS,
-      VOTER.OPTIMIZER.DECIMAL_PLACES
+    // example of wrapped user action
+    const txRes = await dbHandlerWrapper(
+      async () => await h.bank.cwClaimAssets(gasPrice)
     );
 
-    const maxDaoProfit = calcEstimatedDaoProfit(
-      electorEssence,
-      daoEssence,
-      slackerEssence,
-      electorWeights,
-      optimizedDaoWeights,
-      bribes,
-      prices
-    );
-    const daoProfit = calcEstimatedDaoProfit(
-      electorEssence,
-      daoEssence,
-      slackerEssence,
-      electorWeights,
-      daoWeights,
-      bribes,
-      prices
-    );
+    // const txRes = await dbHandlerWrapper(
+    //   async () => await h.bank.cwWithdrawUsdc({ ausdcAmount }, gasPrice)
+    // );
 
-    li(1 - daoProfit / maxDaoProfit);
+    // const txRes = await dbHandlerWrapper(
+    //   async () =>
+    //     await h.bank.cwDepositUsdc(
+    //       10_000 * 1e6,
+    //       { native: { denom: usdc } },
+    //       gasPrice
+    //     )
+    // );
+
+    // check user state
+    await bank.cwQueryUserInfo(owner, {}, true);
   } catch (error) {
     l(error);
   }

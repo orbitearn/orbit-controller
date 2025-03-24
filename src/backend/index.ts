@@ -6,32 +6,23 @@ import { api } from "./routes/api";
 import rateLimit from "express-rate-limit";
 import { readFile } from "fs/promises";
 import * as h from "helmet";
-import { MONGODB, PORT, SEED } from "./envs";
+import { MONGODB, ORBIT_CONTROLLER, PORT, SEED } from "./envs";
 import { ChainConfig } from "../common/interfaces";
 import { getChainOptionById } from "../common/config/config-utils";
 import { getSigner } from "./account/signer";
-import { addEssence, addVoteResults, addVoters } from "./db/requests";
-import { getEssence } from "./middleware/api";
+import { AppRequest, UserRequest } from "./db/requests";
 import { DatabaseClient } from "./db/client";
-import { CHAIN_ID, MS_PER_SECOND, SNAPSHOT, STAKING, VOTER } from "./constants";
-import { getAllPrices } from "./helpers";
-import {
-  calcEstimatedDaoProfit,
-  calcOptimizedDaoWeights,
-} from "./helpers/math";
+import { BANK, CHAIN_ID, MS_PER_SECOND } from "./constants";
+import { extractPrices, getAllPrices, getTokenSymbol } from "./helpers";
+import { calcAusdcPrice, calcClaimAndSwapData } from "./helpers/math";
+import { AssetPrice } from "./db/types";
 import {
   getCwExecHelpers,
   getCwQueryHelpers,
 } from "../common/account/cw-helpers";
-import {
-  ENCODING,
-  getLocalBlockTime,
-  PATH_TO_CONFIG_JSON,
-  ScheduledTaskRunner,
-  writeSnapshot,
-} from "./services/utils";
+import { ENCODING, PATH_TO_CONFIG_JSON } from "./services/utils";
 
-const dbClient = new DatabaseClient(MONGODB, "equinox_voter_controller");
+const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
 const limiter = rateLimit({
   windowMs: 60 * MS_PER_SECOND, // 1 minute
@@ -65,6 +56,7 @@ const app = express()
 app.use("/api", api);
 
 app.listen(PORT, async () => {
+  // init
   const configJsonStr = await readFile(PATH_TO_CONFIG_JSON, {
     encoding: ENCODING,
   });
@@ -80,176 +72,101 @@ app.listen(PORT, async () => {
 
   const gasPrice = `${GAS_PRICE_AMOUNT}${DENOM}`;
   const { signer, owner } = await getSigner(PREFIX, SEED);
-  const { staking, voter } = await getCwQueryHelpers(CHAIN_ID, RPC);
+  const { bank } = await getCwQueryHelpers(CHAIN_ID, RPC);
   const h = await getCwExecHelpers(CHAIN_ID, RPC, owner, signer);
+
+  // helpers
+  const getNextAusdcPrice = async () => {
+    const appInfo = await bank.cwQueryAppInfo();
+    const rewards = await bank.cwQueryRewards();
+    const ausdcPrice = await bank.cwQueryAusdcPrice();
+    const nextAusdcPrice = calcAusdcPrice(
+      Number(appInfo.usdc_net) + Number(rewards),
+      Number(appInfo.ausdc.minted)
+    );
+
+    return Math.max(nextAusdcPrice, ausdcPrice);
+  };
 
   console.clear();
   l(`\n✔️ Server is running on PORT: ${PORT}`);
 
-  // schedule essence snapshot for db
-  new ScheduledTaskRunner().scheduleTask(
-    STAKING.DB_ESSENCE_SNAPSHOT_HOUR,
-    async () => {
-      const essence = await getEssence();
-      await dbClient.connect();
-      await addEssence(essence);
-      await dbClient.disconnect();
-    }
-  );
-
-  // service to rebalance delegation DAO weights
-  setInterval(async () => {
-    try {
-      const configJsonStr = await readFile(PATH_TO_CONFIG_JSON, {
-        encoding: ENCODING,
-      });
-      const CHAIN_CONFIG: ChainConfig = JSON.parse(configJsonStr);
-      const {
-        PREFIX,
-        OPTION: {
-          RPC_LIST: [RPC],
-          DENOM,
-          GAS_PRICE_AMOUNT,
-        },
-      } = getChainOptionById(CHAIN_CONFIG, CHAIN_ID);
-
-      const gasPrice = `${GAS_PRICE_AMOUNT}${DENOM}`;
-      const { signer, owner } = await getSigner(PREFIX, SEED);
-      const { voter } = await getCwQueryHelpers(CHAIN_ID, RPC);
-      const h = await getCwExecHelpers(CHAIN_ID, RPC, owner, signer);
-
-      const {
-        elector_essence,
-        dao_essence,
-        slacker_essence,
-        elector_weights: electorWeights,
-        dao_weights: daoWeights,
-        bribes,
-      } = await voter.cwQueryOptimizationData();
-      const symbols = [
-        ...new Set(bribes.flatMap((x) => x.rewards).map((x) => x.symbol)),
-      ];
-      const prices = await getAllPrices(symbols);
-      const electorEssence = Number(elector_essence);
-      const daoEssence = Number(dao_essence);
-      const slackerEssence = Number(slacker_essence);
-
-      if (!electorWeights.length) {
-        return;
-      }
-
-      const optimizedDaoWeights = calcOptimizedDaoWeights(
-        electorEssence,
-        daoEssence,
-        slackerEssence,
-        electorWeights,
-        bribes,
-        prices,
-        VOTER.OPTIMIZER.ITERATIONS,
-        VOTER.OPTIMIZER.DECIMAL_PLACES
-      );
-
-      const maxDaoProfit = calcEstimatedDaoProfit(
-        electorEssence,
-        daoEssence,
-        slackerEssence,
-        electorWeights,
-        optimizedDaoWeights,
-        bribes,
-        prices
-      );
-      const daoProfit = calcEstimatedDaoProfit(
-        electorEssence,
-        daoEssence,
-        slackerEssence,
-        electorWeights,
-        daoWeights,
-        bribes,
-        prices
-      );
-
-      if (Math.abs(1 - daoProfit / maxDaoProfit) > VOTER.REBALANCER.THRESHOLD) {
-        await h.voter.cwPlaceVoteAsDao(optimizedDaoWeights, gasPrice);
-      }
-    } catch (error) {
-      l(error);
-    }
-  }, VOTER.REBALANCER.PERIOD * MS_PER_SECOND);
-
-  // service to make regular snapshots
-  setInterval(async () => {
-    // vaults
-    try {
-      const stakers = await staking.pQueryStakerList(STAKING.PAGINATION_AMOUNT);
-      const lockers = await staking.pQueryLockerList(STAKING.PAGINATION_AMOUNT);
-      await writeSnapshot(SNAPSHOT.STAKERS, stakers);
-      await writeSnapshot(SNAPSHOT.LOCKERS, lockers);
-      await wait(VOTER.SETTLE_PERIOD * MS_PER_SECOND);
-    } catch (error) {
-      l(error);
-    }
-
-    // essence
-    try {
-      const blocktTime = getLocalBlockTime();
-      const stakingEssenceList = await staking.pQueryStakingEssenceList(
-        blocktTime,
-        STAKING.PAGINATION_AMOUNT
-      );
-      const lockingEssenceList = await staking.pQueryLockingEssenceList(
-        STAKING.PAGINATION_AMOUNT
-      );
-      await writeSnapshot(SNAPSHOT.STAKING_ESSENCE, stakingEssenceList);
-      await writeSnapshot(SNAPSHOT.LOCKING_ESSENCE, lockingEssenceList);
-      await wait(VOTER.SETTLE_PERIOD * MS_PER_SECOND);
-    } catch (error) {
-      l(error);
-    }
-  }, STAKING.SNAPSHOT_PERIOD * MS_PER_SECOND);
-
-  // service to update voter state and make voters snapshots
-  let isSnapshotUpdated = false;
+  // service to claim and swap orbit rewards and save data in db
+  let isAusdcPriceUpdated = true;
   while (true) {
-    // try push
-    await wait(VOTER.PUSH_PERIOD * MS_PER_SECOND);
-    const { id } = await voter.cwQueryEpochInfo();
+    await wait(BANK.CYCLE_PERIOD_MIN * MS_PER_SECOND);
 
+    // check distribution date
+    const { update_date: lastUpdateDate } = await bank.cwQueryDistributionState(
+      {}
+    );
+    let blockTime = await bank.cwQueryBlockTime();
+    const nextUpdateDate = lastUpdateDate + BANK.DISTRIBUTION_PERIOD;
+
+    if (blockTime < nextUpdateDate) {
+      continue;
+    }
+
+    // pause, collect and process data, claim and swap
+    let priceList: [string, number][] = [];
+    const isPaused = await bank.cwQueryPauseState();
     try {
-      await h.voter.cwPushByAdmin(gasPrice);
-      await wait(VOTER.SETTLE_PERIOD * MS_PER_SECOND);
+      if (!isPaused) {
+        await h.bank.cwPause(gasPrice);
+      }
+
+      priceList = extractPrices(await getAllPrices());
+      const ausdcPriceNext = await getNextAusdcPrice();
+      const userInfoList = await bank.pQueryUserInfoList(
+        { ausdcPriceNext },
+        BANK.PAGINATION_AMOUNT
+      );
+      const [rewards, usdcYield, assets, feeSum] =
+        calcClaimAndSwapData(userInfoList);
+
+      await h.bank.cwClaimAndSwap(
+        rewards,
+        usdcYield,
+        assets,
+        feeSum,
+        priceList,
+        gasPrice
+      );
+      l("Rewards are distributed");
+
+      blockTime = await bank.cwQueryBlockTime();
+      isAusdcPriceUpdated = false;
     } catch (error) {
       l(error);
     }
 
+    // add asset prices in DB
     try {
-      const { rewards_claim_stage } = await voter.cwQueryOperationStatus();
-      l({ isSnapshotUpdated, rewardsClaimStage: rewards_claim_stage });
+      if (!isAusdcPriceUpdated) {
+        if (!priceList.length) {
+          priceList = extractPrices(await getAllPrices());
+        }
 
-      // make snapshot single time when votes will be applied
-      if (!isSnapshotUpdated && rewards_claim_stage === "unclaimed") {
-        const users = await voter.pQueryUserList(VOTER.PAGINATION_AMOUNT);
-        await writeSnapshot(SNAPSHOT.VOTERS, users);
-
-        await dbClient.connect();
-        await addVoters(users, id);
-        await dbClient.disconnect();
-
-        isSnapshotUpdated = true;
-      }
-
-      // update db single time when rewards will be updated, reset snapshot flag
-      if (isSnapshotUpdated && rewards_claim_stage === "swapped") {
-        const { vote_results } = await voter.cwQueryVoterInfo();
-        const voteResults = getLast(vote_results);
+        const { counter } = await bank.cwQueryDistributionState({});
+        const { ausdc: ausdcSymbol } = await bank.cwQueryConfig();
+        const ausdcPrice = await bank.cwQueryAusdcPrice();
+        const assetPrices: AssetPrice[] = [
+          { asset: ausdcSymbol, price: ausdcPrice },
+          ...priceList.map(([asset, price]) => ({
+            asset,
+            price,
+          })),
+        ];
 
         await dbClient.connect();
-        await addVoteResults(voteResults);
+        try {
+          await AppRequest.addDataItem(blockTime, counter, assetPrices);
+          l("Prices are stored in DB");
+        } catch (_) {}
         await dbClient.disconnect();
 
-        isSnapshotUpdated = false;
+        isAusdcPriceUpdated = true;
       }
-    } catch (error) {
-      l(error);
-    }
+    } catch (error) {}
   }
 });
