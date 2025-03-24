@@ -6,7 +6,7 @@
 
 import { CosmWasmClient, SigningCosmWasmClient, ExecuteResult } from "@cosmjs/cosmwasm-stargate";
 import { Coin, StdFee } from "@cosmjs/amino";
-import { Decimal, Uint128, InstantiateMsg, ExecuteMsg, Binary, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, DistributionState, Boolean, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse } from "./Bank.types";
+import { Decimal, Uint128, InstantiateMsg, ExecuteMsg, Binary, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, ArrayOfArrayOfAssetItem, DistributionState, Boolean, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse } from "./Bank.types";
 export interface BankReadOnlyInterface {
   contractAddress: string;
   config: () => Promise<Config>;
@@ -30,6 +30,11 @@ export interface BankReadOnlyInterface {
   }) => Promise<ArrayOfCurrencyForToken>;
   ausdcPrice: () => Promise<Decimal>;
   appInfo: () => Promise<AppInfoResponse>;
+  dbAssets: ({
+    address
+  }: {
+    address: string;
+  }) => Promise<ArrayOfArrayOfAssetItem>;
   userInfo: ({
     address,
     ausdcPriceNext
@@ -72,6 +77,7 @@ export class BankQueryClient implements BankReadOnlyInterface {
     this.assetList = this.assetList.bind(this);
     this.ausdcPrice = this.ausdcPrice.bind(this);
     this.appInfo = this.appInfo.bind(this);
+    this.dbAssets = this.dbAssets.bind(this);
     this.userInfo = this.userInfo.bind(this);
     this.userInfoList = this.userInfoList.bind(this);
     this.balances = this.balances.bind(this);
@@ -133,6 +139,17 @@ export class BankQueryClient implements BankReadOnlyInterface {
   appInfo = async (): Promise<AppInfoResponse> => {
     return this.client.queryContractSmart(this.contractAddress, {
       app_info: {}
+    });
+  };
+  dbAssets = async ({
+    address
+  }: {
+    address: string;
+  }): Promise<ArrayOfArrayOfAssetItem> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      db_assets: {
+        address
+      }
     });
   };
   userInfo = async ({

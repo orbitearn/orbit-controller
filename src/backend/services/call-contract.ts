@@ -17,8 +17,8 @@ import { extractPrices, getAllPrices } from "../helpers";
 import { BANK } from "../constants";
 import { AssetItem } from "../../common/codegen/Bank.types";
 import { calcAusdcPrice, calcClaimAndSwapData } from "../helpers/math";
-import { UserRequest } from "../db/requests";
-import { AssetPrice } from "../db/types";
+import { AppRequest, UserRequest } from "../db/requests";
+import { AssetAmount, AssetPrice, TimestampData } from "../db/types";
 import { DatabaseClient } from "../db/client";
 
 const dbClient = new DatabaseClient(MONGODB, "orbit_controller");
@@ -61,22 +61,47 @@ async function main() {
     //   gasPrice
     // );
 
-    const blockTime = await bank.cwQueryBlockTime();
-    const userInfo = await bank.cwQueryUserInfo(owner, {});
-    // userInfo.user_yield.pending.assets.map(x => x.)
+    const dbAssets = await bank.cwQueryDbAssets(owner);
 
-    await dbClient.connect();
-    try {
-      await UserRequest.addData(owner, [], blockTime);
-      l("Prices are stored in DB");
-    } catch (_) {}
-    await dbClient.disconnect();
+    const userDistributionState = await bank.cwQueryDistributionState({
+      address: owner,
+    });
+    const distributionState = await bank.cwQueryDistributionState({});
 
-    // await h.bank.cwWithdrawUsdc({}, gasPrice);
+    const dateTo = distributionState.update_date;
+    const dateFrom =
+      (
+        await AppRequest.getDataByCounter(userDistributionState.counter)
+      )?.timestamp?.getSeconds() || dateTo;
+
+    const appData = await AppRequest.getDataInTimestampRange(dateFrom, dateTo);
+    if (appData.length !== dbAssets.length) {
+      throw new Error("Unequal data arrays!");
+    }
+
+    const dataList: TimestampData[] = dbAssets.map((assets, i) => {
+      const { timestamp } = appData[i];
+      const assetList: AssetAmount[] = assets.map(({ amount, symbol }) => ({
+        asset: symbol,
+        amount: Number(amount),
+      }));
+
+      return { timestamp, assetList };
+    });
+
+    // user action
+    await h.bank.cwWithdrawUsdc({}, gasPrice);
+
+    if (dataList.length) {
+      await dbClient.connect();
+      try {
+        await UserRequest.addDataList(owner, dataList);
+        l("Prices are stored in DB");
+      } catch (_) {}
+      await dbClient.disconnect();
+    }
 
     await bank.cwQueryUserInfo(owner, {}, true);
-
-    // TODO: add [asset, amount, timestamp][] per user DB request
   } catch (error) {
     l(error);
   }

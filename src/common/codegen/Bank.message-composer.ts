@@ -8,7 +8,7 @@ import { Coin } from "@cosmjs/amino";
 import { MsgExecuteContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { MsgExecuteContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { toUtf8 } from "@cosmjs/encoding";
-import { Decimal, Uint128, InstantiateMsg, ExecuteMsg, Binary, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, DistributionState, Boolean, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse } from "./Bank.types";
+import { Decimal, Uint128, InstantiateMsg, ExecuteMsg, Binary, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, ArrayOfArrayOfAssetItem, DistributionState, Boolean, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse } from "./Bank.types";
 export interface BankMsg {
   contractAddress: string;
   sender: string;

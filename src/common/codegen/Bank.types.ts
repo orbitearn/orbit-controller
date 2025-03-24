@@ -119,6 +119,10 @@ export type QueryMsg = {
 } | {
   app_info: {};
 } | {
+  db_assets: {
+    address: string;
+  };
+} | {
   user_info: {
     address: string;
     ausdc_price_next?: Decimal | null;
@@ -190,6 +194,7 @@ export interface Config {
   total_usdc_limit: Uint128;
   usdc: string;
 }
+export type ArrayOfArrayOfAssetItem = AssetItem[][];
 export interface DistributionState {
   ausdc_price: Decimal;
   counter: number;

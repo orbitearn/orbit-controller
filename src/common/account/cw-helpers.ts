@@ -480,6 +480,14 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
     return logAndReturn(res, isDisplayed);
   }
 
+  async function cwQueryDbAssets(
+    address: string,
+    isDisplayed: boolean = false
+  ) {
+    const res = await bankQueryClient.dbAssets({ address });
+    return logAndReturn(res, isDisplayed);
+  }
+
   async function cwQueryUserInfo(
     address: string,
     { ausdcPriceNext }: { ausdcPriceNext?: number },
@@ -559,6 +567,7 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
       pQueryAssetList,
       cwQueryAusdcPrice,
       cwQueryAppInfo,
+      cwQueryDbAssets,
       cwQueryUserInfo,
       pQueryUserInfoList,
       cwQueryBalances,

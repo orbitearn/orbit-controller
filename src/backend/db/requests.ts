@@ -5,6 +5,7 @@ import {
   AssetPrice,
   IAppDataDocument,
   IUserDataDocument,
+  TimestampData,
   toDate,
 } from "./types";
 
@@ -110,6 +111,37 @@ export class UserRequest {
       const result = await UserDataModel.insertMany(documents);
 
       return getLast(result);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async addDataList(
+    address: string,
+    dataList: TimestampData[]
+  ): Promise<IUserDataDocument[]> {
+    try {
+      const documentsToInsert: Array<{
+        address: string;
+        asset: string;
+        amount: number;
+        timestamp: Date;
+      }> = [];
+
+      for (const { timestamp, assetList } of dataList) {
+        const dateTimestamp = toDate(timestamp);
+
+        for (const { asset, amount } of assetList) {
+          documentsToInsert.push({
+            address,
+            asset,
+            amount,
+            timestamp: dateTimestamp,
+          });
+        }
+      }
+
+      return await UserDataModel.insertMany(documentsToInsert);
     } catch (error) {
       throw error;
     }

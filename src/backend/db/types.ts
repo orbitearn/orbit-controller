@@ -7,6 +7,16 @@ export type AssetPrice = {
   price: number;
 };
 
+export type AssetAmount = {
+  asset: string;
+  amount: number;
+};
+
+export type TimestampData = {
+  timestamp: Date | number;
+  assetList: AssetAmount[];
+};
+
 export interface IAppDataSchema {
   timestamp: Date;
   counter: number;
