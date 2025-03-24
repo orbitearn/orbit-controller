@@ -1,10 +1,12 @@
 import { getSigner } from "../account/signer";
-import { getLast, l, li, wait } from "../../common/utils";
-import { readFile, writeFile } from "fs/promises";
+import { floor, getLast, l, li, wait } from "../../common/utils";
+import { readFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
-import { ENCODING, PATH_TO_CONFIG_JSON, writeSnapshot } from "./utils";
+import { ENCODING, PATH_TO_CONFIG_JSON } from "./utils";
 import { getChainOptionById } from "../../common/config/config-utils";
-import { MONGODB, rootPath, USER_SEED } from "../envs";
+import { MONGODB, USER_SEED } from "../envs";
+import { getDbHandlerWrapper } from "../helpers";
+import { DatabaseClient } from "../db/client";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,
@@ -13,18 +15,6 @@ import {
   getCwExecHelpers,
   getCwQueryHelpers,
 } from "../../common/account/cw-helpers";
-import { extractPrices, getAllPrices } from "../helpers";
-import { BANK } from "../constants";
-import { AssetItem } from "../../common/codegen/Bank.types";
-import { calcAusdcPrice, calcClaimAndSwapData } from "../helpers/math";
-import { AppRequest, UserRequest } from "../db/requests";
-import {
-  AssetAmount,
-  AssetPrice,
-  dateToTimestamp,
-  TimestampData,
-} from "../db/types";
-import { DatabaseClient } from "../db/client";
 
 const dbClient = new DatabaseClient(MONGODB, "orbit_controller");
 
@@ -85,53 +75,26 @@ async function main() {
     // );
     // await bank.cwQueryUserInfo(owner, {}, true);
 
-    const dbAssets = await bank.cwQueryDbAssets(owner);
-    li(dbAssets);
+    // every user action must be wrapped with dbHandlerWrapper
+    const dbHandlerWrapper = await getDbHandlerWrapper(
+      dbClient,
+      chainId,
+      RPC,
+      owner
+    );
 
-    const userDistributionState = await bank.cwQueryDistributionState({
-      address: owner,
-    });
-    const distributionState = await bank.cwQueryDistributionState({});
-    li({ userDistributionState, distributionState });
+    // get args for cwWithdrawUsdc to withdraw 1/2 of available usdc
+    const {
+      ausdc: { minted },
+    } = await bank.cwQueryUserInfo(owner, {}, true);
+    const ausdcAmount = floor(Number(minted) / 2);
 
-    const dateTo = distributionState.update_date;
+    // example of wrapped user action
+    const txRes = await dbHandlerWrapper(
+      async () => await h.bank.cwWithdrawUsdc({ ausdcAmount }, gasPrice)
+    );
 
-    await dbClient.connect();
-    const timestamp = (
-      await AppRequest.getDataByCounter(userDistributionState.counter)
-    )?.timestamp;
-    const dateFrom = dateToTimestamp(timestamp) || dateTo;
-    const appData = await AppRequest.getDataInTimestampRange(dateFrom, dateTo);
-    if (appData.length !== dbAssets.length) {
-      throw new Error("Unequal data arrays!");
-    }
-    await dbClient.disconnect();
-
-    const dataList: TimestampData[] = dbAssets.map((assets, i) => {
-      const { timestamp } = appData[i];
-      const assetList: AssetAmount[] = assets.map(({ amount, symbol }) => ({
-        asset: symbol,
-        amount: Number(amount),
-      }));
-
-      return { timestamp, assetList };
-    });
-
-    li(dataList);
-    return;
-
-    // user action
-    await h.bank.cwWithdrawUsdc({}, gasPrice);
-
-    if (dataList.length) {
-      await dbClient.connect();
-      try {
-        await UserRequest.addDataList(owner, dataList);
-        l("Prices are stored in DB");
-      } catch (_) {}
-      await dbClient.disconnect();
-    }
-
+    // check user state
     await bank.cwQueryUserInfo(owner, {}, true);
   } catch (error) {
     l(error);
