@@ -18,7 +18,12 @@ import { BANK } from "../constants";
 import { AssetItem } from "../../common/codegen/Bank.types";
 import { calcAusdcPrice, calcClaimAndSwapData } from "../helpers/math";
 import { AppRequest, UserRequest } from "../db/requests";
-import { AssetAmount, AssetPrice, TimestampData } from "../db/types";
+import {
+  AssetAmount,
+  AssetPrice,
+  dateToTimestamp,
+  TimestampData,
+} from "../db/types";
 import { DatabaseClient } from "../db/client";
 
 const dbClient = new DatabaseClient(MONGODB, "orbit_controller");
@@ -61,23 +66,46 @@ async function main() {
     //   gasPrice
     // );
 
+    // await h.bank.cwEnableDca(
+    //   0.5,
+    //   [
+    //     {
+    //       symbol:
+    //         "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+    //       weight: "0.75",
+    //     },
+    //     {
+    //       symbol:
+    //         "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+    //       weight: "0.25",
+    //     },
+    //   ],
+    //   { swaps: 5 },
+    //   gasPrice
+    // );
+    // await bank.cwQueryUserInfo(owner, {}, true);
+
     const dbAssets = await bank.cwQueryDbAssets(owner);
+    li(dbAssets);
 
     const userDistributionState = await bank.cwQueryDistributionState({
       address: owner,
     });
     const distributionState = await bank.cwQueryDistributionState({});
+    li({ userDistributionState, distributionState });
 
     const dateTo = distributionState.update_date;
-    const dateFrom =
-      (
-        await AppRequest.getDataByCounter(userDistributionState.counter)
-      )?.timestamp?.getSeconds() || dateTo;
 
+    await dbClient.connect();
+    const timestamp = (
+      await AppRequest.getDataByCounter(userDistributionState.counter)
+    )?.timestamp;
+    const dateFrom = dateToTimestamp(timestamp) || dateTo;
     const appData = await AppRequest.getDataInTimestampRange(dateFrom, dateTo);
     if (appData.length !== dbAssets.length) {
       throw new Error("Unequal data arrays!");
     }
+    await dbClient.disconnect();
 
     const dataList: TimestampData[] = dbAssets.map((assets, i) => {
       const { timestamp } = appData[i];
@@ -88,6 +116,9 @@ async function main() {
 
       return { timestamp, assetList };
     });
+
+    li(dataList);
+    return;
 
     // user action
     await h.bank.cwWithdrawUsdc({}, gasPrice);

@@ -91,7 +91,7 @@ app.listen(PORT, async () => {
       Number(appInfo.ausdc.minted)
     );
 
-    return Math.min(nextAusdcPrice, ausdcPrice);
+    return Math.max(nextAusdcPrice, ausdcPrice);
   };
 
   console.clear();

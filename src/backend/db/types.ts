@@ -40,8 +40,8 @@ export function getSchemaOptions(collection: string): SchemaOptions {
   };
 }
 
-export function dateToTimestamp(date: Date): number {
-  return floor(date.getTime() / MS_PER_SECOND);
+export function dateToTimestamp(date?: Date): number {
+  return floor((date?.getTime() || 0) / MS_PER_SECOND);
 }
 
 function timestampToDate(timestamp: number): Date {
