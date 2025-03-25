@@ -1,6 +1,6 @@
 ### Project Description
 
-***equinox-voter-controller*** is a script running Express.js server to send `PushByAdmin` msg to voter contract every minute, rebalance delegation DAO weights sending `PlaceVoteAsDao` msg to voter contract every hour (if the condition is met), provide REST API for data from Eclipse Fi core contracts and store historical data in MongoDB
+***orbit-controller*** (distribution controller) is a script running Express.js server to update contract state and DB data periodically. It pauses the contract, queries estimated aUSDC price from strategy controller, collects user data, calculates expected total yield, USDC yield and assets to buy. After that it sends the tx to claim yield, swap assets and update aUSDC price in the contract (finally the contract will be unpaused automatically). Also it stores historical data in MongoDB and provides REST API for all time data 
 
 
 ### Settings (Ubuntu 22.04)
@@ -31,11 +31,11 @@ yarn -v
 4) Clone the project repositiry and install dependencies
 
 ```
-git clone https://github.com/EclipsePad/equinox-voter-controller.git
-cd equinox-voter-controller && yarn
+git clone https://github.com/EclipsePad/orbit-controller.git
+cd orbit-controller && yarn
 ```
 
-5) Create env file and specify seed phrase for account sending messages to voter contract
+5) Create env file and specify seed phrase for account sending messages to orbit contract
 
 ```
 touch config.env && chmod 600 ./config.env
@@ -47,15 +47,17 @@ Enter actual values (replace placeholders <_>)
 ```
 PORT=<port>
 SEED=<your_seed_phrase>
+USER_SEED=<your_seed_phrase>
 BASE_URL=http://<server_ip>:<port>
 MONGODB=<MongoDB_URI>
+ORBIT_CONTROLLER=<orbit_controller_db_name>
 ```
 
 Save the file (Ctrl+X, then Y, then Enter)
 
 6) Replenish the account balance with several amount of NTRN
 
-7) Specify the account address in address config of the voter contract
+7) Specify the account address in address config of the orbit bank contract
 
 ```
 {
@@ -69,20 +71,20 @@ Save the file (Ctrl+X, then Y, then Enter)
 
 Create a systemd service file for the application
 ```
-nano /etc/systemd/system/voter.service
+nano /etc/systemd/system/orbit.service
 ```
 
 Add this content
 ```
 [Unit]
-Description=Equinox Voter Controller
+Description=Orbit Controller
 After=network.target
 
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/root/equinox-voter-controller
-ExecStart=/root/equinox-voter-controller/run.sh
+WorkingDirectory=/root/orbit-controller
+ExecStart=/root/orbit-controller/run.sh
 Restart=always
 
 [Install]
@@ -92,8 +94,8 @@ WantedBy=multi-user.target
 Enable and start the service
 ```
 sudo systemctl daemon-reload
-sudo systemctl enable voter.service
-sudo systemctl start voter.service
+sudo systemctl enable orbit.service
+sudo systemctl start orbit.service
 ```
 
 Open the crontab for root
@@ -108,17 +110,17 @@ Add this line to restart the service every day at 8 pm UTC
 
 Verify service status
 ```
-sudo systemctl status voter.service
+sudo systemctl status orbit.service
 ```
 
 9) Run the service
 ```
-sudo systemctl daemon-reload && sudo systemctl restart voter.service
+sudo systemctl daemon-reload && sudo systemctl restart orbit.service
 ```
 
 10) Note: to find and kill uncompleted process use
 ```
-sudo systemctl stop voter.service && sudo systemctl disable voter.service && sudo systemctl daemon-reload && sudo systemctl reset-failed
+sudo systemctl stop orbit.service && sudo systemctl disable orbit.service && sudo systemctl daemon-reload && sudo systemctl reset-failed
 ```
 Optionally
 ```
@@ -130,18 +132,17 @@ sudo kill -9 <PID>
 
 To update the codebase:
 
-1) Update snapshots, commit and push changes via `./capture.sh` locally 
-2) Stop the service
+1) Stop the service
 ```
-sudo systemctl stop voter.service && sudo systemctl disable voter.service && sudo systemctl daemon-reload && sudo systemctl reset-failed
+sudo systemctl stop orbit.service && sudo systemctl disable orbit.service && sudo systemctl daemon-reload && sudo systemctl reset-failed
 ```
-3) Fetch updates
+2) Fetch updates
 ```
-cd equinox-voter-controller && git fetch origin && git reset --hard origin/main && yarn
+cd orbit-controller && git fetch origin && git reset --hard origin/main && yarn
 ```
-4) Restart the service
+3) Restart the service
 ```
-sudo systemctl daemon-reload && sudo systemctl enable voter.service && sudo systemctl restart voter.service
+sudo systemctl daemon-reload && sudo systemctl enable orbit.service && sudo systemctl restart orbit.service
 ```
 
 
@@ -151,32 +152,18 @@ Base URL is `http://<server_ip>:<port>/api`
 
 GET requests:
 
-`/get-file-dates` - returns last update date for all snapshot files
+`/average-entry-price` - returns captured in [DISTRIBUTION_PERIOD](#distribution-period)* ago list of user's asset and it's average price `[string, number][]`. Request parameters: `address` (required, string) - user's wallet, `from` (required, number) - start timestamp of the calculation period, `to` (required, number) - end timestamp of the calculation period
 
-`/get-stakers` - returns actual (captured in [SNAPSHOT_PERIOD](#snapshot-period)* ago) staker address and info list [[Addr, StakerInfo][]](https://github.com/EclipsePad/equinox-voter-controller/blob/main/src/common/codegen/Staking.types.ts#L266)
-
-`/get-lockers` - returns actual (captured in [SNAPSHOT_PERIOD](#snapshot-period)* ago) locker address and info list [[Addr, LockerInfo[]][]](https://github.com/EclipsePad/equinox-voter-controller/blob/main/src/common/codegen/Staking.types.ts#L232)
-
-`/get-distributed-rewards` - returns actual (captured in [SNAPSHOT_PERIOD](#snapshot-period)* ago) info about distributed and recommended to replenish ECLIP rewards for staking contract [DistributedRewards](https://github.com/EclipsePad/equinox-voter-controller/blob/main/src/common/interfaces/index.ts#L5)
-
-`/get-staking-essence` - returns actual (captured in [SNAPSHOT_PERIOD](#snapshot-period)* ago) staking essence list [QueryEssenceListResponseItem[]](https://github.com/EclipsePad/equinox-voter-controller/blob/main/src/common/codegen/Staking.types.ts#L237)
-
-`/get-locking-essence` - returns actual (captured in [SNAPSHOT_PERIOD](#snapshot-period)* ago) locking essence list [QueryEssenceListResponseItem[]](https://github.com/EclipsePad/equinox-voter-controller/blob/main/src/common/codegen/Staking.types.ts#L237)
-
-`/get-essence` - returns actual (captured in [SNAPSHOT_PERIOD](#snapshot-period)* ago) list of user address and staking plus locking essence value `[string, number][]`
-
-`/get-voters` - returns previous epoch [UserListResponseItem[]](https://github.com/EclipsePad/eclipse-contracts-core/blob/main/scripts/src/interfaces/Voter.types.ts#L277)
+`/profit` - returns captured in [DISTRIBUTION_PERIOD](#distribution-period)* ago list of user's asset and profit based it's current price `[string, number][]`. Request parameters: `address` (required, string) - user's wallet, `from` (required, number) - start timestamp of the calculation period, `to` (required, number) - end timestamp of the calculation period
 
 
-<a id="snapshot-period"></a> *[SNAPSHOT_PERIOD](https://github.com/EclipsePad/equinox-voter-controller/blob/main/src/backend/constants.ts#L10)
+<a id="distribution-period"></a> *[DISTRIBUTION_PERIOD](https://github.com/EclipsePad/orbit-controller/blob/main/src/backend/constants.ts#L10)
 
 
 ## Historical Data
 
-The script creates `equinox_voter_controller` database in MongoDB with following collections:
+The script creates `orbit_controller` database in MongoDB with following collections:
 
-`essence` - uses `/get-essence` request data and updates it once per day at [DB_ESSENCE_SNAPSHOT_HOUR](https://github.com/EclipsePad/equinox-voter-controller/blob/main/src/backend/constants.ts#L11)
+`app_data` - stores all asset prices (including aUSDC) captured on each distribution with timestamp and app distribution counter
 
-`vote_results` - stores previos epoch vote results as [VoteResults](https://github.com/EclipsePad/eclipse-contracts-core/blob/main/scripts/src/interfaces/Voter.types.ts#L295) once per epoch
-
-`voters` - uses `/get-voters` request data and updates it once per epoch
+`user_data` - stores user asset amounts bought on each distribution with timestamp
