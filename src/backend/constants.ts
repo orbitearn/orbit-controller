@@ -14,4 +14,6 @@ export const BANK = {
 export const ROUTE = {
   GET_AVERAGE_ENTRY_PRICE: "/average-entry-price",
   GET_PROFIT: "/profit",
+
+  UPDATE_USER_ASSETS: "/update-user-assets",
 };

@@ -7,7 +7,7 @@ import { getChainOptionById } from "../../common/config/config-utils";
 import { MONGODB, ORBIT_CONTROLLER, USER_SEED, BASE_URL } from "../envs";
 import { getDbHandlerWrapper } from "../helpers";
 import { DatabaseClient } from "../db/client";
-import { ROUTE } from "../constants";
+import { CHAIN_ID, ROUTE } from "../constants";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,
@@ -22,7 +22,6 @@ const req = new Request({ baseURL: BASE_URL + "/api" });
 
 async function main() {
   try {
-    const chainId = "pion-1"; // TODO:  const chainId = "neutron-1";
     const configJsonStr = await readFile(PATH_TO_CONFIG_JSON, {
       encoding: ENCODING,
     });
@@ -34,7 +33,7 @@ async function main() {
         DENOM,
         GAS_PRICE_AMOUNT,
       },
-    } = getChainOptionById(CHAIN_CONFIG, chainId);
+    } = getChainOptionById(CHAIN_CONFIG, CHAIN_ID);
 
     const gasPrice = `${GAS_PRICE_AMOUNT}${DENOM}`;
 
@@ -44,8 +43,8 @@ async function main() {
     const sgQueryHelpers = await getSgQueryHelpers(RPC);
     const sgExecHelpers = await getSgExecHelpers(RPC, owner, signer);
 
-    const { bank } = await getCwQueryHelpers(chainId, RPC);
-    const h = await getCwExecHelpers(chainId, RPC, owner, signer);
+    const { bank } = await getCwQueryHelpers(CHAIN_ID, RPC);
+    const h = await getCwExecHelpers(CHAIN_ID, RPC, owner, signer);
 
     const { getBalance, getAllBalances } = sgQueryHelpers;
     const { sgMultiSend, sgSend } = sgExecHelpers;
@@ -80,7 +79,7 @@ async function main() {
     // every user action must be wrapped with dbHandlerWrapper
     const dbHandlerWrapper = await getDbHandlerWrapper(
       dbClient,
-      chainId,
+      CHAIN_ID,
       RPC,
       owner
     );

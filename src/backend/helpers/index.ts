@@ -1,6 +1,6 @@
 import { DeliverTxResponse } from "@cosmjs/stargate";
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
-import { Token } from "../../common/codegen/Bank.types";
+import { AssetItem, Token } from "../../common/codegen/Bank.types";
 import { AstroportPool, TokenInfo } from "../../common/interfaces";
 import { l, Request } from "../../common/utils/index";
 import { AssetAmount, dateToTimestamp, TimestampData } from "../db/types";
@@ -173,6 +173,85 @@ export async function getDbHandlerWrapper(
 
     return res;
   };
+}
+
+export async function updateUserData(
+  dbClient: DatabaseClient,
+  chainId: string,
+  rpc: string,
+  owner: string
+): Promise<void> {
+  const { bank } = await getCwQueryHelpers(chainId, rpc);
+
+  let dataList: TimestampData[] = [];
+
+  await dbClient.connect();
+  // get user data from the contract
+  try {
+    const dbAssets = await bank.cwQueryDbAssets(owner);
+
+    const userDistributionState = await bank.cwQueryDistributionState({
+      address: owner,
+    });
+    const distributionState = await bank.cwQueryDistributionState({});
+
+    const dateTo = distributionState.update_date;
+    const timestamp = (
+      await AppRequest.getDataByCounter(userDistributionState.counter)
+    )?.timestamp;
+    const dateFrom = dateToTimestamp(timestamp) || dateTo;
+    const userData = await UserRequest.getDataInTimestampRange(
+      owner,
+      dateFrom,
+      dateTo
+    );
+
+    // get exactly what must be added
+    const dbAssetsToAdd = dbAssets.reduce((acc, cur) => {
+      const assetsToAdd = cur.filter(
+        (x) =>
+          !userData.some(
+            (y) => y.asset === x.symbol && y.amount === Number(x.amount)
+          )
+      );
+
+      if (assetsToAdd.length) {
+        acc.push(assetsToAdd);
+      }
+
+      return acc;
+    }, [] as AssetItem[][]);
+    if (!dbAssetsToAdd.length) {
+      throw new Error("User data update isn't required!");
+    }
+
+    const appData = await AppRequest.getDataInTimestampRange(dateFrom, dateTo);
+    if (appData.length !== dbAssets.length) {
+      throw new Error("Unequal data arrays!");
+    }
+
+    dataList = dbAssetsToAdd.map((assets, i) => {
+      const { timestamp } = appData[i];
+      const assetList: AssetAmount[] = assets.map(({ amount, symbol }) => ({
+        asset: symbol,
+        amount: Number(amount),
+      }));
+
+      return { timestamp, assetList };
+    });
+  } catch (e) {
+    l(e);
+  }
+
+  try {
+    if (dataList.length) {
+      await UserRequest.addDataList(owner, dataList);
+      l("Prices are stored in DB");
+    }
+  } catch (e) {
+    l(e);
+  }
+  await dbClient.disconnect();
 }
 
 // TODO: fake logic

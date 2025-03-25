@@ -3,7 +3,12 @@ import { MONGODB, ORBIT_CONTROLLER } from "../envs";
 import { DatabaseClient } from "../db/client";
 import { AppRequest, UserRequest } from "../db/requests";
 import { dateToTimestamp } from "../db/types";
-import { extractPrices, getAllPrices } from "../helpers";
+import { extractPrices, getAllPrices, updateUserData } from "../helpers";
+import { ENCODING, PATH_TO_CONFIG_JSON } from "../services/utils";
+import { readFile } from "fs/promises";
+import { ChainConfig } from "../../common/interfaces";
+import { getChainOptionById } from "../../common/config/config-utils";
+import { CHAIN_ID } from "../constants";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
@@ -104,4 +109,18 @@ export async function getProfit(
   } catch (_) {}
 
   return profitList;
+}
+
+export async function updateUserAssets(address: string) {
+  const configJsonStr = await readFile(PATH_TO_CONFIG_JSON, {
+    encoding: ENCODING,
+  });
+  const CHAIN_CONFIG: ChainConfig = JSON.parse(configJsonStr);
+  const {
+    OPTION: {
+      RPC_LIST: [RPC],
+    },
+  } = getChainOptionById(CHAIN_CONFIG, CHAIN_ID);
+
+  return await updateUserData(dbClient, CHAIN_ID, RPC, address);
 }

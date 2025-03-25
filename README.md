@@ -156,6 +156,9 @@ GET requests:
 
 `/profit` - returns captured in [DISTRIBUTION_PERIOD](#distribution-period)* ago list of user's asset and profit based it's current price `[string, number][]`. Request parameters: `address` (required, string) - user's wallet, `from` (required, number) - start timestamp of the calculation period, `to` (required, number) - end timestamp of the calculation period
 
+POST requests:
+
+`/update-user-assets` - writes to DB users assets bought in streaming (calculated dynamically). If there is no assets to add it will handle corresponding error preserving successful response. Request parameters: `address` (required, string) - user's wallet
 
 <a id="distribution-period"></a> *[DISTRIBUTION_PERIOD](https://github.com/EclipsePad/orbit-controller/blob/main/src/backend/constants.ts#L10)
 
