@@ -95,6 +95,8 @@ app.listen(PORT, async () => {
   let isAusdcPriceUpdated = true;
   while (true) {
     await wait(BANK.CYCLE_PERIOD_MIN * MS_PER_SECOND);
+    // TODO: remove
+    continue;
 
     // check distribution date
     const { update_date: lastUpdateDate } = await bank.cwQueryDistributionState(

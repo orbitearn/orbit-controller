@@ -18,7 +18,7 @@ import {
 } from "../../common/account/cw-helpers";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
-// const req = new Request({ baseURL: BASE_URL + "/api" });
+const req = new Request({ baseURL: BASE_URL + "/api" });
 
 async function main() {
   try {
@@ -50,6 +50,15 @@ async function main() {
     const { getBalance, getAllBalances } = sgQueryHelpers;
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
+
+    const params = {
+      address: owner,
+      from: 1742700000,
+      to: 1742838234,
+    };
+    const d = await req.get(ROUTE.GET_AVERAGE_ENTRY_PRICE, { params });
+    li(d);
+    return;
 
     // const { usdc } = await bank.cwQueryConfig();
     // await h.bank.cwDepositUsdc(

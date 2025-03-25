@@ -1,29 +1,8 @@
-import { readdir, readFile, stat } from "fs/promises";
-import { ChainConfig, DistributedRewards } from "../../common/interfaces";
-import { getCwQueryHelpers } from "../../common/account/cw-helpers";
-import { getSgQueryHelpers } from "../../common/account/sg-helpers";
 import { floor, li } from "../../common/utils";
 import { MONGODB, ORBIT_CONTROLLER, rootPath } from "../envs";
 import { DatabaseClient } from "../db/client";
-import {
-  getChainOptionById,
-  getContractByLabel,
-} from "../../common/config/config-utils";
-import {
-  ENCODING,
-  epochToDateStringUTC,
-  PATH_TO_CONFIG_JSON,
-  readSnapshot,
-} from "../services/utils";
-import {
-  CHAIN_ID,
-  MS_PER_SECOND,
-  REPLENISHED_INITIALLY,
-  REWARDS_DISTRIBUTION_PERIOD,
-  REWARDS_REDUCTION_MULTIPLIER,
-  SECONDS_PER_DAY,
-} from "../constants";
 import { AppRequest, UserRequest } from "../db/requests";
+import { dateToTimestamp } from "../db/types";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
@@ -47,29 +26,21 @@ export async function getAverageEntryPrice(
 
     const assetList: string[] = [...new Set(userData.map((x) => x.asset))];
 
-    // li({
-    //   appData,
-    //   userData,
-    // });
-
     averagePriceList = assetList.map((asset) => {
       const [amountSum, productSum] = userData.reduce(
         ([amountAcc, productAcc], cur) => {
           if (cur.asset === asset) {
+            const timestamp = dateToTimestamp(cur.timestamp);
             const priceList =
-              appData.find((x) => x.timestamp === cur.timestamp)?.assetPrices ||
-              [];
+              appData.find((x) => dateToTimestamp(x.timestamp) === timestamp)
+                ?.assetPrices || [];
             const price =
               priceList.find((x) => x.asset === cur.asset)?.price || 0;
 
-            // TODO: empty priceList
-            // li({
-            //   asset,
-            //   priceList,
-            // });
-
-            amountAcc += cur.amount;
-            productAcc += cur.amount * price;
+            if (price) {
+              amountAcc += cur.amount;
+              productAcc += cur.amount * price;
+            }
           }
 
           return [amountAcc, productAcc];
@@ -77,7 +48,7 @@ export async function getAverageEntryPrice(
         [0, 0]
       );
 
-      return [asset, floor(productSum / amountSum, 12)];
+      return [asset, floor(productSum / amountSum, 6)];
     });
   } catch (_) {}
 
