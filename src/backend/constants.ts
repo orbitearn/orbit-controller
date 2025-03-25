@@ -11,7 +11,7 @@ export const BANK = {
   CYCLE_PERIOD_MIN: 10, // seconds
 };
 
-// TODO: Profit API: profit = sum(amount_i * (price - price_i))
 export const ROUTE = {
   GET_AVERAGE_ENTRY_PRICE: "/average-entry-price",
+  GET_PROFIT: "/profit",
 };

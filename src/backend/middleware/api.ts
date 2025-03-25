@@ -1,29 +1,9 @@
-import { readdir, readFile, stat } from "fs/promises";
-import { ChainConfig, DistributedRewards } from "../../common/interfaces";
-import { getCwQueryHelpers } from "../../common/account/cw-helpers";
-import { getSgQueryHelpers } from "../../common/account/sg-helpers";
 import { floor, li } from "../../common/utils";
-import { MONGODB, ORBIT_CONTROLLER, rootPath } from "../envs";
+import { MONGODB, ORBIT_CONTROLLER } from "../envs";
 import { DatabaseClient } from "../db/client";
-import {
-  getChainOptionById,
-  getContractByLabel,
-} from "../../common/config/config-utils";
-import {
-  ENCODING,
-  epochToDateStringUTC,
-  PATH_TO_CONFIG_JSON,
-  readSnapshot,
-} from "../services/utils";
-import {
-  CHAIN_ID,
-  MS_PER_SECOND,
-  REPLENISHED_INITIALLY,
-  REWARDS_DISTRIBUTION_PERIOD,
-  REWARDS_REDUCTION_MULTIPLIER,
-  SECONDS_PER_DAY,
-} from "../constants";
 import { AppRequest, UserRequest } from "../db/requests";
+import { dateToTimestamp } from "../db/types";
+import { extractPrices, getAllPrices } from "../helpers";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
@@ -47,29 +27,21 @@ export async function getAverageEntryPrice(
 
     const assetList: string[] = [...new Set(userData.map((x) => x.asset))];
 
-    // li({
-    //   appData,
-    //   userData,
-    // });
-
     averagePriceList = assetList.map((asset) => {
       const [amountSum, productSum] = userData.reduce(
         ([amountAcc, productAcc], cur) => {
           if (cur.asset === asset) {
+            const timestamp = dateToTimestamp(cur.timestamp);
             const priceList =
-              appData.find((x) => x.timestamp === cur.timestamp)?.assetPrices ||
-              [];
+              appData.find((x) => dateToTimestamp(x.timestamp) === timestamp)
+                ?.assetPrices || [];
             const price =
               priceList.find((x) => x.asset === cur.asset)?.price || 0;
 
-            // TODO: empty priceList
-            // li({
-            //   asset,
-            //   priceList,
-            // });
-
-            amountAcc += cur.amount;
-            productAcc += cur.amount * price;
+            if (price) {
+              amountAcc += cur.amount;
+              productAcc += cur.amount * price;
+            }
           }
 
           return [amountAcc, productAcc];
@@ -77,9 +49,59 @@ export async function getAverageEntryPrice(
         [0, 0]
       );
 
-      return [asset, floor(productSum / amountSum, 12)];
+      return [asset, floor(productSum / amountSum, 6)];
     });
   } catch (_) {}
 
   return averagePriceList;
+}
+
+// profit = sum(amount_i * (price - price_i))
+export async function getProfit(
+  address: string,
+  from: number,
+  to: number
+): Promise<[string, number][]> {
+  let profitList: [string, number][] = [];
+
+  try {
+    await dbClient.connect();
+    const userData = await UserRequest.getDataInTimestampRange(
+      address,
+      from,
+      to
+    );
+    const appData = await AppRequest.getDataInTimestampRange(from, to);
+    await dbClient.disconnect();
+
+    const currentPriceList: [string, number][] = extractPrices(
+      await getAllPrices()
+    );
+    const assetList: string[] = [...new Set(userData.map((x) => x.asset))];
+
+    profitList = assetList.map((asset) => {
+      const productSum = userData.reduce((acc, cur) => {
+        if (cur.asset === asset) {
+          const timestamp = dateToTimestamp(cur.timestamp);
+          const priceList =
+            appData.find((x) => dateToTimestamp(x.timestamp) === timestamp)
+              ?.assetPrices || [];
+          const price =
+            priceList.find((x) => x.asset === cur.asset)?.price || 0;
+          const currentPrice =
+            currentPriceList.find(([symbol]) => symbol === asset)?.[1] || 0;
+
+          if (price && currentPrice) {
+            acc += cur.amount * (currentPrice - price);
+          }
+        }
+
+        return acc;
+      }, 0);
+
+      return [asset, floor(productSum, 6)];
+    });
+  } catch (_) {}
+
+  return profitList;
 }
