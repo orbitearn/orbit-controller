@@ -51,15 +51,6 @@ async function main() {
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
 
-    const params = {
-      address: owner,
-      from: 1742700000,
-      to: 1742838234,
-    };
-    const d = await req.get(ROUTE.GET_AVERAGE_ENTRY_PRICE, { params });
-    li(d);
-    return;
-
     // const { usdc } = await bank.cwQueryConfig();
     // await h.bank.cwDepositUsdc(
     //   10_000 * 1e6,
