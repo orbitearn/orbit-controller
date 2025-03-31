@@ -7,7 +7,7 @@ import { getChainOptionById } from "../../common/config/config-utils";
 import { MONGODB, ORBIT_CONTROLLER, USER_SEED, BASE_URL } from "../envs";
 import { getDbHandlerWrapper } from "../helpers";
 import { DatabaseClient } from "../db/client";
-import { CHAIN_ID, ROUTE } from "../constants";
+import { BANK, CHAIN_ID, ROUTE } from "../constants";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,
@@ -49,6 +49,23 @@ async function main() {
     const { getBalance, getAllBalances } = sgQueryHelpers;
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
+
+    // const userInfoList = await bank.pQueryUserInfoList(
+    //   {},
+    //   BANK.PAGINATION_AMOUNT
+    // );
+    // li(userInfoList.length);
+    // return;
+
+    const params = {
+      address: owner,
+      from: 1742700000,
+      to: 1742838234,
+    };
+
+    const res = await req.get(ROUTE.GET_AVERAGE_ENTRY_PRICE, { params });
+    li(res);
+    return;
 
     // const { usdc } = await bank.cwQueryConfig();
     // await h.bank.cwDepositUsdc(

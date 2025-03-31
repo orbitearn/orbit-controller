@@ -9,7 +9,8 @@
           "DENOM": "untrn",
           "CHAIN_ID": "pion-1",
           "RPC_LIST": [
-            "https://rpc-falcron.pion-1.ntrn.tech:443"
+            "https://rpc-falcron.pion-1.ntrn.tech:443",
+            "https://rpc.testcosmos.directory/neutrontestnet"
           ],
           "GAS_PRICE_AMOUNT": 0.0053,
           "STORE_CODE_GAS_MULTIPLIER": 21.5,
