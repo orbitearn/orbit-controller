@@ -6,8 +6,8 @@ export const MS_PER_SECOND = 1_000;
 export const REPLENISHED_INITIALLY = 3_100_000 * 1e6;
 
 export const BANK = {
-  PAGINATION_AMOUNT: 3, // 3 for 530 ausdc set length
-  DISTRIBUTION_PERIOD: 2 * 60, // seconds
+  PAGINATION_AMOUNT: 5, // 3 for 530 ausdc set length
+  DISTRIBUTION_PERIOD: 60 * 60, // seconds
   CYCLE_PERIOD_MIN: 10, // seconds
 };
 
