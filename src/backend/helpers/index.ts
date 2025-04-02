@@ -1,7 +1,7 @@
 import { DeliverTxResponse } from "@cosmjs/stargate";
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { AssetItem, Token } from "../../common/codegen/Bank.types";
-import { AstroportPool, TokenInfo } from "../../common/interfaces";
+import { TokenInfo } from "../../common/interfaces";
 import { l, Request } from "../../common/utils/index";
 import { AssetAmount, dateToTimestamp, TimestampData } from "../db/types";
 import { DatabaseClient } from "../db/client";
@@ -12,74 +12,24 @@ export interface PriceItem {
   symbol: string;
 }
 
-interface TokensResponse {
-  result: {
-    data: {
-      json: {
-        [chainId: string]: TokenInfo;
-      };
-    };
-  };
-}
-
-const baseURL = "https://app.astroport.fi/api/trpc";
-const chainId = [
-  "phoenix-1",
-  "injective-1",
-  "neutron-1",
-  "pacific-1",
-  "osmosis-1",
-];
-
-export async function getAllPools(): Promise<AstroportPool[]> {
-  const req = new Request({ baseURL });
-
-  let pools: AstroportPool[] = [];
-
-  const fn = async (route: string) => {
-    try {
-      const res: { result: { data: { json: AstroportPool[] } } } =
-        await req.get(route);
-
-      pools = [...pools, ...res.result.data.json];
-    } catch (_) {}
-  };
-
-  await Promise.all(
-    chainId.map((chain) => {
-      const route = `/pools.getAll?input={"json":{"chainId":["${chain}"]}}`;
-      return fn(route);
-    })
-  );
-
-  return pools;
-}
+const baseURL = "https://api.astroport.fi/api";
 
 export async function getAllPrices(symbols?: string[]): Promise<PriceItem[]> {
-  const input = JSON.stringify({ json: { chainId } });
-  const route = `/tokens.getAll?input=${input}`;
+  const route = "/tokens";
   const req = new Request({ baseURL });
 
   let prices: PriceItem[] = [];
 
   try {
-    const {
-      result: {
-        data: { json },
-      },
-    }: TokensResponse = await req.get(route);
+    const tokenList: TokenInfo[] = await req.get(route);
 
-    // iterate over chains
-    for (const x of Object.values(json)) {
-      // iterate over denoms
-      for (const [k, v] of Object.entries(x)) {
-        const price = v?.priceUsd;
-        if (!price) {
-          continue;
-        }
-
-        prices.push({ symbol: k, price: price.toString() });
+    // iterate over tokens
+    for (const { priceUSD, denom } of tokenList) {
+      if (!priceUSD) {
+        continue;
       }
+
+      prices.push({ symbol: denom, price: priceUSD.toString() });
     }
   } catch (_) {}
 
