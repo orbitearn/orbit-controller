@@ -461,19 +461,15 @@ export type {
 };
 
 interface TokenInfo {
-  [denom: string]: {
-    protocol: string;
-    symbol: string;
-    token: string;
-    icon: string;
-    decimals: number;
-    coingeckoId: string;
-    originDenom: string;
-    originChainId: string;
-    chainId: string;
-    priceUsd: number;
-    isHidden: boolean;
-  };
+  chainId: string;
+  denom: string;
+  symbol: string;
+  icon: string;
+  description: string;
+  decimals: number;
+  priceUSD: number;
+  totalLiquidityUSD: number;
+  dayVolumeUSD: number;
 }
 
 export {
