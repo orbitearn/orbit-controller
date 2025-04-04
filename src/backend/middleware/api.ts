@@ -2,7 +2,7 @@ import { floor, li } from "../../common/utils";
 import { MONGODB, ORBIT_CONTROLLER } from "../envs";
 import { DatabaseClient } from "../db/client";
 import { AppRequest, UserRequest } from "../db/requests";
-import { dateToTimestamp } from "../db/types";
+import { dateToTimestamp, IUserDataDocument } from "../db/types";
 import { extractPrices, getAllPrices, updateUserData } from "../helpers";
 import { ENCODING, PATH_TO_CONFIG_JSON } from "../services/utils";
 import { readFile } from "fs/promises";
@@ -109,6 +109,18 @@ export async function getProfit(
   } catch (_) {}
 
   return profitList;
+}
+
+export async function getUserFirstData(address: string) {
+  let userFirstData: IUserDataDocument | null = null;
+
+  try {
+    await dbClient.connect();
+    userFirstData = await UserRequest.getFirstData(address);
+    await dbClient.disconnect();
+  } catch (_) {}
+
+  return userFirstData;
 }
 
 export async function updateUserAssets(address: string) {

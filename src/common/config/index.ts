@@ -27,7 +27,10 @@ export const CHAIN_CONFIG: ChainConfig = {
           TYPE: "test",
           DENOM: "untrn",
           CHAIN_ID: "pion-1",
-          RPC_LIST: ["https://rpc-falcron.pion-1.ntrn.tech:443"],
+          RPC_LIST: [
+            "https://rpc.testcosmos.directory/neutrontestnet",
+            "https://rpc-falcron.pion-1.ntrn.tech:443",
+          ],
           GAS_PRICE_AMOUNT: 0.0053,
           STORE_CODE_GAS_MULTIPLIER: 21.5,
           CONTRACTS: [
