@@ -170,4 +170,12 @@ export class UserRequest {
       },
     }).sort({ timestamp: 1 });
   }
+
+  static async getFirstData(
+    address: string
+  ): Promise<IUserDataDocument | null> {
+    return await UserDataModel.findOne({ address })
+      .sort({ timestamp: 1 })
+      .limit(1);
+  }
 }

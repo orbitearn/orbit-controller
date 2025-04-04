@@ -20,7 +20,11 @@ import {
   getCwExecHelpers,
   getCwQueryHelpers,
 } from "../common/account/cw-helpers";
-import { ENCODING, PATH_TO_CONFIG_JSON } from "./services/utils";
+import {
+  ENCODING,
+  getLocalBlockTime,
+  PATH_TO_CONFIG_JSON,
+} from "./services/utils";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
@@ -96,12 +100,18 @@ app.listen(PORT, async () => {
   while (true) {
     await wait(BANK.CYCLE_PERIOD_MIN * MS_PER_SECOND);
 
+    let blockTime: number = getLocalBlockTime();
+    let nextUpdateDate: number = blockTime + 1;
+
     // check distribution date
-    const { update_date: lastUpdateDate } = await bank.cwQueryDistributionState(
-      {}
-    );
-    let blockTime = await bank.cwQueryBlockTime();
-    const nextUpdateDate = lastUpdateDate + BANK.DISTRIBUTION_PERIOD;
+    try {
+      const { update_date: lastUpdateDate } =
+        await bank.cwQueryDistributionState({});
+      blockTime = await bank.cwQueryBlockTime();
+      nextUpdateDate = lastUpdateDate + BANK.DISTRIBUTION_PERIOD;
+    } catch (error) {
+      l(error);
+    }
 
     if (blockTime < nextUpdateDate) {
       continue;
@@ -109,8 +119,8 @@ app.listen(PORT, async () => {
 
     // pause, collect and process data, claim and swap
     let priceList: [string, number][] = [];
-    const isPaused = await bank.cwQueryPauseState();
     try {
+      const isPaused = await bank.cwQueryPauseState();
       if (!isPaused) {
         await h.bank.cwPause(gasPrice);
       }

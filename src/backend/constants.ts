@@ -12,8 +12,10 @@ export const BANK = {
 };
 
 export const ROUTE = {
+  GET_TEST: "/test",
   GET_AVERAGE_ENTRY_PRICE: "/average-entry-price",
   GET_PROFIT: "/profit",
+  GET_FIRST_DATA: "/first-data",
 
   UPDATE_USER_ASSETS: "/update-user-assets",
 };

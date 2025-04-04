@@ -3,7 +3,12 @@ import {
   getAverageEntryPrice as _getAverageEntryPrice,
   getProfit as _getProfit,
   updateUserAssets as _updateUserAssets,
+  getUserFirstData as _getUserFirstData,
 } from "../middleware/api";
+
+export async function getTest(_req: Request, res: Response) {
+  res.status(200).json({ value: 42 });
+}
 
 export async function getAverageEntryPrice(req: Request, res: Response) {
   const address = req.query.address as string;
@@ -40,6 +45,17 @@ export async function getProfit(req: Request, res: Response) {
   }
 
   const data = await _getProfit(address, from, to);
+  res.status(200).json(data);
+}
+
+export async function getUserFirstData(req: Request, res: Response) {
+  const address = req.query.address as string;
+
+  if (!address) {
+    res.status(400).json({ error: "Address parameter is required" });
+  }
+
+  const data = await _getUserFirstData(address);
   res.status(200).json(data);
 }
 
