@@ -17,16 +17,14 @@ export async function getAverageEntryPrice(req: Request, res: Response) {
 
   if (!address) {
     res.status(400).json({ error: "Address parameter is required" });
-  }
-
-  if (isNaN(from) || isNaN(to)) {
+  } else if (isNaN(from) || isNaN(to)) {
     res
       .status(400)
       .json({ error: "Valid 'from' and 'to' parameters are required" });
+  } else {
+    const data = await _getAverageEntryPrice(address, from, to);
+    res.status(200).json(data);
   }
-
-  const data = await _getAverageEntryPrice(address, from, to);
-  res.status(200).json(data);
 }
 
 export async function getProfit(req: Request, res: Response) {
@@ -36,16 +34,14 @@ export async function getProfit(req: Request, res: Response) {
 
   if (!address) {
     res.status(400).json({ error: "Address parameter is required" });
-  }
-
-  if (isNaN(from) || isNaN(to)) {
+  } else if (isNaN(from) || isNaN(to)) {
     res
       .status(400)
       .json({ error: "Valid 'from' and 'to' parameters are required" });
+  } else {
+    const data = await _getProfit(address, from, to);
+    res.status(200).json(data);
   }
-
-  const data = await _getProfit(address, from, to);
-  res.status(200).json(data);
 }
 
 export async function getUserFirstData(req: Request, res: Response) {
@@ -53,10 +49,10 @@ export async function getUserFirstData(req: Request, res: Response) {
 
   if (!address) {
     res.status(400).json({ error: "Address parameter is required" });
+  } else {
+    const data = await _getUserFirstData(address);
+    res.status(200).json(data);
   }
-
-  const data = await _getUserFirstData(address);
-  res.status(200).json(data);
 }
 
 export async function updateUserAssets(req: Request, res: Response) {
@@ -64,8 +60,8 @@ export async function updateUserAssets(req: Request, res: Response) {
 
   if (!address) {
     res.status(400).json({ error: "Address parameter is required" });
+  } else {
+    const data = await _updateUserAssets(address);
+    res.status(200).json(data);
   }
-
-  const data = await _updateUserAssets(address);
-  res.status(200).json(data);
 }
