@@ -39,9 +39,10 @@ const limiter = rateLimit({
 const app = express()
   .disable("x-powered-by")
   .use(
+    cors(),
     h.crossOriginEmbedderPolicy({ policy: "credentialless" }),
     h.crossOriginOpenerPolicy(),
-    h.crossOriginResourcePolicy(),
+    h.crossOriginResourcePolicy({ policy: "cross-origin" }),
     h.dnsPrefetchControl(),
     h.frameguard(),
     h.hidePoweredBy(),
@@ -52,7 +53,6 @@ const app = express()
     h.referrerPolicy(),
     h.xssFilter(),
     limiter,
-    cors(),
     text(),
     json()
   );
