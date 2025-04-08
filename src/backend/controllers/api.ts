@@ -61,7 +61,7 @@ export async function updateUserAssets(req: Request, res: Response) {
   if (!address) {
     res.status(400).json({ error: "Address parameter is required" });
   } else {
-    const data = await _updateUserAssets(address);
-    res.status(200).json(data);
+    await _updateUserAssets(address);
+    res.status(200).json({});
   }
 }
