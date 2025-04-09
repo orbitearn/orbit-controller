@@ -158,6 +158,12 @@ GET requests:
 
 `/first-data` - returns first user's data DB record. Request parameters: `address` (required, string) - user's wallet
 
+`/yield-rate` - returns list of yield rate in timestamp period and timestamp period end as `[number, number][]`. Request parameters: `from` (required, number) - first timestamp of the list, `to` (required, number) - last timestamp of the list, `period` (optional, number) - timestamp period of the list
+
+`/app-data-in-timestamp-range` - returns list of streaming asset prices and timestamps as [IAppDataDocument[]](https://github.com/orbitearn/orbit-controller/blob/main/src/backend/db/types.ts#L20-L25). Request parameters: `from` (required, number) - first timestamp of the list, `to` (required, number) - last timestamp of the list
+
+`/user-data-in-timestamp-range` - returns list of user's bought in streaming assets and timestamps as [IUserDataDocument[]](https://github.com/orbitearn/orbit-controller/blob/main/src/backend/db/types.ts#L27-L33). Request parameters: `address` (required, string) - user's wallet, `from` (required, number) - first timestamp of the list, `to` (required, number) - last timestamp of the list
+
 POST requests:
 
 `/update-user-assets` - writes to DB users assets bought in streaming (calculated dynamically). If there is no assets to add it will handle corresponding error preserving successful response. Request parameters: `address` (required, string) - user's wallet
