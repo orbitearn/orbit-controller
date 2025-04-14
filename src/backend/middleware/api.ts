@@ -17,6 +17,8 @@ import {
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
+// TODO: numberFrom
+
 // average_entry_price = sum(amount_i * price_i) / sum(amount_i)
 export async function getAverageEntryPrice(
   address: string,

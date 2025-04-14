@@ -8,7 +8,7 @@ import { Coin } from "@cosmjs/amino";
 import { MsgExecuteContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { MsgExecuteContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { toUtf8 } from "@cosmjs/encoding";
-import { Decimal, Uint128, InstantiateMsg, ExecuteMsg, Binary, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, ArrayOfArrayOfAssetItem, DistributionState, Boolean, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse } from "./Bank.types";
+import { Decimal, Uint256, InstantiateMsg, ExecuteMsg, Uint128, Binary, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, ArrayOfArrayOfAssetItem, DistributionState, ArrayOfTupleOfuint32AndArrayOfTupleOfStringAndDecimal, StateResponse, StoragesResponse, ArrayOfTupleOfAddrAndUint32, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse, UserStoragesResponse } from "./Bank.types";
 export interface BankMsg {
   contractAddress: string;
   sender: string;
@@ -25,13 +25,13 @@ export interface BankMsg {
   withdrawAusdc: ({
     ausdcAmount
   }: {
-    ausdcAmount?: Uint128;
+    ausdcAmount?: Uint256;
   }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
   depositAusdc: (_funds?: Coin[]) => MsgExecuteContractEncodeObject;
   withdrawUsdc: ({
     ausdcAmount
   }: {
-    ausdcAmount?: Uint128;
+    ausdcAmount?: Uint256;
   }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
   enableDca: ({
     fraction,
@@ -52,10 +52,10 @@ export interface BankMsg {
     usdcYield
   }: {
     assets: AssetItem[];
-    feeAmount: Uint128;
+    feeAmount: Uint256;
     prices: string[][];
-    rewards: Uint128;
-    usdcYield: Uint128;
+    rewards: Uint256;
+    usdcYield: Uint256;
   }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
   registerAsset: ({
     asset,
@@ -64,6 +64,13 @@ export interface BankMsg {
     asset: CurrencyForTokenUnverified;
     price: Decimal;
   }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
+  updateUserState: ({
+    addresses
+  }: {
+    addresses: string[];
+  }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
+  enableCapture: (_funds?: Coin[]) => MsgExecuteContractEncodeObject;
+  disableCapture: (_funds?: Coin[]) => MsgExecuteContractEncodeObject;
   acceptAdminRole: (_funds?: Coin[]) => MsgExecuteContractEncodeObject;
   updateConfig: ({
     admin,
@@ -77,7 +84,7 @@ export interface BankMsg {
     ausdc?: string;
     controller?: string;
     feeRate?: Decimal;
-    totalUsdcLimit?: Uint128;
+    totalUsdcLimit?: Uint256;
     usdc?: string;
   }, _funds?: Coin[]) => MsgExecuteContractEncodeObject;
   pause: (_funds?: Coin[]) => MsgExecuteContractEncodeObject;
@@ -104,6 +111,9 @@ export class BankMsgComposer implements BankMsg {
     this.claimAssets = this.claimAssets.bind(this);
     this.claimAndSwap = this.claimAndSwap.bind(this);
     this.registerAsset = this.registerAsset.bind(this);
+    this.updateUserState = this.updateUserState.bind(this);
+    this.enableCapture = this.enableCapture.bind(this);
+    this.disableCapture = this.disableCapture.bind(this);
     this.acceptAdminRole = this.acceptAdminRole.bind(this);
     this.updateConfig = this.updateConfig.bind(this);
     this.pause = this.pause.bind(this);
@@ -151,7 +161,7 @@ export class BankMsgComposer implements BankMsg {
   withdrawAusdc = ({
     ausdcAmount
   }: {
-    ausdcAmount?: Uint128;
+    ausdcAmount?: Uint256;
   }, _funds?: Coin[]): MsgExecuteContractEncodeObject => {
     return {
       typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
@@ -183,7 +193,7 @@ export class BankMsgComposer implements BankMsg {
   withdrawUsdc = ({
     ausdcAmount
   }: {
-    ausdcAmount?: Uint128;
+    ausdcAmount?: Uint256;
   }, _funds?: Coin[]): MsgExecuteContractEncodeObject => {
     return {
       typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
@@ -258,10 +268,10 @@ export class BankMsgComposer implements BankMsg {
     usdcYield
   }: {
     assets: AssetItem[];
-    feeAmount: Uint128;
+    feeAmount: Uint256;
     prices: string[][];
-    rewards: Uint128;
-    usdcYield: Uint128;
+    rewards: Uint256;
+    usdcYield: Uint256;
   }, _funds?: Coin[]): MsgExecuteContractEncodeObject => {
     return {
       typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
@@ -303,6 +313,51 @@ export class BankMsgComposer implements BankMsg {
       })
     };
   };
+  updateUserState = ({
+    addresses
+  }: {
+    addresses: string[];
+  }, _funds?: Coin[]): MsgExecuteContractEncodeObject => {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
+      value: MsgExecuteContract.fromPartial({
+        sender: this.sender,
+        contract: this.contractAddress,
+        msg: toUtf8(JSON.stringify({
+          update_user_state: {
+            addresses
+          }
+        })),
+        funds: _funds
+      })
+    };
+  };
+  enableCapture = (_funds?: Coin[]): MsgExecuteContractEncodeObject => {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
+      value: MsgExecuteContract.fromPartial({
+        sender: this.sender,
+        contract: this.contractAddress,
+        msg: toUtf8(JSON.stringify({
+          enable_capture: {}
+        })),
+        funds: _funds
+      })
+    };
+  };
+  disableCapture = (_funds?: Coin[]): MsgExecuteContractEncodeObject => {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
+      value: MsgExecuteContract.fromPartial({
+        sender: this.sender,
+        contract: this.contractAddress,
+        msg: toUtf8(JSON.stringify({
+          disable_capture: {}
+        })),
+        funds: _funds
+      })
+    };
+  };
   acceptAdminRole = (_funds?: Coin[]): MsgExecuteContractEncodeObject => {
     return {
       typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
@@ -328,7 +383,7 @@ export class BankMsgComposer implements BankMsg {
     ausdc?: string;
     controller?: string;
     feeRate?: Decimal;
-    totalUsdcLimit?: Uint128;
+    totalUsdcLimit?: Uint256;
     usdc?: string;
   }, _funds?: Coin[]): MsgExecuteContractEncodeObject => {
     return {

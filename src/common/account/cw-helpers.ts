@@ -1,8 +1,17 @@
 import { BankQueryClient } from "../codegen/Bank.client";
 import { BankMsgComposer } from "../codegen/Bank.message-composer";
 
+import { MinterMsgComposer } from "../codegen/Minter.message-composer";
+import { MinterQueryClient } from "../codegen/Minter.client";
+
 import CONFIG_JSON from "../config/config.json";
-import { getLast, getPaginationAmount, l, logAndReturn } from "../utils";
+import {
+  getLast,
+  getPaginationAmount,
+  l,
+  logAndReturn,
+  numberFrom,
+} from "../utils";
 import { toBase64, fromUtf8, toUtf8 } from "@cosmjs/encoding";
 import {
   MsgMigrateContract,
@@ -40,10 +49,15 @@ import {
   UserInfoResponse,
   WeightItem,
 } from "../codegen/Bank.types";
+import {
+  InstantiateMarketingInfo,
+  Logo,
+  Metadata,
+} from "../codegen/Minter.types";
 
 function addSingleTokenToComposerObj(
   obj: MsgExecuteContractEncodeObject,
-  amount: number,
+  amount: math.BigNumber,
   token: TokenUnverified
 ): MsgExecuteContractEncodeObject {
   const {
@@ -67,7 +81,7 @@ function getSingleTokenExecMsg(
   contractAddress: string,
   senderAddress: string,
   msg: any,
-  amount?: number,
+  amount?: math.BigNumber,
   token?: TokenUnverified
 ) {
   // get msg without funds
@@ -78,7 +92,7 @@ function getSingleTokenExecMsg(
   // get msg with native token
   if ("native" in token) {
     return getExecuteContractMsg(contractAddress, senderAddress, msg, [
-      coin(amount, token.native.denom),
+      coin(amount.toFixed(), token.native.denom),
     ]);
   }
 
@@ -86,7 +100,7 @@ function getSingleTokenExecMsg(
   const cw20SendMsg: Cw20SendMsg = {
     send: {
       contract: contractAddress,
-      amount: `${amount}`,
+      amount: amount.toFixed(),
       msg: toBase64(msg),
     },
   };
@@ -105,6 +119,7 @@ function getSymbol(token: Token) {
 
 function getContracts(contracts: ContractInfo[]) {
   let BANK_CONTRACT: ContractInfo | undefined;
+  let MINTER_CONTRACT: ContractInfo | undefined;
 
   try {
     BANK_CONTRACT = getContractByLabel(contracts, "bank");
@@ -112,8 +127,15 @@ function getContracts(contracts: ContractInfo[]) {
     l(error);
   }
 
+  try {
+    MINTER_CONTRACT = getContractByLabel(contracts, "minter");
+  } catch (error) {
+    l(error);
+  }
+
   return {
     BANK_CONTRACT,
+    MINTER_CONTRACT,
   };
 }
 
@@ -128,7 +150,7 @@ async function getCwExecHelpers(
     OPTION: { CONTRACTS },
   } = getChainOptionById(CHAIN_CONFIG, chainId);
 
-  const { BANK_CONTRACT } = getContracts(CONTRACTS);
+  const { BANK_CONTRACT, MINTER_CONTRACT } = getContracts(CONTRACTS);
 
   const cwClient = await getCwClient(rpc, owner, signer);
   if (!cwClient) throw new Error("cwClient is not found!");
@@ -139,6 +161,11 @@ async function getCwExecHelpers(
   const bankMsgComposer = new BankMsgComposer(
     owner,
     BANK_CONTRACT?.ADDRESS || ""
+  );
+
+  const minterMsgComposer = new MinterMsgComposer(
+    owner,
+    MINTER_CONTRACT?.ADDRESS || ""
   );
 
   async function _msgWrapperWithGasPrice(
@@ -201,7 +228,7 @@ async function getCwExecHelpers(
   // bank
 
   async function cwDepositUsdc(
-    usdcAmount: number,
+    usdcAmount: number | string,
     token: TokenUnverified,
     gasPrice: string
   ) {
@@ -209,7 +236,7 @@ async function getCwExecHelpers(
       [
         addSingleTokenToComposerObj(
           bankMsgComposer.depositUsdc(),
-          usdcAmount,
+          numberFrom(usdcAmount),
           token
         ),
       ],
@@ -218,17 +245,21 @@ async function getCwExecHelpers(
   }
 
   async function cwWithdrawAusdc(
-    { ausdcAmount }: { ausdcAmount?: number },
+    { ausdcAmount }: { ausdcAmount?: number | string },
     gasPrice: string
   ) {
+    const arg = ausdcAmount
+      ? { ausdcAmount: numberFrom(ausdcAmount).toFixed() }
+      : {};
+
     return await _msgWrapperWithGasPrice(
-      [bankMsgComposer.withdrawAusdc({ ausdcAmount: ausdcAmount?.toString() })],
+      [bankMsgComposer.withdrawAusdc(arg)],
       gasPrice
     );
   }
 
   async function cwDepositAusdc(
-    ausdcAmount: number,
+    ausdcAmount: number | string,
     token: TokenUnverified,
     gasPrice: string
   ) {
@@ -236,7 +267,7 @@ async function getCwExecHelpers(
       [
         addSingleTokenToComposerObj(
           bankMsgComposer.depositAusdc(),
-          ausdcAmount,
+          numberFrom(ausdcAmount),
           token
         ),
       ],
@@ -245,17 +276,21 @@ async function getCwExecHelpers(
   }
 
   async function cwWithdrawUsdc(
-    { ausdcAmount }: { ausdcAmount?: number },
+    { ausdcAmount }: { ausdcAmount?: number | string },
     gasPrice: string
   ) {
+    const arg = ausdcAmount
+      ? { ausdcAmount: numberFrom(ausdcAmount).toFixed() }
+      : {};
+
     return await _msgWrapperWithGasPrice(
-      [bankMsgComposer.withdrawUsdc({ ausdcAmount: ausdcAmount?.toString() })],
+      [bankMsgComposer.withdrawUsdc(arg)],
       gasPrice
     );
   }
 
   async function cwEnableDca(
-    fraction: number,
+    fraction: number | string,
     weights: WeightItem[],
     { swaps }: { swaps?: number },
     gasPrice: string
@@ -263,7 +298,7 @@ async function getCwExecHelpers(
     return await _msgWrapperWithGasPrice(
       [
         bankMsgComposer.enableDca({
-          fraction: fraction?.toString(),
+          fraction: numberFrom(fraction).toString(),
           weights,
           swaps,
         }),
@@ -287,21 +322,24 @@ async function getCwExecHelpers(
   }
 
   async function cwClaimAndSwap(
-    rewards: number,
-    usdcYield: number,
+    rewards: number | string,
+    usdcYield: number | string,
     assets: AssetItem[],
-    feeAmount: number,
-    prices: [string, number][], // [symbol, price][]
+    feeAmount: number | string,
+    prices: [string, number | string][], // [symbol, price][]
     gasPrice: string
   ) {
     return await _msgWrapperWithGasPrice(
       [
         bankMsgComposer.claimAndSwap({
-          rewards: rewards.toString(),
-          usdcYield: usdcYield.toString(),
+          rewards: numberFrom(rewards).toFixed(),
+          usdcYield: numberFrom(usdcYield).toFixed(),
           assets,
-          feeAmount: feeAmount.toString(),
-          prices: prices.map(([symbol, price]) => [symbol, price.toString()]),
+          feeAmount: numberFrom(feeAmount).toFixed(),
+          prices: prices.map(([symbol, price]) => [
+            symbol,
+            numberFrom(price).toString(),
+          ]),
         }),
       ],
       gasPrice
@@ -311,16 +349,37 @@ async function getCwExecHelpers(
   async function cwRegisterAsset(
     token: TokenUnverified,
     decimals: number,
-    price: number,
+    price: number | string,
     gasPrice: string
   ) {
     return await _msgWrapperWithGasPrice(
       [
         bankMsgComposer.registerAsset({
           asset: { token, decimals },
-          price: price.toString(),
+          price: numberFrom(price).toString(),
         }),
       ],
+      gasPrice
+    );
+  }
+
+  async function cwUpdateUserState(addresses: string[], gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [bankMsgComposer.updateUserState({ addresses })],
+      gasPrice
+    );
+  }
+
+  async function cwEnableCapture(gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [bankMsgComposer.enableCapture()],
+      gasPrice
+    );
+  }
+
+  async function cwDisableCapture(gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [bankMsgComposer.disableCapture()],
       gasPrice
     );
   }
@@ -344,18 +403,22 @@ async function getCwExecHelpers(
       controller?: string;
       usdc?: string;
       ausdc?: string;
-      totalUsdcLimit?: number;
+      totalUsdcLimit?: number | string;
     },
     gasPrice: string
   ) {
+    const arg = totalUsdcLimit
+      ? { totalUsdcLimit: numberFrom(totalUsdcLimit).toFixed() }
+      : {};
+
     return await _msgWrapperWithGasPrice(
       [
         bankMsgComposer.updateConfig({
+          ...arg,
           admin,
           controller,
           usdc,
           ausdc,
-          totalUsdcLimit: totalUsdcLimit?.toString(),
         }),
       ],
       gasPrice
@@ -370,9 +433,363 @@ async function getCwExecHelpers(
     return await _msgWrapperWithGasPrice([bankMsgComposer.unpause()], gasPrice);
   }
 
-  async function cwSetYieldRate(value: number, gasPrice: string) {
+  async function cwSetYieldRate(value: number | string, gasPrice: string) {
     return await _msgWrapperWithGasPrice(
-      [bankMsgComposer.setYieldRate({ value: value.toString() })],
+      [bankMsgComposer.setYieldRate({ value: numberFrom(value).toString() })],
+      gasPrice
+    );
+  }
+
+  // minter
+
+  async function cwMinterAcceptAdminRole(gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [minterMsgComposer.acceptAdminRole()],
+      gasPrice
+    );
+  }
+
+  async function cwMinterAcceptTokenOwnerRole(gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [minterMsgComposer.acceptTokenOwnerRole()],
+      gasPrice
+    );
+  }
+
+  async function cwMinterPause(gasPrice: string) {
+    return await _msgWrapperWithGasPrice([minterMsgComposer.pause()], gasPrice);
+  }
+
+  async function cwMinterUnpause(gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [minterMsgComposer.unpause()],
+      gasPrice
+    );
+  }
+
+  async function cwMinterUpdateConfig(
+    {
+      admin,
+      cw20CodeId,
+      maxTokensPerOwner,
+      permissionlessTokenCreation,
+      permissionlessTokenRegistration,
+      whitelist,
+    }: {
+      admin?: string;
+      cw20CodeId?: number;
+      maxTokensPerOwner?: number;
+      permissionlessTokenCreation?: boolean;
+      permissionlessTokenRegistration?: boolean;
+      whitelist?: string[];
+    },
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        minterMsgComposer.updateConfig({
+          admin,
+          cw20CodeId,
+          maxTokensPerOwner,
+          permissionlessTokenCreation,
+          permissionlessTokenRegistration,
+          whitelist,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwUpdateFaucetConfig(
+    {
+      claimCooldown,
+      claimableAmount,
+      denomOrAddress,
+    }: {
+      claimCooldown?: number;
+      claimableAmount?: number;
+      denomOrAddress: string;
+    },
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        minterMsgComposer.updateFaucetConfig({
+          claimCooldown,
+          claimableAmount: claimableAmount?.toString(),
+          denomOrAddress,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwCreateNative(
+    subdenom: string,
+    {
+      decimals,
+      owner,
+      permissionlessBurning,
+      whitelist,
+    }: {
+      decimals?: number;
+      owner?: string;
+      permissionlessBurning?: boolean;
+      whitelist?: string[];
+    },
+    paymentAmount: number | string,
+    paymentDenom: string,
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        addSingleTokenToComposerObj(
+          minterMsgComposer.createNative({
+            subdenom,
+            decimals,
+            owner,
+            permissionlessBurning,
+            whitelist,
+          }),
+          numberFrom(paymentAmount),
+          {
+            native: { denom: paymentDenom },
+          }
+        ),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwCreateCw20(
+    name: string,
+    symbol: string,
+    {
+      cw20CodeId,
+      decimals,
+      marketing,
+      owner,
+      permissionlessBurning,
+      whitelist,
+    }: {
+      cw20CodeId?: number;
+      decimals?: number;
+      marketing?: InstantiateMarketingInfo;
+      owner?: string;
+      permissionlessBurning?: boolean;
+      whitelist?: string[];
+    },
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        minterMsgComposer.createCw20({
+          name,
+          symbol,
+          cw20CodeId,
+          decimals,
+          marketing,
+          owner,
+          permissionlessBurning,
+          whitelist,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwRegisterNative(
+    denom: string,
+    {
+      decimals,
+      owner,
+      permissionlessBurning,
+      whitelist,
+    }: {
+      decimals?: number;
+      owner?: string;
+      permissionlessBurning?: boolean;
+      whitelist?: string[];
+    },
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        minterMsgComposer.registerNative({
+          denom,
+          decimals,
+          owner,
+          permissionlessBurning,
+          whitelist,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwRegisterCw20(
+    address: string,
+    {
+      cw20CodeId,
+      decimals,
+      owner,
+      permissionlessBurning,
+      whitelist,
+    }: {
+      cw20CodeId?: number;
+      decimals?: number;
+      owner?: string;
+      permissionlessBurning?: boolean;
+      whitelist?: string[];
+    },
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        minterMsgComposer.registerCw20({
+          address,
+          cw20CodeId,
+          decimals,
+          owner,
+          permissionlessBurning,
+          whitelist,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwUpdateCurrencyInfo(
+    denomOrAddress: string,
+    {
+      owner,
+      permissionlessBurning,
+      whitelist,
+    }: {
+      owner?: string;
+      permissionlessBurning?: boolean;
+      whitelist?: string[];
+    },
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        minterMsgComposer.updateCurrencyInfo({
+          denomOrAddress,
+          owner,
+          permissionlessBurning,
+          whitelist,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwUpdateMetadataNative(
+    denom: string,
+    metadata: Metadata,
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        minterMsgComposer.updateMetadataNative({
+          denom,
+          metadata,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwUpdateMetadataCw20(
+    address: string,
+    {
+      description,
+      logo,
+      project,
+    }: {
+      description?: string;
+      logo?: Logo;
+      project?: string;
+    },
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        minterMsgComposer.updateMetadataCw20({
+          address,
+          description,
+          logo,
+          project,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwExcludeNative(denom: string, gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [minterMsgComposer.excludeNative({ denom })],
+      gasPrice
+    );
+  }
+
+  async function cwExcludeCw20(address: string, gasPrice: string) {
+    return await _msgWrapperWithGasPrice(
+      [minterMsgComposer.excludeCw20({ address })],
+      gasPrice
+    );
+  }
+
+  async function cwMint(
+    amount: number | string,
+    denomOrAddress: string,
+    recipient: string | undefined = undefined,
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        minterMsgComposer.mint({
+          denomOrAddress,
+          amount: numberFrom(amount).toFixed(),
+          recipient,
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwMintMultiple(
+    denomOrAddress: string,
+    accountAndAmountList: [string, number | string][],
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        minterMsgComposer.mintMultiple({
+          denomOrAddress,
+          accountAndAmountList: accountAndAmountList.map(
+            ([account, amount]) => [account, numberFrom(amount).toFixed()]
+          ),
+        }),
+      ],
+      gasPrice
+    );
+  }
+
+  async function cwBurn(
+    amount: number | string,
+    token: TokenUnverified,
+    gasPrice: string
+  ) {
+    return await _msgWrapperWithGasPrice(
+      [
+        addSingleTokenToComposerObj(
+          minterMsgComposer.burn(),
+          numberFrom(amount),
+          token
+        ),
+      ],
       gasPrice
     );
   }
@@ -389,11 +806,34 @@ async function getCwExecHelpers(
       cwClaimAssets,
       cwClaimAndSwap,
       cwRegisterAsset,
+      cwUpdateUserState,
+      cwEnableCapture,
+      cwDisableCapture,
       cwAcceptAdminRole,
       cwUpdateConfig,
       cwPause,
       cwUnpause,
       cwSetYieldRate,
+    },
+    minter: {
+      cwAcceptAdminRole: cwMinterAcceptAdminRole,
+      cwAcceptTokenOwnerRole: cwMinterAcceptTokenOwnerRole,
+      cwMinterPause: cwMinterPause,
+      cwMinterUnpause: cwMinterUnpause,
+      cwUpdateConfig: cwMinterUpdateConfig,
+      cwUpdateFaucetConfig,
+      cwCreateNative,
+      cwCreateCw20,
+      cwRegisterNative,
+      cwRegisterCw20,
+      cwUpdateCurrencyInfo,
+      cwUpdateMetadataNative,
+      cwUpdateMetadataCw20,
+      cwExcludeNative,
+      cwExcludeCw20,
+      cwMint,
+      cwMintMultiple,
+      cwBurn,
     },
   };
 }
@@ -404,7 +844,7 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
     OPTION: { CONTRACTS },
   } = getChainOptionById(CHAIN_CONFIG, chainId);
 
-  const { BANK_CONTRACT } = getContracts(CONTRACTS);
+  const { BANK_CONTRACT, MINTER_CONTRACT } = getContracts(CONTRACTS);
 
   const cwClient = await getCwClient(rpc);
   if (!cwClient) throw new Error("cwClient is not found!");
@@ -416,6 +856,11 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
     BANK_CONTRACT?.ADDRESS || ""
   );
 
+  const minterQueryClient = new MinterQueryClient(
+    cosmwasmQueryClient,
+    MINTER_CONTRACT?.ADDRESS || ""
+  );
+
   // bank
 
   async function cwQueryConfig(isDisplayed: boolean = false) {
@@ -423,8 +868,8 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
     return logAndReturn(res, isDisplayed);
   }
 
-  async function cwQueryPauseState(isDisplayed: boolean = false) {
-    const res = await bankQueryClient.pauseState();
+  async function cwQueryState(isDisplayed: boolean = false) {
+    const res = await bankQueryClient.state();
     return logAndReturn(res, isDisplayed);
   }
 
@@ -458,7 +903,8 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
         startFrom: lastItem,
       });
 
-      lastItem = getSymbol(getLast(listResponse)?.token) || "";
+      const temp = getLast(listResponse);
+      lastItem = temp ? getSymbol(temp.token) : "";
       allItems = [...allItems, ...listResponse];
       count += listResponse.length;
     }
@@ -472,7 +918,7 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
 
   async function cwQueryAusdcPrice(isDisplayed: boolean = false) {
     const res = await bankQueryClient.ausdcPrice();
-    return logAndReturn(Number(res), isDisplayed);
+    return logAndReturn(numberFrom(res).toNumber(), isDisplayed);
   }
 
   async function cwQueryAppInfo(isDisplayed: boolean = false) {
@@ -490,18 +936,24 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
 
   async function cwQueryUserInfo(
     address: string,
-    { ausdcPriceNext }: { ausdcPriceNext?: number },
+    { ausdcPriceNext }: { ausdcPriceNext?: number | string },
     isDisplayed: boolean = false
   ) {
+    const arg = ausdcPriceNext
+      ? {
+          ausdcPriceNext: numberFrom(ausdcPriceNext).toString(),
+        }
+      : {};
+
     const res = await bankQueryClient.userInfo({
+      ...arg,
       address,
-      ausdcPriceNext: ausdcPriceNext?.toString(),
     });
     return logAndReturn(res, isDisplayed);
   }
 
   async function pQueryUserInfoList(
-    { ausdcPriceNext }: { ausdcPriceNext?: number },
+    { ausdcPriceNext }: { ausdcPriceNext?: number | string },
     maxPaginationAmount: number,
     maxCount: number = 0,
     isDisplayed: boolean = false
@@ -512,15 +964,51 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
     let lastItem: string | undefined = undefined;
     let count: number = 0;
 
+    const arg = ausdcPriceNext
+      ? {
+          ausdcPriceNext: numberFrom(ausdcPriceNext).toString(),
+        }
+      : {};
+
     while (lastItem !== "" && count < (maxCount || count + 1)) {
       const listResponse: UserInfoResponse[] =
         await bankQueryClient.userInfoList({
-          ausdcPriceNext: ausdcPriceNext?.toString(),
+          ...arg,
           amount: paginationAmount,
           startFrom: lastItem,
         });
 
       lastItem = getLast(listResponse)?.address || "";
+      allItems = [...allItems, ...listResponse];
+      count += listResponse.length;
+    }
+
+    if (maxCount) {
+      allItems = allItems.slice(0, maxCount);
+    }
+
+    return logAndReturn(allItems, isDisplayed);
+  }
+
+  async function pQueryUserCounterList(
+    maxPaginationAmount: number,
+    maxCount: number = 0,
+    isDisplayed: boolean = false
+  ) {
+    const paginationAmount = getPaginationAmount(maxPaginationAmount, maxCount);
+
+    let allItems: [string, number][] = [];
+    let lastItem: string | undefined = undefined;
+    let count: number = 0;
+
+    while (lastItem !== "" && count < (maxCount || count + 1)) {
+      const listResponse: [string, number][] =
+        await bankQueryClient.userCounterList({
+          amount: paginationAmount,
+          startFrom: lastItem,
+        });
+
+      lastItem = getLast(listResponse)?.[0] || "";
       allItems = [...allItems, ...listResponse];
       count += listResponse.length;
     }
@@ -558,10 +1046,71 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
     return logAndReturn(res, isDisplayed);
   }
 
+  // minter
+
+  async function cwMinterQueryConfig(isDisplayed: boolean = false) {
+    const res = await minterQueryClient.config();
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function cwQueryCurrencyInfo(
+    denomOrAddress: string,
+    isDisplayed: boolean = false
+  ) {
+    const res = await minterQueryClient.currencyInfo({ denomOrAddress });
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function cwQueryCurrencyInfoList(
+    amount: number = 100,
+    startAfter: string | undefined = undefined,
+    isDisplayed: boolean = false
+  ) {
+    const res = await minterQueryClient.currencyInfoList({
+      amount,
+      startAfter,
+    });
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function cwQueryCurrencyInfoListByOwner(
+    owner: string,
+    amount: number = 100,
+    startAfter: string | undefined = undefined,
+    isDisplayed: boolean = false
+  ) {
+    const res = await minterQueryClient.currencyInfoListByOwner({
+      owner,
+      amount,
+      startAfter,
+    });
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function cwQueryTokenCountList(
+    amount: number = 100,
+    startAfter: string | undefined = undefined,
+    isDisplayed: boolean = false
+  ) {
+    const res = await minterQueryClient.tokenCountList({
+      amount,
+      startAfter,
+    });
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function cwMinterQueryBalances(
+    account: string,
+    isDisplayed: boolean = false
+  ) {
+    const res = await minterQueryClient.balances({ account });
+    return logAndReturn(res, isDisplayed);
+  }
+
   return {
     bank: {
       cwQueryConfig,
-      cwQueryPauseState,
+      cwQueryState,
       cwQueryDistributionState,
       cwQueryAsset,
       pQueryAssetList,
@@ -570,10 +1119,19 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
       cwQueryDbAssets,
       cwQueryUserInfo,
       pQueryUserInfoList,
+      pQueryUserCounterList,
       cwQueryBalances,
       cwQueryBlockTime,
       cwQueryYieldRate,
       cwQueryRewards,
+    },
+    minter: {
+      cwQueryConfig: cwMinterQueryConfig,
+      cwQueryCurrencyInfo,
+      cwQueryCurrencyInfoList,
+      cwQueryCurrencyInfoListByOwner,
+      cwQueryTokenCountList,
+      cwQueryBalances: cwMinterQueryBalances,
     },
   };
 }

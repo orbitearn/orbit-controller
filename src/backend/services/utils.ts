@@ -9,7 +9,7 @@ const PATH_TO_CONFIG_JSON = rootPath("./src/common/config/config.json");
 
 // "$CHAIN_ID|$LABEL_A,$LABEL_B"
 function parseStoreArgs(): StoreArgs {
-  const args = getLast(process.argv).trim();
+  const args = getLast(process.argv)?.trim() || "";
   if (args.includes("/")) throw new Error("Store args are not specified!");
 
   const [chainId, labelListString] = args.split("|");
@@ -22,7 +22,7 @@ function parseStoreArgs(): StoreArgs {
 }
 
 function parseChainId(): string {
-  const arg = getLast(process.argv).trim();
+  const arg = getLast(process.argv)?.trim() || "";
   if (arg.includes("/")) throw new Error("Network name is not specified!");
 
   return arg;

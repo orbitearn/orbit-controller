@@ -1,14 +1,15 @@
 import { AES, enc } from "crypto-js";
 import util from "util";
+import { all, create } from "mathjs";
 import axios, {
   AxiosRequestConfig,
   AxiosInstance,
   CreateAxiosDefaults,
 } from "axios";
 
-const l = console.log.bind(console);
+export const l = console.log.bind(console);
 
-function li(object: any) {
+export function li(object: any) {
   console.log(
     util.inspect(object, {
       showHidden: false,
@@ -18,7 +19,7 @@ function li(object: any) {
   );
 }
 
-function logAndReturn<T>(object: T, isDisplayed: boolean = false): T {
+export function logAndReturn<T>(object: T, isDisplayed: boolean = false): T {
   if (isDisplayed) {
     l();
     li(object);
@@ -27,22 +28,22 @@ function logAndReturn<T>(object: T, isDisplayed: boolean = false): T {
   return object;
 }
 
-function floor(num: number, digits: number = 0): number {
+export function floor(num: number, digits: number = 0): number {
   const k = 10 ** digits;
   return Math.floor(k * num) / k;
 }
 
-function getLast<T>(arr: T[]) {
+export function getLast<T>(arr: T[]): T | undefined {
   return arr[arr.length - 1];
 }
 
-async function wait(delayInMilliseconds: number): Promise<void> {
+export async function wait(delayInMilliseconds: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, delayInMilliseconds);
   });
 }
 
-class Request {
+export class Request {
   private req: AxiosInstance;
 
   constructor(config: CreateAxiosDefaults = {}) {
@@ -58,11 +59,14 @@ class Request {
   }
 }
 
-function encrypt(data: string, key: string): string {
+export function encrypt(data: string, key: string): string {
   return AES.encrypt(data, key).toString();
 }
 
-function decrypt(encryptedData: string, key: string): string | undefined {
+export function decrypt(
+  encryptedData: string,
+  key: string
+): string | undefined {
   // "Malformed UTF-8 data" workaround
   try {
     const bytes = AES.decrypt(encryptedData, key);
@@ -72,7 +76,7 @@ function decrypt(encryptedData: string, key: string): string | undefined {
   }
 }
 
-function getPaginationAmount(
+export function getPaginationAmount(
   maxPaginationAmount: number,
   maxCount: number
 ): number {
@@ -88,15 +92,23 @@ function getPaginationAmount(
     : maxPaginationAmount;
 }
 
-export {
-  Request,
-  l,
-  li,
-  logAndReturn,
-  floor,
-  getLast,
-  wait,
-  encrypt,
-  decrypt,
-  getPaginationAmount,
-};
+// configure the default type of numbers as BigNumbers
+const math = create(all, {
+  // Default type of number
+  // Available options: 'number' (default), 'BigNumber', or 'Fraction'
+  number: "BigNumber",
+  // Number of significant digits for BigNumbers
+  precision: 256,
+});
+
+export function numberFrom(
+  value: number | string | bigint | undefined | null
+): math.BigNumber {
+  if (typeof value === "undefined" || value === "") {
+    return math.bignumber(0);
+  }
+
+  return typeof value === "bigint"
+    ? math.bignumber(value.toString())
+    : math.bignumber(value);
+}

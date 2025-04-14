@@ -99,7 +99,7 @@ export class UserRequest {
     address: string,
     assetList: AssetItem[],
     timestamp: Date | number
-  ): Promise<IUserDataDocument> {
+  ): Promise<IUserDataDocument | undefined> {
     try {
       const date = toDate(timestamp);
       const documents = assetList.map(({ symbol, amount }) => ({

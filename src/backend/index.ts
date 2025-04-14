@@ -1,5 +1,5 @@
 import express from "express";
-import { getLast, l, li, wait } from "../common/utils";
+import { getLast, l, li, numberFrom, wait } from "../common/utils";
 import { text, json } from "body-parser";
 import cors from "cors";
 import { api } from "./routes/api";
@@ -16,6 +16,7 @@ import { BANK, CHAIN_ID, MS_PER_SECOND } from "./constants";
 import { extractPrices, getAllPrices, getTokenSymbol } from "./helpers";
 import { calcAusdcPrice, calcClaimAndSwapData } from "./helpers/math";
 import { AssetPrice } from "./db/types";
+import * as math from "mathjs";
 import {
   getCwExecHelpers,
   getCwQueryHelpers,
@@ -81,15 +82,18 @@ app.listen(PORT, async () => {
 
   // helpers
   const getNextAusdcPrice = async () => {
+    const DECIMAL_PRECISION = 18;
     const appInfo = await bank.cwQueryAppInfo();
     const rewards = await bank.cwQueryRewards();
     const ausdcPrice = await bank.cwQueryAusdcPrice();
     const nextAusdcPrice = calcAusdcPrice(
-      Number(appInfo.usdc_net) + Number(rewards),
-      Number(appInfo.ausdc.minted)
+      numberFrom(appInfo.usdc_net).add(numberFrom(rewards)),
+      numberFrom(appInfo.ausdc.minted)
     );
 
-    return Math.max(nextAusdcPrice, ausdcPrice);
+    return math
+      .max([nextAusdcPrice, ausdcPrice])
+      .toPrecision(DECIMAL_PRECISION);
   };
 
   console.clear();
@@ -105,7 +109,8 @@ app.listen(PORT, async () => {
 
     // check distribution date
     try {
-      const { update_date: lastUpdateDate } =
+      // const userCounterList = await bank.pQueryUserCounterList(BANK.PAGINATION.USER_COUNTER);
+      const { update_date: lastUpdateDate, counter: appCounter } =
         await bank.cwQueryDistributionState({});
       blockTime = await bank.cwQueryBlockTime();
       nextUpdateDate = lastUpdateDate + BANK.DISTRIBUTION_PERIOD;
@@ -113,23 +118,33 @@ app.listen(PORT, async () => {
       l(error);
     }
 
+    // TODO: add
+    // let app_counter = h.bank_query_distribution_state(None)?.counter;
+    // let user_counter_list = h.bank_query_user_counter_list(9, None)?;
+    // let users_to_update: Vec<_> = user_counter_list
+    //     .iter()
+    //     .filter(|(_, counter)| app_counter >= counter + 50)
+    //     .map(|(address, _)| address.to_owned())
+    //     .collect();
+    // h.bank_try_update_user_state(owner, &users_to_update)?;
+
     if (blockTime < nextUpdateDate) {
       continue;
     }
 
-    // pause, collect and process data, claim and swap
+    // enable capture mode, collect and process data, claim and swap
     let priceList: [string, number][] = [];
     try {
-      const isPaused = await bank.cwQueryPauseState();
-      if (!isPaused) {
-        await h.bank.cwPause(gasPrice);
+      const isCaptureMode = (await bank.cwQueryState()).capture_mode;
+      if (!isCaptureMode) {
+        await h.bank.cwEnableCapture(gasPrice);
       }
 
       priceList = extractPrices(await getAllPrices());
       const ausdcPriceNext = await getNextAusdcPrice();
       const userInfoList = await bank.pQueryUserInfoList(
         { ausdcPriceNext },
-        BANK.PAGINATION_AMOUNT
+        BANK.PAGINATION.USER_INFO
       );
       const [rewards, usdcYield, assets, feeSum] =
         calcClaimAndSwapData(userInfoList);
@@ -168,12 +183,14 @@ app.listen(PORT, async () => {
           })),
         ];
 
-        await dbClient.connect();
         try {
+          await dbClient.connect();
           await AppRequest.addDataItem(blockTime, counter, assetPrices);
           l("Prices are stored in DB");
         } catch (_) {}
-        await dbClient.disconnect();
+        try {
+          await dbClient.disconnect();
+        } catch (_) {}
 
         isAusdcPriceUpdated = true;
       }
