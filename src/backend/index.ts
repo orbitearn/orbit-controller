@@ -1,5 +1,4 @@
 import express from "express";
-import { l, li, numberFrom, wait } from "../common/utils";
 import { text, json } from "body-parser";
 import cors from "cors";
 import { api } from "./routes/api";
@@ -27,6 +26,13 @@ import {
   MS_PER_SECOND,
   PATH_TO_CONFIG_JSON,
 } from "./services/utils";
+import {
+  DECIMAL_PLACES,
+  decimalFrom,
+  l,
+  numberFrom,
+  wait,
+} from "../common/utils";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
@@ -83,7 +89,6 @@ app.listen(PORT, async () => {
 
   // helpers
   const getNextAusdcPrice = async () => {
-    const DECIMAL_PRECISION = 18;
     const appInfo = await bank.cwQueryAppInfo();
     const rewards = await bank.cwQueryRewards();
     const ausdcPrice = await bank.cwQueryAusdcPrice();
@@ -92,9 +97,7 @@ app.listen(PORT, async () => {
       numberFrom(appInfo.ausdc.minted)
     );
 
-    return math
-      .max([nextAusdcPrice, ausdcPrice])
-      .toPrecision(DECIMAL_PRECISION);
+    return decimalFrom(math.max([nextAusdcPrice, numberFrom(ausdcPrice)]));
   };
 
   console.clear();
@@ -144,7 +147,7 @@ app.listen(PORT, async () => {
     }
 
     // enable capture mode, collect and process data, claim and swap
-    let priceList: [string, number][] = [];
+    let priceList: [string, math.BigNumber][] = [];
     try {
       const isCaptureMode = (await bank.cwQueryState()).capture_mode;
       if (!isCaptureMode) {
@@ -154,7 +157,7 @@ app.listen(PORT, async () => {
       priceList = extractPrices(await getAllPrices());
       const ausdcPriceNext = await getNextAusdcPrice();
       const userInfoList = await bank.pQueryUserInfoList(
-        { ausdcPriceNext },
+        { ausdcPriceNext: numberFrom(ausdcPriceNext) },
         BANK.PAGINATION.USER_INFO
       );
       const [rewards, usdcYield, assets, feeSum] =
@@ -190,7 +193,7 @@ app.listen(PORT, async () => {
           { asset: ausdcSymbol, price: ausdcPrice },
           ...priceList.map(([asset, price]) => ({
             asset,
-            price,
+            price: price.toDecimalPlaces(DECIMAL_PLACES).toNumber(),
           })),
         ];
 

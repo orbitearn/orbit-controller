@@ -9,6 +9,7 @@ import { CHAIN_ID } from "../constants";
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { IAppDataDocument, IUserDataDocument } from "../db/types";
 import { extractPrices, getAllPrices, updateUserData } from "../helpers";
+import { dedupVector } from "../../common/utils";
 import {
   calcAverageEntryPriceList,
   calcProfit,
@@ -33,7 +34,7 @@ export async function getAverageEntryPrice(
     );
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
-    const assetList: string[] = [...new Set(userData.map((x) => x.asset))];
+    const assetList: string[] = dedupVector(userData.map((x) => x.asset));
     averagePriceList = calcAverageEntryPriceList(assetList, appData, userData);
   } catch (_) {}
 
@@ -61,7 +62,7 @@ export async function getProfit(
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
     const currentPriceList = extractPrices(await getAllPrices());
-    const assetList: string[] = [...new Set(userData.map((x) => x.asset))];
+    const assetList: string[] = dedupVector(userData.map((x) => x.asset));
     profitList = calcProfit(currentPriceList, assetList, appData, userData);
   } catch (_) {}
 

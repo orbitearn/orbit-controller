@@ -6,6 +6,7 @@ import { MinterQueryClient } from "../codegen/Minter.client";
 
 import CONFIG_JSON from "../config/config.json";
 import {
+  decimalFrom,
   getLast,
   getPaginationAmount,
   l,
@@ -139,7 +140,7 @@ function getContracts(contracts: ContractInfo[]) {
   };
 }
 
-async function getCwExecHelpers(
+export async function getCwExecHelpers(
   chainId: string,
   rpc: string,
   owner: string,
@@ -228,7 +229,7 @@ async function getCwExecHelpers(
   // bank
 
   async function cwDepositUsdc(
-    usdcAmount: number | string,
+    usdcAmount: math.BigNumber,
     token: TokenUnverified,
     gasPrice: string
   ) {
@@ -236,7 +237,7 @@ async function getCwExecHelpers(
       [
         addSingleTokenToComposerObj(
           bankMsgComposer.depositUsdc(),
-          numberFrom(usdcAmount),
+          usdcAmount,
           token
         ),
       ],
@@ -245,21 +246,17 @@ async function getCwExecHelpers(
   }
 
   async function cwWithdrawAusdc(
-    { ausdcAmount }: { ausdcAmount?: number | string },
+    { ausdcAmount }: { ausdcAmount?: math.BigNumber },
     gasPrice: string
   ) {
-    const arg = ausdcAmount
-      ? { ausdcAmount: numberFrom(ausdcAmount).toFixed() }
-      : {};
-
     return await _msgWrapperWithGasPrice(
-      [bankMsgComposer.withdrawAusdc(arg)],
+      [bankMsgComposer.withdrawAusdc({ ausdcAmount: ausdcAmount?.toFixed() })],
       gasPrice
     );
   }
 
   async function cwDepositAusdc(
-    ausdcAmount: number | string,
+    ausdcAmount: math.BigNumber,
     token: TokenUnverified,
     gasPrice: string
   ) {
@@ -267,7 +264,7 @@ async function getCwExecHelpers(
       [
         addSingleTokenToComposerObj(
           bankMsgComposer.depositAusdc(),
-          numberFrom(ausdcAmount),
+          ausdcAmount,
           token
         ),
       ],
@@ -276,21 +273,17 @@ async function getCwExecHelpers(
   }
 
   async function cwWithdrawUsdc(
-    { ausdcAmount }: { ausdcAmount?: number | string },
+    { ausdcAmount }: { ausdcAmount?: math.BigNumber },
     gasPrice: string
   ) {
-    const arg = ausdcAmount
-      ? { ausdcAmount: numberFrom(ausdcAmount).toFixed() }
-      : {};
-
     return await _msgWrapperWithGasPrice(
-      [bankMsgComposer.withdrawUsdc(arg)],
+      [bankMsgComposer.withdrawUsdc({ ausdcAmount: ausdcAmount?.toFixed() })],
       gasPrice
     );
   }
 
   async function cwEnableDca(
-    fraction: number | string,
+    fraction: math.BigNumber,
     weights: WeightItem[],
     { swaps }: { swaps?: number },
     gasPrice: string
@@ -298,7 +291,7 @@ async function getCwExecHelpers(
     return await _msgWrapperWithGasPrice(
       [
         bankMsgComposer.enableDca({
-          fraction: numberFrom(fraction).toString(),
+          fraction: decimalFrom(fraction),
           weights,
           swaps,
         }),
@@ -322,24 +315,21 @@ async function getCwExecHelpers(
   }
 
   async function cwClaimAndSwap(
-    rewards: number | string,
-    usdcYield: number | string,
+    rewards: math.BigNumber,
+    usdcYield: math.BigNumber,
     assets: AssetItem[],
-    feeAmount: number | string,
-    prices: [string, number | string][], // [symbol, price][]
+    feeAmount: math.BigNumber,
+    prices: [string, math.BigNumber][], // [symbol, price][]
     gasPrice: string
   ) {
     return await _msgWrapperWithGasPrice(
       [
         bankMsgComposer.claimAndSwap({
-          rewards: numberFrom(rewards).toFixed(),
-          usdcYield: numberFrom(usdcYield).toFixed(),
+          rewards: rewards.toFixed(),
+          usdcYield: usdcYield.toFixed(),
           assets,
-          feeAmount: numberFrom(feeAmount).toFixed(),
-          prices: prices.map(([symbol, price]) => [
-            symbol,
-            numberFrom(price).toString(),
-          ]),
+          feeAmount: feeAmount.toFixed(),
+          prices: prices.map(([symbol, price]) => [symbol, decimalFrom(price)]),
         }),
       ],
       gasPrice
@@ -349,14 +339,14 @@ async function getCwExecHelpers(
   async function cwRegisterAsset(
     token: TokenUnverified,
     decimals: number,
-    price: number | string,
+    price: math.BigNumber,
     gasPrice: string
   ) {
     return await _msgWrapperWithGasPrice(
       [
         bankMsgComposer.registerAsset({
           asset: { token, decimals },
-          price: numberFrom(price).toString(),
+          price: decimalFrom(price),
         }),
       ],
       gasPrice
@@ -403,18 +393,14 @@ async function getCwExecHelpers(
       controller?: string;
       usdc?: string;
       ausdc?: string;
-      totalUsdcLimit?: number | string;
+      totalUsdcLimit?: math.BigNumber;
     },
     gasPrice: string
   ) {
-    const arg = totalUsdcLimit
-      ? { totalUsdcLimit: numberFrom(totalUsdcLimit).toFixed() }
-      : {};
-
     return await _msgWrapperWithGasPrice(
       [
         bankMsgComposer.updateConfig({
-          ...arg,
+          totalUsdcLimit: totalUsdcLimit?.toFixed(),
           admin,
           controller,
           usdc,
@@ -433,9 +419,9 @@ async function getCwExecHelpers(
     return await _msgWrapperWithGasPrice([bankMsgComposer.unpause()], gasPrice);
   }
 
-  async function cwSetYieldRate(value: number | string, gasPrice: string) {
+  async function cwSetYieldRate(value: math.BigNumber, gasPrice: string) {
     return await _msgWrapperWithGasPrice(
-      [bankMsgComposer.setYieldRate({ value: numberFrom(value).toString() })],
+      [bankMsgComposer.setYieldRate({ value: decimalFrom(value) })],
       gasPrice
     );
   }
@@ -537,7 +523,7 @@ async function getCwExecHelpers(
       permissionlessBurning?: boolean;
       whitelist?: string[];
     },
-    paymentAmount: number | string,
+    paymentAmount: math.BigNumber,
     paymentDenom: string,
     gasPrice: string
   ) {
@@ -551,7 +537,7 @@ async function getCwExecHelpers(
             permissionlessBurning,
             whitelist,
           }),
-          numberFrom(paymentAmount),
+          paymentAmount,
           {
             native: { denom: paymentDenom },
           }
@@ -761,7 +747,7 @@ async function getCwExecHelpers(
 
   async function cwMintMultiple(
     denomOrAddress: string,
-    accountAndAmountList: [string, number | string][],
+    accountAndAmountList: [string, math.BigNumber][],
     gasPrice: string
   ) {
     return await _msgWrapperWithGasPrice(
@@ -769,7 +755,7 @@ async function getCwExecHelpers(
         minterMsgComposer.mintMultiple({
           denomOrAddress,
           accountAndAmountList: accountAndAmountList.map(
-            ([account, amount]) => [account, numberFrom(amount).toFixed()]
+            ([account, amount]) => [account, amount.toFixed()]
           ),
         }),
       ],
@@ -778,18 +764,12 @@ async function getCwExecHelpers(
   }
 
   async function cwBurn(
-    amount: number | string,
+    amount: math.BigNumber,
     token: TokenUnverified,
     gasPrice: string
   ) {
     return await _msgWrapperWithGasPrice(
-      [
-        addSingleTokenToComposerObj(
-          minterMsgComposer.burn(),
-          numberFrom(amount),
-          token
-        ),
-      ],
+      [addSingleTokenToComposerObj(minterMsgComposer.burn(), amount, token)],
       gasPrice
     );
   }
@@ -838,7 +818,7 @@ async function getCwExecHelpers(
   };
 }
 
-async function getCwQueryHelpers(chainId: string, rpc: string) {
+export async function getCwQueryHelpers(chainId: string, rpc: string) {
   const CHAIN_CONFIG = CONFIG_JSON as ChainConfig;
   const {
     OPTION: { CONTRACTS },
@@ -936,44 +916,35 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
 
   async function cwQueryUserInfo(
     address: string,
-    { ausdcPriceNext }: { ausdcPriceNext?: number | string },
+    { ausdcPriceNext }: { ausdcPriceNext?: math.BigNumber },
     isDisplayed: boolean = false
   ) {
-    const arg = ausdcPriceNext
-      ? {
-          ausdcPriceNext: numberFrom(ausdcPriceNext).toString(),
-        }
-      : {};
-
     const res = await bankQueryClient.userInfo({
-      ...arg,
+      ausdcPriceNext: ausdcPriceNext ? decimalFrom(ausdcPriceNext) : undefined,
       address,
     });
     return logAndReturn(res, isDisplayed);
   }
 
   async function pQueryUserInfoList(
-    { ausdcPriceNext }: { ausdcPriceNext?: number | string },
+    { ausdcPriceNext }: { ausdcPriceNext?: math.BigNumber },
     maxPaginationAmount: number,
     maxCount: number = 0,
     isDisplayed: boolean = false
   ) {
     const paginationAmount = getPaginationAmount(maxPaginationAmount, maxCount);
+    const ausdcPriceNextDec = ausdcPriceNext
+      ? decimalFrom(ausdcPriceNext)
+      : undefined;
 
     let allItems: UserInfoResponse[] = [];
     let lastItem: string | undefined = undefined;
     let count: number = 0;
 
-    const arg = ausdcPriceNext
-      ? {
-          ausdcPriceNext: numberFrom(ausdcPriceNext).toString(),
-        }
-      : {};
-
     while (lastItem !== "" && count < (maxCount || count + 1)) {
       const listResponse: UserInfoResponse[] =
         await bankQueryClient.userInfoList({
-          ...arg,
+          ausdcPriceNext: ausdcPriceNextDec,
           amount: paginationAmount,
           startFrom: lastItem,
         });
@@ -1135,5 +1106,3 @@ async function getCwQueryHelpers(chainId: string, rpc: string) {
     },
   };
 }
-
-export { getCwExecHelpers, getCwQueryHelpers };

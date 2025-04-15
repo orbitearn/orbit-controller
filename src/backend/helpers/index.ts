@@ -1,14 +1,15 @@
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { AssetItem, Token } from "../../common/codegen/Bank.types";
 import { TokenInfo } from "../../common/interfaces";
-import { l, Request } from "../../common/utils/index";
+import { dedupVector, l, numberFrom, Request } from "../../common/utils/index";
 import { AssetAmount, TimestampData } from "../db/types";
 import { DatabaseClient } from "../db/client";
 import { AppRequest, UserRequest } from "../db/requests";
 import { dateToTimestamp } from "../services/utils";
+import * as math from "mathjs";
 
 export interface PriceItem {
-  price: string;
+  price: math.BigNumber;
   symbol: string;
 }
 
@@ -29,24 +30,23 @@ export async function getAllPrices(symbols?: string[]): Promise<PriceItem[]> {
         continue;
       }
 
-      prices.push({ symbol: denom, price: priceUSD.toString() });
+      prices.push({ symbol: denom, price: numberFrom(priceUSD) });
     }
   } catch (_) {}
 
   // remove duplications calculating average prices
-  let denoms = [...new Set(prices.map((x) => x.symbol))];
+  let denoms = dedupVector(prices.map((x) => x.symbol));
   denoms = symbols ? denoms.filter((x) => symbols.includes(x)) : denoms;
 
   return denoms.map((denom) => {
     const priceList = prices
       .filter(({ symbol }) => symbol === denom)
-      .map((x) => Number(x.price));
-    const averagePrice =
-      priceList.reduce((acc, cur) => acc + cur, 0) / priceList.length;
+      .map((x) => x.price);
+    const averagePrice = math.mean(priceList);
 
     return {
       symbol: denom,
-      price: averagePrice.toString(),
+      price: averagePrice,
     };
   });
 }
@@ -176,14 +176,16 @@ export function getFakeAsset(realAsset: string): string {
   return ASSET_TABLE.find(([real, _fake]) => real === realAsset)?.[1] || "";
 }
 
-export function extractPrices(realPrices: PriceItem[]): [string, number][] {
+export function extractPrices(
+  realPrices: PriceItem[]
+): [string, math.BigNumber][] {
   return realPrices.reduce((acc, cur) => {
     let fake = ASSET_TABLE.find(([real]) => real === cur.symbol)?.[1];
 
     if (fake) {
-      acc.push([fake, Number(cur.price)]);
+      acc.push([fake, cur.price]);
     }
 
     return acc;
-  }, [] as [string, number][]);
+  }, [] as [string, math.BigNumber][]);
 }

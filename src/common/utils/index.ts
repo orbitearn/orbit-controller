@@ -7,6 +7,8 @@ import axios, {
   CreateAxiosDefaults,
 } from "axios";
 
+export const DECIMAL_PLACES = 18;
+
 export const l = console.log.bind(console);
 
 export function li(object: any) {
@@ -115,4 +117,8 @@ export function numberFrom(
   return typeof value === "bigint"
     ? math.bignumber(value.toString())
     : math.bignumber(value);
+}
+
+export function decimalFrom(value: math.BigNumber): string {
+  return value.toPrecision(DECIMAL_PLACES);
 }

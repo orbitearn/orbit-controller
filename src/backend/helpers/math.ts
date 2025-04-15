@@ -36,23 +36,16 @@ export function calcAusdcPrice(
 // returns [rewards, usdcYield, assets, feeSum]
 export function calcClaimAndSwapData(
   userInfoList: UserInfoResponse[]
-): [string, string, AssetItem[], string] {
-  const [rewards, usdc_yield, assets, feeSum] = userInfoList.reduce(
+): [math.BigNumber, math.BigNumber, AssetItem[], math.BigNumber] {
+  return userInfoList.reduce(
     ([rewards, usdc_yield, assets, feeSum], cur) => [
       rewards.add(numberFrom(cur.user_yield.next.total)),
       usdc_yield.add(numberFrom(cur.user_yield.next.usdc)),
       calcMergedAssetList(assets, cur.user_yield.next.assets),
       feeSum.add(numberFrom(cur.fee_next)),
     ],
-    [numberFrom(0), numberFrom(0), [], numberFrom(0)] as [
-      math.BigNumber,
-      math.BigNumber,
-      AssetItem[],
-      math.BigNumber
-    ]
+    [numberFrom(0), numberFrom(0), [] as AssetItem[], numberFrom(0)]
   );
-
-  return [rewards.toFixed(), usdc_yield.toFixed(), assets, feeSum.toFixed()];
 }
 
 // average_entry_price = sum(amount_i * price_i) / sum(amount_i)
@@ -89,11 +82,13 @@ export function calcAverageEntryPriceList(
 
 // profit = sum(amount_i * (price - price_i))
 export function calcProfit(
-  currentPriceList: [string, number][],
+  currentPriceList: [string, math.BigNumber][],
   assetList: string[],
   appData: IAppDataSchema[],
   userData: IUserDataSchema[]
 ): [string, number][] {
+  const zero = numberFrom(0);
+
   return assetList.map((asset) => {
     const productSum = userData.reduce((acc, cur) => {
       if (cur.asset === asset) {
@@ -103,17 +98,19 @@ export function calcProfit(
             ?.assetPrices || [];
         const price = priceList.find((x) => x.asset === cur.asset)?.price || 0;
         const currentPrice =
-          currentPriceList.find(([symbol]) => symbol === asset)?.[1] || 0;
+          currentPriceList.find(([symbol]) => symbol === asset)?.[1] || zero;
 
         if (price && currentPrice) {
-          acc += cur.amount * (currentPrice - price);
+          acc = acc.add(
+            numberFrom(cur.amount).mul(currentPrice.sub(numberFrom(price)))
+          );
         }
       }
 
       return acc;
-    }, 0);
+    }, zero);
 
-    return [asset, floor(productSum, 6)];
+    return [asset, productSum.floor().toNumber()];
   });
 }
 

@@ -21,7 +21,7 @@ import {
   MsgTransferEncodeObject,
 } from "@cosmjs/stargate";
 
-async function getSgExecHelpers(
+export async function getSgExecHelpers(
   rpc: string,
   owner: string,
   signer: (OfflineSigner & OfflineDirectSigner) | DirectSecp256k1HdWallet
@@ -48,7 +48,7 @@ async function getSgExecHelpers(
 
   async function sgMultiSend(
     denom: string,
-    recipientAndAmountList: [string, number | string][],
+    recipientAndAmountList: [string, math.BigNumber][],
     gasPrice: string
   ) {
     const msgs: MsgSendEncodeObject[] = recipientAndAmountList.map(
@@ -57,7 +57,7 @@ async function getSgExecHelpers(
         value: {
           fromAddress: owner,
           toAddress: address,
-          amount: [coin(numberFrom(amount).toFixed(), denom)],
+          amount: [coin(amount.toFixed(), denom)],
         },
       })
     );
@@ -69,7 +69,7 @@ async function getSgExecHelpers(
 
   async function sgDelegate(
     operatorAddress: string,
-    amount: number,
+    amount: math.BigNumber,
     denom: string,
     gasPrice: string
   ) {
@@ -78,7 +78,7 @@ async function getSgExecHelpers(
       value: {
         delegatorAddress: owner,
         validatorAddress: operatorAddress,
-        amount: coin(amount, denom),
+        amount: coin(amount.toFixed(), denom),
       },
     };
 
@@ -108,7 +108,7 @@ async function getSgExecHelpers(
 
   async function sgIbcHookCall(
     contractAddress: string,
-    amount: number | string,
+    amount: math.BigNumber,
     denom: string,
     msg: any,
     sourcePort: string,
@@ -128,7 +128,7 @@ async function getSgExecHelpers(
     const ibcMsg: MsgTransferEncodeObject = {
       typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
       value: {
-        token: coin(numberFrom(amount).toFixed(), denom),
+        token: coin(amount.toFixed(), denom),
         sender: owner,
         receiver: contractAddress,
         sourcePort,
@@ -152,7 +152,7 @@ async function getSgExecHelpers(
   };
 }
 
-async function getSgQueryHelpers(rpc: string) {
+export async function getSgQueryHelpers(rpc: string) {
   const tmClient = await Tendermint37Client.connect(rpc);
   const queryClient = QueryClient.withExtensions(tmClient);
   const bankExtension = setupBankExtension(queryClient);
@@ -214,5 +214,3 @@ async function getSgQueryHelpers(rpc: string) {
     getTimeInNanos,
   };
 }
-
-export { getSgExecHelpers, getSgQueryHelpers };

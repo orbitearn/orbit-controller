@@ -23,7 +23,7 @@ import {
   DeliverTxResponse,
 } from "@cosmjs/stargate";
 
-async function getSgClient(
+export async function getSgClient(
   rpc: string,
   owner?: string,
   signer?: (OfflineSigner & OfflineDirectSigner) | DirectSecp256k1HdWallet
@@ -55,7 +55,7 @@ async function getSgClient(
   }
 }
 
-async function getCwClient(
+export async function getCwClient(
   rpc: string,
   owner?: string,
   signer?: (OfflineSigner & OfflineDirectSigner) | DirectSecp256k1HdWallet
@@ -86,11 +86,11 @@ async function getCwClient(
   }
 }
 
-function getAddrByPrefix(address: string, prefix: string): string {
+export function getAddrByPrefix(address: string, prefix: string): string {
   return toBech32(prefix, fromBech32(address).data);
 }
 
-function signAndBroadcastWrapper(
+export function signAndBroadcastWrapper(
   client: SigningStargateClient | SigningCosmWasmClient,
   signerAddress: string,
   gasAdjustment: number = 1.3
@@ -113,7 +113,7 @@ function signAndBroadcastWrapper(
   };
 }
 
-function getGasPriceFromChainRegistryItem(chain: Chain): string {
+export function getGasPriceFromChainRegistryItem(chain: Chain): string {
   const gasPriceAmountDefault = 0.005;
   let gasPriceAmount = 0;
 
@@ -126,7 +126,7 @@ function getGasPriceFromChainRegistryItem(chain: Chain): string {
   return gasPrice;
 }
 
-function getExecuteContractMsg(
+export function getExecuteContractMsg(
   contractAddress: string,
   senderAddress: string,
   msg: any,
@@ -142,12 +142,3 @@ function getExecuteContractMsg(
     }),
   };
 }
-
-export {
-  getSgClient,
-  getCwClient,
-  getAddrByPrefix,
-  signAndBroadcastWrapper,
-  getGasPriceFromChainRegistryItem,
-  getExecuteContractMsg,
-};

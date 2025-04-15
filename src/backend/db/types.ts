@@ -1,6 +1,4 @@
 import { Document, SchemaOptions } from "mongoose";
-import { MS_PER_SECOND } from "../constants";
-import { floor } from "../../common/utils";
 
 export type AssetPrice = {
   asset: string;
