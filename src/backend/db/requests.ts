@@ -1,12 +1,12 @@
 import { AssetItem } from "../../common/codegen/Bank.types";
 import { getLast } from "../../common/utils";
+import { toDate } from "../services/utils";
 import { AppDataModel, UserDataModel } from "./models";
 import {
   AssetPrice,
   IAppDataDocument,
   IUserDataDocument,
   TimestampData,
-  toDate,
 } from "./types";
 
 export class AppRequest {

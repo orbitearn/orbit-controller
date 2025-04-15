@@ -37,6 +37,10 @@ export function getLast<T>(arr: T[]): T | undefined {
   return arr[arr.length - 1];
 }
 
+export function dedupVector<T>(arr: T[]): T[] {
+  return Array.from(new Set(arr));
+}
+
 export async function wait(delayInMilliseconds: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, delayInMilliseconds);

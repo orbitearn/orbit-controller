@@ -1,9 +1,9 @@
-import { numberFrom } from "../../common/utils";
+import { dedupVector, floor, numberFrom } from "../../common/utils";
 import { AssetItem, UserInfoResponse } from "../../common/codegen/Bank.types";
+import { IAppDataSchema, IUserDataSchema } from "../db/types";
+import { dateToTimestamp } from "../services/utils";
 
-function dedupVector<T>(arr: T[]): T[] {
-  return [...new Set(arr)];
-}
+// TODO: add tests
 
 function calcMergedAssetList(
   assetsA: AssetItem[],
@@ -53,4 +53,115 @@ export function calcClaimAndSwapData(
   );
 
   return [rewards.toFixed(), usdc_yield.toFixed(), assets, feeSum.toFixed()];
+}
+
+// average_entry_price = sum(amount_i * price_i) / sum(amount_i)
+export function calcAverageEntryPriceList(
+  assetList: string[],
+  appData: IAppDataSchema[],
+  userData: IUserDataSchema[]
+): [string, number][] {
+  return assetList.map((asset) => {
+    const [amountSum, productSum] = userData.reduce(
+      ([amountAcc, productAcc], cur) => {
+        if (cur.asset === asset) {
+          const timestamp = dateToTimestamp(cur.timestamp);
+          const priceList =
+            appData.find((x) => dateToTimestamp(x.timestamp) === timestamp)
+              ?.assetPrices || [];
+          const price =
+            priceList.find((x) => x.asset === cur.asset)?.price || 0;
+
+          if (price) {
+            amountAcc += cur.amount;
+            productAcc += cur.amount * price;
+          }
+        }
+
+        return [amountAcc, productAcc];
+      },
+      [0, 0]
+    );
+
+    return [asset, floor(productSum / amountSum, 6)];
+  });
+}
+
+// profit = sum(amount_i * (price - price_i))
+export function calcProfit(
+  currentPriceList: [string, number][],
+  assetList: string[],
+  appData: IAppDataSchema[],
+  userData: IUserDataSchema[]
+): [string, number][] {
+  return assetList.map((asset) => {
+    const productSum = userData.reduce((acc, cur) => {
+      if (cur.asset === asset) {
+        const timestamp = dateToTimestamp(cur.timestamp);
+        const priceList =
+          appData.find((x) => dateToTimestamp(x.timestamp) === timestamp)
+            ?.assetPrices || [];
+        const price = priceList.find((x) => x.asset === cur.asset)?.price || 0;
+        const currentPrice =
+          currentPriceList.find(([symbol]) => symbol === asset)?.[1] || 0;
+
+        if (price && currentPrice) {
+          acc += cur.amount * (currentPrice - price);
+        }
+      }
+
+      return acc;
+    }, 0);
+
+    return [asset, floor(productSum, 6)];
+  });
+}
+
+export function calcYieldRate(
+  ausdcDenom: string,
+  ausdcPriceLast: number,
+  appData: IAppDataSchema[],
+  period?: number
+): [number, number][] {
+  const priceList: [number, number][] = appData.map((x) => {
+    const ausdcPrice =
+      x.assetPrices.find((y) => y.asset === ausdcDenom)?.price ||
+      ausdcPriceLast;
+
+    return [ausdcPrice, dateToTimestamp(x.timestamp)];
+  });
+
+  // [yieldRate, timestamp][]
+  let yieldRateList: [number, number][] = [];
+  let [ausdcPricePre, _] = priceList[0] || [1, 0];
+
+  for (const [ausdcPrice, timestamp] of priceList) {
+    const yieldRate = ausdcPrice / ausdcPricePre - 1;
+
+    if (yieldRate) {
+      yieldRateList.push([yieldRate, timestamp]);
+      ausdcPricePre = ausdcPrice;
+    }
+  }
+
+  if (!period) {
+    return yieldRateList;
+  }
+
+  // [yieldRate, timestamp][]
+  let yieldRateListAggregated: [number, number][] = [];
+  let [yieldRateAcc, timestampPre] = yieldRateList[0] || [0, 0];
+
+  for (const [yieldRate, timestamp] of yieldRateList) {
+    yieldRateAcc = (1 + yieldRateAcc) * (1 + yieldRate) - 1;
+
+    if (timestamp - timestampPre >= period) {
+      yieldRateListAggregated.push([yieldRateAcc, timestamp]);
+
+      yieldRateAcc = 0;
+      timestampPre = timestamp;
+    }
+  }
+
+  return yieldRateListAggregated;
 }

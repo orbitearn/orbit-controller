@@ -1,11 +1,11 @@
-import { DeliverTxResponse } from "@cosmjs/stargate";
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { AssetItem, Token } from "../../common/codegen/Bank.types";
 import { TokenInfo } from "../../common/interfaces";
 import { l, Request } from "../../common/utils/index";
-import { AssetAmount, dateToTimestamp, TimestampData } from "../db/types";
+import { AssetAmount, TimestampData } from "../db/types";
 import { DatabaseClient } from "../db/client";
 import { AppRequest, UserRequest } from "../db/requests";
+import { dateToTimestamp } from "../services/utils";
 
 export interface PriceItem {
   price: string;
@@ -55,89 +55,18 @@ export function getTokenSymbol(token: Token): string {
   return "native" in token ? token.native.denom : token.cw20.address;
 }
 
-export async function getDbHandlerWrapper(
-  dbClient: DatabaseClient,
-  chainId: string,
-  rpc: string,
-  owner: string
-): Promise<
-  (
-    fn: () => Promise<DeliverTxResponse>
-  ) => Promise<DeliverTxResponse | undefined>
-> {
-  const { bank } = await getCwQueryHelpers(chainId, rpc);
-
-  return async (
-    fn: () => Promise<DeliverTxResponse>
-  ): Promise<DeliverTxResponse | undefined> => {
-    let dataList: TimestampData[] = [];
-    let res: DeliverTxResponse | undefined = undefined;
-
-    await dbClient.connect();
-    try {
-      const dbAssets = await bank.cwQueryDbAssets(owner);
-
-      const userDistributionState = await bank.cwQueryDistributionState({
-        address: owner,
-      });
-      const distributionState = await bank.cwQueryDistributionState({});
-
-      const dateTo = distributionState.update_date;
-      const timestamp = (
-        await AppRequest.getDataByCounter(userDistributionState.counter)
-      )?.timestamp;
-      const dateFrom = dateToTimestamp(timestamp) || dateTo;
-      const appData = await AppRequest.getDataInTimestampRange(
-        dateFrom,
-        dateTo
-      );
-      if (appData.length !== dbAssets.length) {
-        throw new Error("Unequal data arrays!");
-      }
-
-      dataList = dbAssets.map((assets, i) => {
-        const { timestamp } = appData[i];
-        const assetList: AssetAmount[] = assets.map(({ amount, symbol }) => ({
-          asset: symbol,
-          amount: Number(amount),
-        }));
-
-        return { timestamp, assetList };
-      });
-    } catch (e) {
-      l(e);
-    }
-
-    try {
-      // user action
-      res = await fn();
-
-      if (dataList.length) {
-        await UserRequest.addDataList(owner, dataList);
-        l("Prices are stored in DB");
-      }
-    } catch (e) {
-      l(e);
-    }
-    await dbClient.disconnect();
-
-    return res;
-  };
-}
-
 export async function updateUserData(
   dbClient: DatabaseClient,
   chainId: string,
   rpc: string,
   owner: string
 ): Promise<void> {
-  const { bank } = await getCwQueryHelpers(chainId, rpc);
-
   let dataList: TimestampData[] = [];
 
-  await dbClient.connect();
   // get user data from the contract
   try {
+    const { bank } = await getCwQueryHelpers(chainId, rpc);
+    await dbClient.connect();
     const dbAssets = await bank.cwQueryDbAssets(owner);
 
     const userDistributionState = await bank.cwQueryDistributionState({
@@ -201,7 +130,26 @@ export async function updateUserData(
   } catch (e) {
     l(e);
   }
-  await dbClient.disconnect();
+
+  try {
+    await dbClient.disconnect();
+  } catch (_) {}
+}
+
+// pagination to avoid gas limit problem updating user counters
+export function getUpdateStateList(
+  appCounter: number,
+  maxCounterDiff: number,
+  maxUpdateStateList: number,
+  userCounterList: [string, number][]
+): string[] {
+  const minAppCnt = appCounter - maxCounterDiff;
+
+  return userCounterList
+    .filter(([_, userCnt]) => minAppCnt >= userCnt)
+    .sort(([_userA, cntA], [_userB, cntB]) => cntB - cntA)
+    .map(([user]) => user)
+    .slice(0, maxUpdateStateList);
 }
 
 // TODO: fake logic

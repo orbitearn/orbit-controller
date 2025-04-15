@@ -1,5 +1,5 @@
 import express from "express";
-import { getLast, l, li, numberFrom, wait } from "../common/utils";
+import { l, li, numberFrom, wait } from "../common/utils";
 import { text, json } from "body-parser";
 import cors from "cors";
 import { api } from "./routes/api";
@@ -10,10 +10,10 @@ import { MONGODB, ORBIT_CONTROLLER, PORT, SEED } from "./envs";
 import { ChainConfig } from "../common/interfaces";
 import { getChainOptionById } from "../common/config/config-utils";
 import { getSigner } from "./account/signer";
-import { AppRequest, UserRequest } from "./db/requests";
+import { AppRequest } from "./db/requests";
 import { DatabaseClient } from "./db/client";
-import { BANK, CHAIN_ID, MS_PER_SECOND } from "./constants";
-import { extractPrices, getAllPrices, getTokenSymbol } from "./helpers";
+import { BANK, CHAIN_ID } from "./constants";
+import { extractPrices, getAllPrices, getUpdateStateList } from "./helpers";
 import { calcAusdcPrice, calcClaimAndSwapData } from "./helpers/math";
 import { AssetPrice } from "./db/types";
 import * as math from "mathjs";
@@ -24,6 +24,7 @@ import {
 import {
   ENCODING,
   getLocalBlockTime,
+  MS_PER_SECOND,
   PATH_TO_CONFIG_JSON,
 } from "./services/utils";
 
@@ -99,34 +100,44 @@ app.listen(PORT, async () => {
   console.clear();
   l(`\n✔️ Server is running on PORT: ${PORT}`);
 
+  // TODO: use TaskScheduler
   // service to claim and swap orbit rewards and save data in db
   let isAusdcPriceUpdated = true;
   while (true) {
     await wait(BANK.CYCLE_PERIOD_MIN * MS_PER_SECOND);
 
+    let usersToUpdate: string[] = [];
     let blockTime: number = getLocalBlockTime();
     let nextUpdateDate: number = blockTime + 1;
 
-    // check distribution date
+    // check distribution date and user counters
     try {
-      // const userCounterList = await bank.pQueryUserCounterList(BANK.PAGINATION.USER_COUNTER);
+      const userCounterList = await bank.pQueryUserCounterList(
+        BANK.PAGINATION.USER_COUNTER
+      );
       const { update_date: lastUpdateDate, counter: appCounter } =
         await bank.cwQueryDistributionState({});
       blockTime = await bank.cwQueryBlockTime();
       nextUpdateDate = lastUpdateDate + BANK.DISTRIBUTION_PERIOD;
+
+      usersToUpdate = getUpdateStateList(
+        appCounter,
+        BANK.MAX_COUNTER_DIFF,
+        BANK.MAX_UPDATE_STATE_LIST,
+        userCounterList
+      );
     } catch (error) {
       l(error);
     }
 
-    // TODO: add
-    // let app_counter = h.bank_query_distribution_state(None)?.counter;
-    // let user_counter_list = h.bank_query_user_counter_list(9, None)?;
-    // let users_to_update: Vec<_> = user_counter_list
-    //     .iter()
-    //     .filter(|(_, counter)| app_counter >= counter + 50)
-    //     .map(|(address, _)| address.to_owned())
-    //     .collect();
-    // h.bank_try_update_user_state(owner, &users_to_update)?;
+    // try update user states
+    try {
+      if (usersToUpdate.length) {
+        await h.bank.cwUpdateUserState(usersToUpdate, gasPrice);
+      }
+    } catch (error) {
+      l(error);
+    }
 
     if (blockTime < nextUpdateDate) {
       continue;

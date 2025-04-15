@@ -1,14 +1,15 @@
 import { readFile, writeFile } from "fs/promises";
 import { floor, getLast, l } from "../../common/utils";
-import { rootPath, SEED } from "../envs";
+import { rootPath } from "../envs";
 import { Label } from "../../common/config";
 import { StoreArgs } from "../../common/interfaces";
 
-const ENCODING = "utf8";
-const PATH_TO_CONFIG_JSON = rootPath("./src/common/config/config.json");
+export const MS_PER_SECOND = 1_000;
+export const ENCODING = "utf8";
+export const PATH_TO_CONFIG_JSON = rootPath("./src/common/config/config.json");
 
 // "$CHAIN_ID|$LABEL_A,$LABEL_B"
-function parseStoreArgs(): StoreArgs {
+export function parseStoreArgs(): StoreArgs {
   const args = getLast(process.argv)?.trim() || "";
   if (args.includes("/")) throw new Error("Store args are not specified!");
 
@@ -21,7 +22,7 @@ function parseStoreArgs(): StoreArgs {
   };
 }
 
-function parseChainId(): string {
+export function parseChainId(): string {
   const arg = getLast(process.argv)?.trim() || "";
   if (arg.includes("/")) throw new Error("Network name is not specified!");
 
@@ -33,7 +34,7 @@ function parseChainId(): string {
  * @param unixTimestamp Unix epoch time in seconds
  * @returns Human-readable date string in the format "DD.MM.YYYY HH:MM:SS"
  */
-function epochToDateString(unixTimestamp: number): string {
+export function epochToDateString(unixTimestamp: number): string {
   const date = new Date(unixTimestamp * 1000);
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -50,7 +51,7 @@ function epochToDateString(unixTimestamp: number): string {
  * @param dateString Human-readable date string in the format "DD.MM.YYYY HH:MM:SS"
  * @returns Unix epoch time in seconds
  */
-function dateStringToEpoch(dateString: string): number {
+export function dateStringToEpoch(dateString: string): number {
   const [date, time] = dateString.split(" ");
   const [day, month, year] = date.split(".");
   const [hours, minutes, seconds] = time.split(":");
@@ -71,7 +72,7 @@ function dateStringToEpoch(dateString: string): number {
  * @param unixTimestamp Unix epoch time in seconds
  * @returns Human-readable date string in the format "DD.MM.YYYY HH:MM:SS" (UTC)
  */
-function epochToDateStringUTC(unixTimestamp: number): string {
+export function epochToDateStringUTC(unixTimestamp: number): string {
   const date = new Date(unixTimestamp * 1000);
   const day = date.getUTCDate().toString().padStart(2, "0");
   const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
@@ -88,7 +89,7 @@ function epochToDateStringUTC(unixTimestamp: number): string {
  * @param dateString Human-readable date string in the format "DD.MM.YYYY HH:MM:SS"
  * @returns Unix epoch time in seconds (UTC)
  */
-function dateStringToEpochUTC(dateString: string): number {
+export function dateStringToEpochUTC(dateString: string): number {
   const [date, time] = dateString.split(" ");
   const [day, month, year] = date.split(".");
   const [hours, minutes, seconds] = time.split(":");
@@ -106,7 +107,19 @@ function dateStringToEpochUTC(dateString: string): number {
   return Math.floor(timestamp.getTime() / 1000);
 }
 
-async function specifyTimeout(
+export function dateToTimestamp(date?: Date): number {
+  return floor((date?.getTime() || 0) / MS_PER_SECOND);
+}
+
+function timestampToDate(timestamp: number): Date {
+  return new Date(timestamp * MS_PER_SECOND);
+}
+
+export function toDate(value: Date | number): Date {
+  return typeof value === "number" ? timestampToDate(value) : value;
+}
+
+export async function specifyTimeout(
   promise: Promise<any>,
   timeout: number = 5_000,
   exception: Function = () => {
@@ -121,15 +134,15 @@ async function specifyTimeout(
   ]).finally(() => clearTimeout(timer));
 }
 
-function getLocalBlockTime(): number {
+export function getLocalBlockTime(): number {
   return floor(Date.now() / 1e3);
 }
 
-function getBlockTime(blockTimeOffset: number): number {
+export function getBlockTime(blockTimeOffset: number): number {
   return blockTimeOffset + getLocalBlockTime();
 }
 
-async function writeSnapshot(fileName: string, file: any) {
+export async function writeSnapshot(fileName: string, file: any) {
   const path = rootPath(`./src/backend/services/snapshots/${fileName}.json`);
 
   await writeFile(path, JSON.stringify(file), {
@@ -137,7 +150,10 @@ async function writeSnapshot(fileName: string, file: any) {
   });
 }
 
-async function readSnapshot<T>(fileName: string, defaultValue: T): Promise<T> {
+export async function readSnapshot<T>(
+  fileName: string,
+  defaultValue: T
+): Promise<T> {
   const path = rootPath(`./src/backend/services/snapshots/${fileName}.json`);
   const data = (
     await readFile(path, {
@@ -153,7 +169,7 @@ interface TaskScheduler {
   getTimeUntilTarget: (targetHour: number) => number;
 }
 
-class ScheduledTaskRunner implements TaskScheduler {
+export class ScheduledTaskRunner implements TaskScheduler {
   scheduleTask(targetHour: number, taskFunction: () => Promise<void>): void {
     const timeUntilTarget = this.getTimeUntilTarget(targetHour);
     l(`Task scheduled to run in ${floor(timeUntilTarget / 60_000)} minutes`);
@@ -179,20 +195,3 @@ class ScheduledTaskRunner implements TaskScheduler {
     return targetTime.getTime() - now.getTime();
   }
 }
-
-export {
-  ENCODING,
-  PATH_TO_CONFIG_JSON,
-  parseChainId,
-  parseStoreArgs,
-  epochToDateString,
-  dateStringToEpoch,
-  epochToDateStringUTC,
-  dateStringToEpochUTC,
-  specifyTimeout,
-  getLocalBlockTime,
-  getBlockTime,
-  writeSnapshot,
-  readSnapshot,
-  ScheduledTaskRunner,
-};

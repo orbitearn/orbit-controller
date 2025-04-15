@@ -5,7 +5,6 @@ import { ChainConfig } from "../../common/interfaces";
 import { ENCODING, PATH_TO_CONFIG_JSON } from "./utils";
 import { getChainOptionById } from "../../common/config/config-utils";
 import { MONGODB, ORBIT_CONTROLLER, USER_SEED, BASE_URL } from "../envs";
-import { getDbHandlerWrapper } from "../helpers";
 import { DatabaseClient } from "../db/client";
 import { BANK, CHAIN_ID, ROUTE } from "../constants";
 import {
@@ -93,26 +92,26 @@ async function main() {
     // );
     // await bank.cwQueryUserInfo(owner, {}, true);
 
-    // every user action must be wrapped with dbHandlerWrapper
-    const dbHandlerWrapper = await getDbHandlerWrapper(
-      dbClient,
-      CHAIN_ID,
-      RPC,
-      owner
-    );
+    // // every user action must be wrapped with dbHandlerWrapper
+    // const dbHandlerWrapper = await getDbHandlerWrapper(
+    //   dbClient,
+    //   CHAIN_ID,
+    //   RPC,
+    //   owner
+    // );
 
-    // get args for cwWithdrawUsdc to withdraw 1/2 of available usdc
-    const {
-      ausdc: { minted },
-    } = await bank.cwQueryUserInfo(owner, {}, true);
-    const ausdcAmount = floor(Number(minted) / 2);
-    // const { usdc } = await bank.cwQueryConfig();
-    // const ausdcAmount = floor(Number(minted));
+    // // get args for cwWithdrawUsdc to withdraw 1/2 of available usdc
+    // const {
+    //   ausdc: { minted },
+    // } = await bank.cwQueryUserInfo(owner, {}, true);
+    // const ausdcAmount = floor(Number(minted) / 2);
+    // // const { usdc } = await bank.cwQueryConfig();
+    // // const ausdcAmount = floor(Number(minted));
 
-    // example of wrapped user action
-    const txRes = await dbHandlerWrapper(
-      async () => await h.bank.cwClaimAssets(gasPrice)
-    );
+    // // example of wrapped user action
+    // const txRes = await dbHandlerWrapper(
+    //   async () => await h.bank.cwClaimAssets(gasPrice)
+    // );
 
     // const txRes = await dbHandlerWrapper(
     //   async () => await h.bank.cwWithdrawUsdc({ ausdcAmount }, gasPrice)
