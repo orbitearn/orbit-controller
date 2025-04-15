@@ -1,22 +1,30 @@
-import { dedupVector, floor, numberFrom } from "../../common/utils";
 import { AssetItem, UserInfoResponse } from "../../common/codegen/Bank.types";
 import { IAppDataSchema, IUserDataSchema } from "../db/types";
 import { dateToTimestamp } from "../services/utils";
-
-// TODO: add tests
+import {
+  DECIMAL_PLACES,
+  dedupVector,
+  getLast,
+  numberFrom,
+} from "../../common/utils";
 
 function calcMergedAssetList(
   assetsA: AssetItem[],
   assetsB: AssetItem[]
 ): AssetItem[] {
-  const rewardsSymbolList = dedupVector(
-    [...assetsA, ...assetsB].map((x) => x.symbol)
-  );
+  const rewardsSymbolList = dedupVector([
+    ...assetsA.map((x) => x.symbol),
+    ...assetsB.map((x) => x.symbol),
+  ]);
 
   return rewardsSymbolList.reduce((acc, symbol) => {
-    const amountA = assetsA.find((x) => x.symbol === symbol)?.amount || "";
-    const amountB = assetsB.find((x) => x.symbol === symbol)?.amount || "";
-    const amount = numberFrom(amountA).add(numberFrom(amountB)).toString();
+    const amountA = numberFrom(
+      assetsA.find((x) => x.symbol === symbol)?.amount
+    );
+    const amountB = numberFrom(
+      assetsB.find((x) => x.symbol === symbol)?.amount
+    );
+    const amount = amountA.add(amountB).toFixed();
 
     if (amount) {
       acc.push({ symbol, amount });
@@ -30,13 +38,15 @@ export function calcAusdcPrice(
   totalUsdcGross: math.BigNumber,
   totalAusdc: math.BigNumber
 ): math.BigNumber {
-  return !totalAusdc ? numberFrom(1) : totalUsdcGross.div(totalAusdc);
+  return totalAusdc.isZero() ? numberFrom(1) : totalUsdcGross.div(totalAusdc);
 }
 
 // returns [rewards, usdcYield, assets, feeSum]
 export function calcClaimAndSwapData(
   userInfoList: UserInfoResponse[]
 ): [math.BigNumber, math.BigNumber, AssetItem[], math.BigNumber] {
+  const zero = numberFrom(0);
+
   return userInfoList.reduce(
     ([rewards, usdc_yield, assets, feeSum], cur) => [
       rewards.add(numberFrom(cur.user_yield.next.total)),
@@ -44,16 +54,18 @@ export function calcClaimAndSwapData(
       calcMergedAssetList(assets, cur.user_yield.next.assets),
       feeSum.add(numberFrom(cur.fee_next)),
     ],
-    [numberFrom(0), numberFrom(0), [] as AssetItem[], numberFrom(0)]
+    [zero, zero, [] as AssetItem[], zero]
   );
 }
 
 // average_entry_price = sum(amount_i * price_i) / sum(amount_i)
 export function calcAverageEntryPriceList(
-  assetList: string[],
   appData: IAppDataSchema[],
   userData: IUserDataSchema[]
 ): [string, number][] {
+  const assetList: string[] = dedupVector(userData.map((x) => x.asset));
+  const zero = numberFrom(0);
+
   return assetList.map((asset) => {
     const [amountSum, productSum] = userData.reduce(
       ([amountAcc, productAcc], cur) => {
@@ -62,31 +74,36 @@ export function calcAverageEntryPriceList(
           const priceList =
             appData.find((x) => dateToTimestamp(x.timestamp) === timestamp)
               ?.assetPrices || [];
-          const price =
-            priceList.find((x) => x.asset === cur.asset)?.price || 0;
+          const price = numberFrom(
+            priceList.find((x) => x.asset === cur.asset)?.price
+          );
 
-          if (price) {
-            amountAcc += cur.amount;
-            productAcc += cur.amount * price;
+          if (!price.isZero()) {
+            const amount = numberFrom(cur.amount);
+            amountAcc = amountAcc.add(amount);
+            productAcc = productAcc.add(amount.mul(price));
           }
         }
 
         return [amountAcc, productAcc];
       },
-      [0, 0]
+      [zero, zero]
     );
 
-    return [asset, floor(productSum / amountSum, 6)];
+    return [
+      asset,
+      productSum.div(amountSum).toDecimalPlaces(DECIMAL_PLACES).toNumber(),
+    ];
   });
 }
 
 // profit = sum(amount_i * (price - price_i))
 export function calcProfit(
   currentPriceList: [string, math.BigNumber][],
-  assetList: string[],
   appData: IAppDataSchema[],
   userData: IUserDataSchema[]
 ): [string, number][] {
+  const assetList: string[] = dedupVector(userData.map((x) => x.asset));
   const zero = numberFrom(0);
 
   return assetList.map((asset) => {
@@ -96,44 +113,51 @@ export function calcProfit(
         const priceList =
           appData.find((x) => dateToTimestamp(x.timestamp) === timestamp)
             ?.assetPrices || [];
-        const price = priceList.find((x) => x.asset === cur.asset)?.price || 0;
+        const price = numberFrom(
+          priceList.find((x) => x.asset === cur.asset)?.price
+        );
         const currentPrice =
           currentPriceList.find(([symbol]) => symbol === asset)?.[1] || zero;
 
-        if (price && currentPrice) {
-          acc = acc.add(
-            numberFrom(cur.amount).mul(currentPrice.sub(numberFrom(price)))
-          );
+        if (!price.isZero() && !currentPrice.isZero()) {
+          const amount = numberFrom(cur.amount);
+          acc = acc.add(amount.mul(currentPrice.sub(price)));
         }
       }
 
       return acc;
     }, zero);
 
-    return [asset, productSum.floor().toNumber()];
+    return [asset, productSum.toDecimalPlaces(DECIMAL_PLACES).toNumber()];
   });
 }
 
+// returns [yieldRate, timestamp][]
 export function calcYieldRate(
   ausdcDenom: string,
-  ausdcPriceLast: number,
   appData: IAppDataSchema[],
   period?: number
 ): [number, number][] {
-  const priceList: [number, number][] = appData.map((x) => {
+  const zero = numberFrom(0);
+  const one = numberFrom(1);
+  const ausdcPriceLast =
+    getLast(appData)?.assetPrices?.find((x) => x.asset === ausdcDenom)?.price ||
+    1;
+
+  const priceList: [math.BigNumber, number][] = appData.map((x) => {
     const ausdcPrice =
       x.assetPrices.find((y) => y.asset === ausdcDenom)?.price ||
       ausdcPriceLast;
 
-    return [ausdcPrice, dateToTimestamp(x.timestamp)];
+    return [numberFrom(ausdcPrice), dateToTimestamp(x.timestamp)];
   });
 
   // [yieldRate, timestamp][]
-  let yieldRateList: [number, number][] = [];
-  let [ausdcPricePre, _] = priceList[0] || [1, 0];
+  let yieldRateList: [math.BigNumber, number][] = [];
+  let [ausdcPricePre, _] = priceList[0] || [one, 0];
 
   for (const [ausdcPrice, timestamp] of priceList) {
-    const yieldRate = ausdcPrice / ausdcPricePre - 1;
+    const yieldRate = ausdcPrice.div(ausdcPricePre).sub(one);
 
     if (yieldRate) {
       yieldRateList.push([yieldRate, timestamp]);
@@ -142,23 +166,31 @@ export function calcYieldRate(
   }
 
   if (!period) {
-    return yieldRateList;
+    return processYieldRateList(yieldRateList);
   }
 
   // [yieldRate, timestamp][]
-  let yieldRateListAggregated: [number, number][] = [];
-  let [yieldRateAcc, timestampPre] = yieldRateList[0] || [0, 0];
+  let yieldRateListAggregated: [math.BigNumber, number][] = [];
+  let [yieldRateAcc, timestampPre] = yieldRateList[0] || [zero, 0];
 
   for (const [yieldRate, timestamp] of yieldRateList) {
-    yieldRateAcc = (1 + yieldRateAcc) * (1 + yieldRate) - 1;
+    yieldRateAcc = yieldRateAcc.add(one).mul(yieldRate.add(one)).sub(one);
 
     if (timestamp - timestampPre >= period) {
       yieldRateListAggregated.push([yieldRateAcc, timestamp]);
 
-      yieldRateAcc = 0;
+      yieldRateAcc = zero;
       timestampPre = timestamp;
     }
   }
 
-  return yieldRateListAggregated;
+  return processYieldRateList(yieldRateListAggregated);
+}
+
+function processYieldRateList(
+  yieldRateList: [math.BigNumber, number][]
+): [number, number][] {
+  return yieldRateList
+    .filter(([y, _t]) => !y.isZero())
+    .map(([y, t]) => [y.toDecimalPlaces(DECIMAL_PLACES).toNumber(), t]);
 }

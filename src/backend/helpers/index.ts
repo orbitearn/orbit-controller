@@ -1,21 +1,27 @@
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { AssetItem, Token } from "../../common/codegen/Bank.types";
 import { TokenInfo } from "../../common/interfaces";
-import { dedupVector, l, numberFrom, Request } from "../../common/utils/index";
 import { AssetAmount, TimestampData } from "../db/types";
 import { DatabaseClient } from "../db/client";
 import { AppRequest, UserRequest } from "../db/requests";
 import { dateToTimestamp } from "../services/utils";
 import * as math from "mathjs";
+import { BANK, DECIMALS_DEFAULT } from "../constants";
+import {
+  DECIMAL_PLACES,
+  dedupVector,
+  l,
+  numberFrom,
+  Request,
+} from "../../common/utils/index";
 
 export interface PriceItem {
   price: math.BigNumber;
   symbol: string;
 }
 
-const baseURL = "https://api.astroport.fi/api";
-
 export async function getAllPrices(symbols?: string[]): Promise<PriceItem[]> {
+  const baseURL = "https://api.astroport.fi/api";
   const route = "/tokens";
   const req = new Request({ baseURL });
 
@@ -68,6 +74,7 @@ export async function updateUserData(
     const { bank } = await getCwQueryHelpers(chainId, rpc);
     await dbClient.connect();
     const dbAssets = await bank.cwQueryDbAssets(owner);
+    const assetList = await bank.pQueryAssetList(BANK.PAGINATION.ASSET_LIST);
 
     const userDistributionState = await bank.cwQueryDistributionState({
       address: owner,
@@ -90,7 +97,9 @@ export async function updateUserData(
       const assetsToAdd = cur.filter(
         (x) =>
           !userData.some(
-            (y) => y.asset === x.symbol && y.amount === Number(x.amount)
+            (y) =>
+              y.asset === x.symbol &&
+              numberFrom(y.amount) === numberFrom(x.amount)
           )
       );
 
@@ -109,12 +118,39 @@ export async function updateUserData(
       throw new Error("Unequal data arrays!");
     }
 
+    // get decimals for unique asset symbol list
+    const symbolList = dedupVector(
+      dbAssetsToAdd.flatMap((x) => x.map((y) => y.symbol))
+    );
+    const symbolAndDecimalsList: [string, number][] = symbolList.map(
+      (symbol) => {
+        const decimals =
+          assetList.find((x) => getTokenSymbol(x.token) === symbol)?.decimals ||
+          DECIMALS_DEFAULT;
+
+        return [symbol, decimals];
+      }
+    );
+
+    // dbAssets amounts must be divided according to its decimals to store in db amounts as ts numbers with 18 decimal places
     dataList = dbAssetsToAdd.map((assets, i) => {
       const { timestamp } = appData[i];
-      const assetList: AssetAmount[] = assets.map(({ amount, symbol }) => ({
-        asset: symbol,
-        amount: Number(amount),
-      }));
+      const assetList: AssetAmount[] = assets.map(({ amount, symbol }) => {
+        const decimals =
+          symbolAndDecimalsList.find(([s, _d]) => s === symbol)?.[1] ||
+          DECIMALS_DEFAULT;
+
+        const divider = numberFrom(10).pow(decimals);
+        const amountDec = numberFrom(amount)
+          .div(divider)
+          .toDecimalPlaces(DECIMAL_PLACES)
+          .toNumber();
+
+        return {
+          asset: symbol,
+          amount: amountDec,
+        };
+      });
 
       return { timestamp, assetList };
     });

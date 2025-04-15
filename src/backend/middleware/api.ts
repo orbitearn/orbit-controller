@@ -9,7 +9,6 @@ import { CHAIN_ID } from "../constants";
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { IAppDataDocument, IUserDataDocument } from "../db/types";
 import { extractPrices, getAllPrices, updateUserData } from "../helpers";
-import { dedupVector } from "../../common/utils";
 import {
   calcAverageEntryPriceList,
   calcProfit,
@@ -34,8 +33,7 @@ export async function getAverageEntryPrice(
     );
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
-    const assetList: string[] = dedupVector(userData.map((x) => x.asset));
-    averagePriceList = calcAverageEntryPriceList(assetList, appData, userData);
+    averagePriceList = calcAverageEntryPriceList(appData, userData);
   } catch (_) {}
 
   try {
@@ -62,8 +60,7 @@ export async function getProfit(
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
     const currentPriceList = extractPrices(await getAllPrices());
-    const assetList: string[] = dedupVector(userData.map((x) => x.asset));
-    profitList = calcProfit(currentPriceList, assetList, appData, userData);
+    profitList = calcProfit(currentPriceList, appData, userData);
   } catch (_) {}
 
   try {
@@ -93,7 +90,6 @@ export async function getYieldRate(
   to: number,
   period?: number
 ): Promise<[number, number][]> {
-  // [yieldRate, timestamp][]
   let yieldRateList: [number, number][] = [];
 
   try {
@@ -108,22 +104,12 @@ export async function getYieldRate(
     } = getChainOptionById(CHAIN_CONFIG, CHAIN_ID);
 
     const { bank } = await getCwQueryHelpers(CHAIN_ID, RPC);
-
     const config = await bank.cwQueryConfig();
-    let ausdcPriceLast = 1;
-    try {
-      ausdcPriceLast = await bank.cwQueryAusdcPrice();
-    } catch (_) {}
 
     await dbClient.connect();
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
-    yieldRateList = calcYieldRate(
-      config.ausdc,
-      ausdcPriceLast,
-      appData,
-      period
-    );
+    yieldRateList = calcYieldRate(config.ausdc, appData, period);
   } catch (_) {}
 
   try {
@@ -134,18 +120,18 @@ export async function getYieldRate(
 }
 
 export async function getAppDataInTimestampRange(from: number, to: number) {
-  let AppData: IAppDataDocument[] = [];
+  let appData: IAppDataDocument[] = [];
 
   try {
     await dbClient.connect();
-    AppData = await AppRequest.getDataInTimestampRange(from, to);
+    appData = await AppRequest.getDataInTimestampRange(from, to);
   } catch (_) {}
 
   try {
     await dbClient.disconnect();
   } catch (_) {}
 
-  return AppData;
+  return appData;
 }
 
 export async function getUserDataInTimestampRange(
