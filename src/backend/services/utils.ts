@@ -138,6 +138,7 @@ export function getLocalBlockTime(): number {
   return floor(Date.now() / 1e3);
 }
 
+// blockTimeOffset = contractBlockTime - localBlockTime
 export function getBlockTime(blockTimeOffset: number): number {
   return blockTimeOffset + getLocalBlockTime();
 }

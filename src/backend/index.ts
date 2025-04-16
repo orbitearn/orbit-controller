@@ -21,18 +21,22 @@ import {
   getCwQueryHelpers,
 } from "../common/account/cw-helpers";
 import {
-  ENCODING,
-  getLocalBlockTime,
-  MS_PER_SECOND,
-  PATH_TO_CONFIG_JSON,
-} from "./services/utils";
-import {
   DECIMAL_PLACES,
   decimalFrom,
   l,
   numberFrom,
   wait,
 } from "../common/utils";
+import {
+  dateToTimestamp,
+  ENCODING,
+  epochToDateStringUTC,
+  getBlockTime,
+  getLocalBlockTime,
+  MS_PER_SECOND,
+  PATH_TO_CONFIG_JSON,
+  toDate,
+} from "./services/utils";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
@@ -100,27 +104,45 @@ app.listen(PORT, async () => {
     return decimalFrom(math.max([nextAusdcPrice, numberFrom(ausdcPrice)]));
   };
 
+  // make sure contract block time can be get initially
+  let blockTime = await bank.cwQueryBlockTime();
+  let blockTimeOffset = blockTime - getLocalBlockTime();
+  const now = toDate(blockTime);
+
+  // calculate the next top of the hour
+  let nextTopOfHour = toDate(blockTime);
+  nextTopOfHour.setMinutes(BANK.START_DATE_MINUTES, 0, 0);
+
+  // if we're already past this hour, move to the next hour
+  if (nextTopOfHour <= now) {
+    nextTopOfHour.setHours(nextTopOfHour.getHours() + 1);
+  }
+  const scriptStartTimestamp = dateToTimestamp(nextTopOfHour);
+  let nextUpdateDate = scriptStartTimestamp + BANK.DISTRIBUTION_PERIOD;
+
   console.clear();
   l(`\n✔️ Server is running on PORT: ${PORT}`);
+
+  await wait(scriptStartTimestamp * MS_PER_SECOND);
+  l(
+    `\n✔️ Script is running since: ${epochToDateStringUTC(
+      getBlockTime(blockTimeOffset)
+    )}`
+  );
 
   // service to claim and swap orbit rewards and save data in db
   let isAusdcPriceUpdated = true;
   while (true) {
+    // to limit rpc request frequency
     await wait(BANK.CYCLE_PERIOD_MIN * MS_PER_SECOND);
 
     let usersToUpdate: string[] = [];
-    let blockTime: number = getLocalBlockTime();
-    let nextUpdateDate: number = blockTime + 1;
-
     // check distribution date and user counters
     try {
       const userCounterList = await bank.pQueryUserCounterList(
         BANK.PAGINATION.USER_COUNTER
       );
-      const { update_date: lastUpdateDate, counter: appCounter } =
-        await bank.cwQueryDistributionState({});
-      blockTime = await bank.cwQueryBlockTime();
-      nextUpdateDate = lastUpdateDate + BANK.DISTRIBUTION_PERIOD;
+      const { counter: appCounter } = await bank.cwQueryDistributionState({});
 
       usersToUpdate = getUpdateStateList(
         appCounter,
@@ -132,13 +154,26 @@ app.listen(PORT, async () => {
       l(error);
     }
 
-    // try update user states
+    // get block time, sync clock
     try {
-      if (usersToUpdate.length) {
+      blockTime = await bank.cwQueryBlockTime();
+      blockTimeOffset = blockTime - getLocalBlockTime();
+    } catch (_) {
+      blockTime = getBlockTime(blockTimeOffset);
+    }
+
+    // try update user states if we have enough time
+    if (
+      blockTime + BANK.UPDATE_STATE_TIME_MARGIN < nextUpdateDate &&
+      usersToUpdate.length
+    ) {
+      try {
         await h.bank.cwUpdateUserState(usersToUpdate, gasPrice);
+      } catch (error) {
+        l(error);
       }
-    } catch (error) {
-      l(error);
+
+      continue;
     }
 
     if (blockTime < nextUpdateDate) {
@@ -172,7 +207,6 @@ app.listen(PORT, async () => {
       );
       l("Rewards are distributed");
 
-      blockTime = await bank.cwQueryBlockTime();
       isAusdcPriceUpdated = false;
     } catch (error) {
       l(error);
@@ -198,7 +232,7 @@ app.listen(PORT, async () => {
 
         try {
           await dbClient.connect();
-          await AppRequest.addDataItem(blockTime, counter, assetPrices);
+          await AppRequest.addDataItem(nextUpdateDate, counter, assetPrices);
           l("Prices are stored in DB");
         } catch (_) {}
         try {
@@ -208,5 +242,7 @@ app.listen(PORT, async () => {
         isAusdcPriceUpdated = true;
       }
     } catch (error) {}
+
+    nextUpdateDate += BANK.DISTRIBUTION_PERIOD;
   }
 });

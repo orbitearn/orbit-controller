@@ -13,7 +13,9 @@ export const BANK = {
   },
   MAX_COUNTER_DIFF: 21, // 1 week for 8h distribution period
   MAX_UPDATE_STATE_LIST: 5,
+  UPDATE_STATE_TIME_MARGIN: 30, // seconds
   DISTRIBUTION_PERIOD: 60 * 60, // seconds
+  START_DATE_MINUTES: 0,
   CYCLE_PERIOD_MIN: 5, // seconds
 };
 
