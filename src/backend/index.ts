@@ -103,7 +103,6 @@ app.listen(PORT, async () => {
   console.clear();
   l(`\n✔️ Server is running on PORT: ${PORT}`);
 
-  // TODO: use TaskScheduler
   // service to claim and swap orbit rewards and save data in db
   let isAusdcPriceUpdated = true;
   while (true) {

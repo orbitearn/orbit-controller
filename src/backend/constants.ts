@@ -5,17 +5,16 @@ export const SECONDS_PER_DAY = 24 * 3_600;
 export const REPLENISHED_INITIALLY = 3_100_000 * 1e6;
 export const DECIMALS_DEFAULT = 6;
 
-// TODO: calculate
 export const BANK = {
   PAGINATION: {
-    USER_INFO: 50, // 3 for 530 ausdc set length
+    USER_INFO: 50,
     USER_COUNTER: 200,
-    ASSET_LIST: 20,
+    ASSET_LIST: 100,
   },
-  MAX_COUNTER_DIFF: 100,
-  MAX_UPDATE_STATE_LIST: 3,
+  MAX_COUNTER_DIFF: 21, // 1 week for 8h distribution period
+  MAX_UPDATE_STATE_LIST: 5,
   DISTRIBUTION_PERIOD: 60 * 60, // seconds
-  CYCLE_PERIOD_MIN: 10, // seconds
+  CYCLE_PERIOD_MIN: 5, // seconds
 };
 
 export const ROUTE = {
