@@ -7,12 +7,20 @@ import { readFile } from "fs/promises";
 import * as h from "helmet";
 import { MONGODB, ORBIT_CONTROLLER, PORT, SEED } from "./envs";
 import { ChainConfig } from "../common/interfaces";
-import { getChainOptionById } from "../common/config/config-utils";
+import {
+  getChainOptionById,
+  getContractByLabel,
+} from "../common/config/config-utils";
 import { getSigner } from "./account/signer";
-import { AppRequest } from "./db/requests";
+import { AppRequest, UserRequest } from "./db/requests";
 import { DatabaseClient } from "./db/client";
 import { BANK, CHAIN_ID } from "./constants";
-import { extractPrices, getAllPrices, getUpdateStateList } from "./helpers";
+import {
+  extractPrices,
+  getAllPrices,
+  getUpdateStateList,
+  updateUserData,
+} from "./helpers";
 import { calcAusdcPrice, calcClaimAndSwapData } from "./helpers/math";
 import { AssetPrice } from "./db/types";
 import * as math from "mathjs";
@@ -24,6 +32,7 @@ import {
   DECIMAL_PLACES,
   decimalFrom,
   l,
+  li,
   numberFrom,
   wait,
 } from "../common/utils";
@@ -83,8 +92,10 @@ app.listen(PORT, async () => {
       RPC_LIST: [RPC],
       DENOM,
       GAS_PRICE_AMOUNT,
+      CONTRACTS,
     },
   } = getChainOptionById(CHAIN_CONFIG, CHAIN_ID);
+  const bankAddress = getContractByLabel(CONTRACTS, "bank")?.ADDRESS || "";
 
   const gasPrice = `${GAS_PRICE_AMOUNT}${DENOM}`;
   const { signer, owner } = await getSigner(PREFIX, SEED);
@@ -117,24 +128,43 @@ app.listen(PORT, async () => {
   if (nextTopOfHour <= now) {
     nextTopOfHour.setHours(nextTopOfHour.getHours() + 1);
   }
-  const scriptStartTimestamp = dateToTimestamp(nextTopOfHour);
+
+  let scriptStartTimestamp: number = 0;
+
+  try {
+    await dbClient.connect();
+    const timestamp = (await AppRequest.getDataByLastCounter())?.timestamp;
+    scriptStartTimestamp =
+      dateToTimestamp(timestamp) + BANK.DISTRIBUTION_PERIOD;
+  } catch (_) {
+    scriptStartTimestamp = dateToTimestamp(nextTopOfHour);
+  }
+  try {
+    await dbClient.disconnect();
+  } catch (_) {}
+
   let nextUpdateDate = scriptStartTimestamp + BANK.DISTRIBUTION_PERIOD;
 
   console.clear();
   l(`\n✔️ Server is running on PORT: ${PORT}`);
 
-  await wait(scriptStartTimestamp * MS_PER_SECOND);
+  await wait((scriptStartTimestamp - blockTime) * MS_PER_SECOND);
   l(
     `\n✔️ Script is running since: ${epochToDateStringUTC(
       getBlockTime(blockTimeOffset)
     )}`
   );
 
+  li({
+    scriptStartTimestamp: epochToDateStringUTC(scriptStartTimestamp),
+    nextUpdateDate: epochToDateStringUTC(nextUpdateDate),
+  });
+
   // service to claim and swap orbit rewards and save data in db
   let isAusdcPriceUpdated = true;
   while (true) {
     // to limit rpc request frequency
-    await wait(BANK.CYCLE_PERIOD_MIN * MS_PER_SECOND);
+    await wait(BANK.CYCLE_COOLDOWN * MS_PER_SECOND);
 
     let usersToUpdate: string[] = [];
     // check distribution date and user counters
@@ -147,7 +177,7 @@ app.listen(PORT, async () => {
       usersToUpdate = getUpdateStateList(
         appCounter,
         BANK.MAX_COUNTER_DIFF,
-        BANK.MAX_UPDATE_STATE_LIST,
+        BANK.UPDATE_STATE_LIST.LIMIT,
         userCounterList
       );
     } catch (error) {
@@ -165,10 +195,18 @@ app.listen(PORT, async () => {
     // try update user states if we have enough time
     if (
       blockTime + BANK.UPDATE_STATE_TIME_MARGIN < nextUpdateDate &&
-      usersToUpdate.length
+      usersToUpdate.length >= BANK.UPDATE_STATE_LIST.MIN
     ) {
       try {
         await h.bank.cwUpdateUserState(usersToUpdate, gasPrice);
+        // update user assets in db
+        await updateUserData(
+          dbClient,
+          CHAIN_ID,
+          RPC,
+          usersToUpdate,
+          bankAddress
+        );
       } catch (error) {
         l(error);
       }

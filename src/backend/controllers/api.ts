@@ -106,12 +106,12 @@ export async function getUserDataInTimestampRange(req: Request, res: Response) {
 }
 
 export async function updateUserAssets(req: Request, res: Response) {
-  const address = req.body.address as string;
+  const addressList = req.body.addressList as string[];
 
-  if (!address) {
+  if (!addressList) {
     res.status(400).json({ error: "Address parameter is required" });
   } else {
-    await _updateUserAssets(address);
+    await _updateUserAssets(addressList);
     res.status(200).json({});
   }
 }

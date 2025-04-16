@@ -4,7 +4,10 @@ import { AppRequest, UserRequest } from "../db/requests";
 import { ENCODING, PATH_TO_CONFIG_JSON } from "../services/utils";
 import { readFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
-import { getChainOptionById } from "../../common/config/config-utils";
+import {
+  getChainOptionById,
+  getContractByLabel,
+} from "../../common/config/config-utils";
 import { CHAIN_ID } from "../constants";
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { IAppDataDocument, IUserDataDocument } from "../db/types";
@@ -153,7 +156,7 @@ export async function getUserDataInTimestampRange(
   return userData;
 }
 
-export async function updateUserAssets(address: string) {
+export async function updateUserAssets(addressList: string[]) {
   try {
     const configJsonStr = await readFile(PATH_TO_CONFIG_JSON, {
       encoding: ENCODING,
@@ -162,9 +165,11 @@ export async function updateUserAssets(address: string) {
     const {
       OPTION: {
         RPC_LIST: [RPC],
+        CONTRACTS,
       },
     } = getChainOptionById(CHAIN_CONFIG, CHAIN_ID);
+    const bankAddress = getContractByLabel(CONTRACTS, "bank")?.ADDRESS || "";
 
-    await updateUserData(dbClient, CHAIN_ID, RPC, address);
+    await updateUserData(dbClient, CHAIN_ID, RPC, addressList, bankAddress);
   } catch (_) {}
 }

@@ -8,7 +8,7 @@ import { Coin } from "@cosmjs/amino";
 import { MsgExecuteContractEncodeObject } from "@cosmjs/cosmwasm-stargate";
 import { MsgExecuteContract } from "cosmjs-types/cosmwasm/wasm/v1/tx";
 import { toUtf8 } from "@cosmjs/encoding";
-import { Decimal, Uint256, InstantiateMsg, ExecuteMsg, Uint128, Binary, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, ArrayOfArrayOfAssetItem, DistributionState, ArrayOfTupleOfuint32AndArrayOfTupleOfStringAndDecimal, StateResponse, StoragesResponse, ArrayOfTupleOfAddrAndUint32, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse, UserStoragesResponse } from "./Bank.types";
+import { Decimal, Uint256, InstantiateMsg, ExecuteMsg, Uint128, Binary, TokenUnverified, Cw20ReceiveMsg, WeightItem, AssetItem, CurrencyForTokenUnverified, QueryMsg, MigrateMsg, AppInfoResponse, AusdcInfo, YieldInfo, Token, Addr, CurrencyForToken, ArrayOfCurrencyForToken, BalancesResponse, Uint64, Config, ArrayOfArrayOfAssetItem, ArrayOfTupleOfAddrAndArrayOfArrayOfAssetItem, DistributionState, ArrayOfTupleOfAddrAndDistributionState, ArrayOfTupleOfuint32AndArrayOfTupleOfStringAndDecimal, StateResponse, StoragesResponse, ArrayOfTupleOfAddrAndUint32, UserInfoResponse, DcaResponse, UserYield, ArrayOfUserInfoResponse, UserStoragesResponse } from "./Bank.types";
 export interface BankMsg {
   contractAddress: string;
   sender: string;
