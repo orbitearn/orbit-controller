@@ -1,22 +1,20 @@
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { AssetItem, Token } from "../../common/codegen/Bank.types";
 import { TokenInfo } from "../../common/interfaces";
+import { AppRequest, UserRequest } from "../db/requests";
+import { dateToTimestamp } from "../services/utils";
+import * as math from "mathjs";
+import { BANK, DECIMALS_DEFAULT } from "../constants";
 import {
   AssetAmount,
   IAppDataSchema,
   IUserDataSchema,
   TimestampData,
 } from "../db/types";
-import { DatabaseClient } from "../db/client";
-import { AppRequest, UserRequest } from "../db/requests";
-import { dateToTimestamp, epochToDateStringUTC } from "../services/utils";
-import * as math from "mathjs";
-import { BANK, DECIMALS_DEFAULT } from "../constants";
 import {
   DECIMAL_PLACES,
   dedupVector,
   l,
-  li,
   numberFrom,
   Request,
 } from "../../common/utils/index";
@@ -75,7 +73,6 @@ interface UserDataListItem {
 }
 
 export async function updateUserData(
-  dbClient: DatabaseClient,
   chainId: string,
   rpc: string,
   userList: string[],
@@ -84,160 +81,124 @@ export async function updateUserData(
   let addressAndDataList: [string, TimestampData[]][] = [];
 
   // get user data from the contract
-  try {
-    const { bank } = await getCwQueryHelpers(chainId, rpc);
-    await dbClient.connect();
-    const dbAssetsList = await bank.cwQueryDbAssetsList(userList);
-    const assetList = await bank.pQueryAssetList(BANK.PAGINATION.ASSET_LIST);
+  const { bank } = await getCwQueryHelpers(chainId, rpc);
+  const dbAssetsList = await bank.cwQueryDbAssetsList(userList);
+  const assetList = await bank.pQueryAssetList(BANK.PAGINATION.ASSET_LIST);
 
-    const distributionStateList = await bank.cwQueryDistributionStateList([
-      ...userList,
-      bankAddress,
-    ]);
-    const userDistributionStateList = distributionStateList.filter(
-      ([address]) => address !== bankAddress
+  const distributionStateList = await bank.cwQueryDistributionStateList([
+    ...userList,
+    bankAddress,
+  ]);
+  const userDistributionStateList = distributionStateList.filter(
+    ([address]) => address !== bankAddress
+  );
+  const distributionState = distributionStateList.find(
+    ([address]) => address === bankAddress
+  );
+
+  const dateTo = distributionState?.[1]?.update_date || 0;
+  const lastAppCounter = distributionState?.[1]?.counter;
+
+  let userDataList: UserDataListItem[] = [];
+
+  for (const [user, { counter }] of userDistributionStateList) {
+    const [{ timestamp }] = await AppRequest.getDataInCounterRange(
+      counter,
+      lastAppCounter || counter + 1
     );
-
-    const dateTo =
-      userDistributionStateList.find(
-        ([address]) => address === bankAddress
-      )?.[1]?.update_date || 0;
-
-    let userDataList: UserDataListItem[] = [];
-
-    for (const [user, { counter }] of userDistributionStateList) {
-      const timestamp = (await AppRequest.getDataByCounter(counter))?.timestamp;
-      const dateFrom = dateToTimestamp(timestamp) || dateTo;
-      const userData = await UserRequest.getDataInTimestampRange(
-        user,
-        dateFrom,
-        dateTo
-      );
-      const appData = await AppRequest.getDataInTimestampRange(
-        dateFrom,
-        dateTo
-      );
-      const dbAssets =
-        dbAssetsList.find(([address]) => address === user)?.[1] || [];
-
-      li({
-        user,
-        dateFrom: epochToDateStringUTC(dateFrom),
-        dateTo: epochToDateStringUTC(dateTo),
-        userData,
-        appData,
-        dbAssets,
-      });
-
-      userDataList.push({ user, userData, appData, dbAssets });
-    }
-
-    // get exactly what must be added
-    let dbAssetsToAddList: UserDataListItem[] = [];
-
-    for (const { user, userData, appData, dbAssets } of userDataList) {
-      const dbAssetsToAdd = dbAssets.reduce((acc, cur) => {
-        const assetsToAdd = cur.filter(
-          (x) =>
-            !userData.some(
-              (y) =>
-                y.asset === x.symbol &&
-                numberFrom(y.amount) === numberFrom(x.amount)
-            )
-        );
-
-        if (assetsToAdd.length) {
-          acc.push(assetsToAdd);
-        }
-
-        return acc;
-      }, [] as AssetItem[][]);
-
-      if (dbAssetsToAdd.length) {
-        li({
-          user,
-          userData,
-          appData,
-          dbAssetsToAdd,
-        });
-
-        dbAssetsToAddList.push({
-          user,
-          userData,
-          appData,
-          dbAssets: dbAssetsToAdd,
-        });
-      }
-    }
-
-    // get decimals for unique asset symbol list
-    const symbolList = dedupVector(
-      dbAssetsToAddList.flatMap(({ dbAssets }) =>
-        dbAssets.flatMap((x) => x.map((y) => y.symbol))
-      )
+    const dateFrom =
+      dateToTimestamp(timestamp) ||
+      dateTo - BANK.DISTRIBUTION_PERIOD * BANK.MAX_COUNTER_DIFF;
+    const userData = await UserRequest.getDataInTimestampRange(
+      user,
+      dateFrom,
+      dateTo
     );
-    const symbolAndDecimalsList: [string, number][] = symbolList.map(
-      (symbol) => {
+    const appData = await AppRequest.getDataInTimestampRange(dateFrom, dateTo);
+    const dbAssets =
+      dbAssetsList.find(([address]) => address === user)?.[1] || [];
+
+    userDataList.push({ user, userData, appData, dbAssets });
+  }
+
+  // get decimals for unique asset symbol list
+  const symbolAndDecimalsList: [string, number][] = assetList.map((x) => [
+    getTokenSymbol(x.token),
+    x.decimals,
+  ]);
+
+  // get exactly what must be added
+  let dbAssetsToAddList: UserDataListItem[] = [];
+
+  for (const { user, userData, appData, dbAssets } of userDataList) {
+    const dbAssetsToAdd = dbAssets.reduce((acc, cur) => {
+      // assetsForDb amounts must be divided according to its decimals to store in db amounts as ts numbers with 18 decimal places
+      const assetsForDb: AssetItem[] = cur.map((x) => {
         const decimals =
-          assetList.find((x) => getTokenSymbol(x.token) === symbol)?.decimals ||
+          symbolAndDecimalsList.find(([s, _d]) => s === x.symbol)?.[1] ||
           DECIMALS_DEFAULT;
 
-        return [symbol, decimals];
+        const divider = numberFrom(10).pow(decimals);
+        const amountDec = numberFrom(x.amount)
+          .div(divider)
+          .toDecimalPlaces(DECIMAL_PLACES)
+          .toFixed();
+
+        return { amount: amountDec, symbol: x.symbol };
+      });
+
+      const assetsToAdd = assetsForDb.filter(
+        (x) =>
+          !userData.some(
+            (y) =>
+              y.asset === x.symbol &&
+              numberFrom(y.amount).equals(numberFrom(x.amount))
+          )
+      );
+
+      if (assetsToAdd.length) {
+        acc.push(assetsToAdd);
       }
-    );
 
-    // dbAssets amounts must be divided according to its decimals to store in db amounts as ts numbers with 18 decimal places
-    for (const {
-      user,
-      appData,
-      dbAssets: dbAssetsToAdd,
-    } of dbAssetsToAddList) {
-      const dataList = dbAssetsToAdd
-        .map((assets, i) => {
-          const { timestamp } = appData[i];
-          const assetList: AssetAmount[] = assets
-            .map(({ amount, symbol }) => {
-              const decimals =
-                symbolAndDecimalsList.find(([s, _d]) => s === symbol)?.[1] ||
-                DECIMALS_DEFAULT;
+      return acc;
+    }, [] as AssetItem[][]);
 
-              const divider = numberFrom(10).pow(decimals);
-              const amountDec = numberFrom(amount)
-                .div(divider)
-                .toDecimalPlaces(DECIMAL_PLACES)
-                .toNumber();
-
-              return {
-                asset: symbol,
-                amount: amountDec,
-              };
-            })
-            .filter((x) => x.amount);
-
-          return { timestamp, assetList };
-        })
-        .filter((x) => x.assetList.length);
-
-      if (dataList.length) {
-        addressAndDataList.push([user, dataList]);
-      }
+    if (dbAssetsToAdd.length) {
+      dbAssetsToAddList.push({
+        user,
+        userData,
+        appData,
+        dbAssets: dbAssetsToAdd,
+      });
     }
-  } catch (e) {
-    l(e);
   }
 
-  try {
-    if (addressAndDataList.length) {
-      await UserRequest.addMultipleDataList(addressAndDataList);
-      l("Prices are stored in DB");
+  for (const { user, appData, dbAssets: dbAssetsToAdd } of dbAssetsToAddList) {
+    const dataList = dbAssetsToAdd
+      .map((assets, i) => {
+        const { timestamp } =
+          appData[appData.length - dbAssetsToAdd.length + i];
+
+        const assetList: AssetAmount[] = assets
+          .map(({ amount, symbol }) => ({
+            asset: symbol,
+            amount: numberFrom(amount).toNumber(),
+          }))
+          .filter((x) => x.amount);
+
+        return { timestamp, assetList };
+      })
+      .filter((x) => x.assetList.length);
+
+    if (dataList.length) {
+      addressAndDataList.push([user, dataList]);
     }
-  } catch (e) {
-    l(e);
   }
 
-  try {
-    await dbClient.disconnect();
-  } catch (_) {}
+  if (addressAndDataList.length) {
+    await UserRequest.addMultipleDataList(addressAndDataList);
+    l("Prices are stored in DB");
+  }
 }
 
 // pagination to avoid gas limit problem updating user counters

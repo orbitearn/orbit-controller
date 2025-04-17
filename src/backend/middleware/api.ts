@@ -170,6 +170,11 @@ export async function updateUserAssets(addressList: string[]) {
     } = getChainOptionById(CHAIN_CONFIG, CHAIN_ID);
     const bankAddress = getContractByLabel(CONTRACTS, "bank")?.ADDRESS || "";
 
-    await updateUserData(dbClient, CHAIN_ID, RPC, addressList, bankAddress);
+    await dbClient.connect();
+    await updateUserData(CHAIN_ID, RPC, addressList, bankAddress);
+  } catch (_) {}
+
+  try {
+    await dbClient.disconnect();
   } catch (_) {}
 }

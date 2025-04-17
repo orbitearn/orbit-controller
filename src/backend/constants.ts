@@ -5,39 +5,41 @@ export const SECONDS_PER_DAY = 24 * 3_600;
 export const REPLENISHED_INITIALLY = 3_100_000 * 1e6;
 export const DECIMALS_DEFAULT = 6;
 
-// export const BANK = {
-//   PAGINATION: {
-//     USER_INFO: 50,
-//     USER_COUNTER: 200,
-//     ASSET_LIST: 100,
-//   },
-//   MAX_COUNTER_DIFF: 3, // 1 week for 8h distribution period
-//   UPDATE_STATE_LIST: {
-//     MIN: 3, // lower threshold
-//     LIMIT: 5, // limit per tx
-//   },
-//   UPDATE_STATE_TIME_MARGIN: 30, // seconds
-//   DISTRIBUTION_PERIOD: 10 * 60, // seconds
-//   START_DATE_MINUTES: 5,
-//   CYCLE_COOLDOWN: 5, // seconds
-// };
-
+// test config
 export const BANK = {
   PAGINATION: {
     USER_INFO: 50,
     USER_COUNTER: 200,
     ASSET_LIST: 100,
   },
-  MAX_COUNTER_DIFF: 2, // 1 week for 8h distribution period
+  MAX_COUNTER_DIFF: 21, // 1 week for 8h distribution period
   UPDATE_STATE_LIST: {
     MIN: 1, // lower threshold
     LIMIT: 5, // limit per tx
   },
   UPDATE_STATE_TIME_MARGIN: 30, // seconds
-  DISTRIBUTION_PERIOD: 5 * 60, // seconds
-  START_DATE_MINUTES: 20,
+  DISTRIBUTION_PERIOD: 10 * 60, // seconds
+  START_DATE_MINUTES: 0,
   CYCLE_COOLDOWN: 5, // seconds
 };
+
+// debug config
+// export const BANK = {
+//   PAGINATION: {
+//     USER_INFO: 50,
+//     USER_COUNTER: 200,
+//     ASSET_LIST: 100,
+//   },
+//   MAX_COUNTER_DIFF: 2, // 1 week for 8h distribution period
+//   UPDATE_STATE_LIST: {
+//     MIN: 1, // lower threshold
+//     LIMIT: 5, // limit per tx
+//   },
+//   UPDATE_STATE_TIME_MARGIN: 30, // seconds
+//   DISTRIBUTION_PERIOD: 5 * 60, // seconds
+//   START_DATE_MINUTES: 10,
+//   CYCLE_COOLDOWN: 5, // seconds
+// };
 
 export const ROUTE = {
   GET_TEST: "/test",

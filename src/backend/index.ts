@@ -148,11 +148,13 @@ app.listen(PORT, async () => {
     await dbClient.disconnect();
   } catch (_) {}
 
-  let nextUpdateDate = scriptStartTimestamp + BANK.DISTRIBUTION_PERIOD;
+  let nextUpdateDate = scriptStartTimestamp;
 
   console.clear();
   l(`\n✔️ Server is running on PORT: ${PORT}`);
 
+  // the script should be started earlier to be ready to update just in time
+  scriptStartTimestamp -= 5 * BANK.CYCLE_COOLDOWN;
   li({
     scriptStartTimestamp: epochToDateStringUTC(scriptStartTimestamp),
     nextUpdateDate: epochToDateStringUTC(nextUpdateDate),
@@ -185,8 +187,6 @@ app.listen(PORT, async () => {
         BANK.UPDATE_STATE_LIST.LIMIT,
         userCounterList
       );
-
-      li({ usersToUpdate });
     } catch (error) {
       l(error);
     }
@@ -205,20 +205,21 @@ app.listen(PORT, async () => {
       usersToUpdate.length >= BANK.UPDATE_STATE_LIST.MIN
     ) {
       try {
+        // update user assets in db first!
+        await dbClient.connect();
+        await updateUserData(CHAIN_ID, RPC, usersToUpdate, bankAddress);
+        l("user db data is updated");
+
+        // should be used only in case of updateUserData success!
         await h.bank.cwUpdateUserState(usersToUpdate, gasPrice);
         l("user state is updated");
-        // update user assets in db
-        await updateUserData(
-          dbClient,
-          CHAIN_ID,
-          RPC,
-          usersToUpdate,
-          bankAddress
-        );
-        l("user db data is updated");
       } catch (error) {
         l(error);
       }
+
+      try {
+        await dbClient.disconnect();
+      } catch (_) {}
 
       continue;
     }
