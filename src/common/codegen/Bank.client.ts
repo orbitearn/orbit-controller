@@ -35,7 +35,9 @@ import {
   Uint64,
   Config,
   ArrayOfArrayOfAssetItem,
+  ArrayOfTupleOfAddrAndArrayOfArrayOfAssetItem,
   DistributionState,
+  ArrayOfTupleOfAddrAndDistributionState,
   ArrayOfTupleOfuint32AndArrayOfTupleOfStringAndDecimal,
   StateResponse,
   StoragesResponse,
@@ -55,6 +57,11 @@ export interface BankReadOnlyInterface {
   }: {
     address?: string;
   }) => Promise<DistributionState>;
+  distributionStateList: ({
+    addresses,
+  }: {
+    addresses: string[];
+  }) => Promise<ArrayOfTupleOfAddrAndDistributionState>;
   asset: ({ symbol }: { symbol: string }) => Promise<CurrencyForToken>;
   assetList: ({
     amount,
@@ -85,6 +92,11 @@ export interface BankReadOnlyInterface {
   }: {
     address: string;
   }) => Promise<ArrayOfArrayOfAssetItem>;
+  dbAssetsList: ({
+    addresses,
+  }: {
+    addresses: string[];
+  }) => Promise<ArrayOfTupleOfAddrAndArrayOfArrayOfAssetItem>;
   userInfo: ({
     address,
     ausdcPriceNext,
@@ -126,6 +138,7 @@ export class BankQueryClient implements BankReadOnlyInterface {
     this.config = this.config.bind(this);
     this.state = this.state.bind(this);
     this.distributionState = this.distributionState.bind(this);
+    this.distributionStateList = this.distributionStateList.bind(this);
     this.asset = this.asset.bind(this);
     this.assetList = this.assetList.bind(this);
     this.ausdcPrice = this.ausdcPrice.bind(this);
@@ -134,6 +147,7 @@ export class BankQueryClient implements BankReadOnlyInterface {
     this.userStorages = this.userStorages.bind(this);
     this.appInfo = this.appInfo.bind(this);
     this.dbAssets = this.dbAssets.bind(this);
+    this.dbAssetsList = this.dbAssetsList.bind(this);
     this.userInfo = this.userInfo.bind(this);
     this.userInfoList = this.userInfoList.bind(this);
     this.userCounterList = this.userCounterList.bind(this);
@@ -160,6 +174,17 @@ export class BankQueryClient implements BankReadOnlyInterface {
     return this.client.queryContractSmart(this.contractAddress, {
       distribution_state: {
         address,
+      },
+    });
+  };
+  distributionStateList = async ({
+    addresses,
+  }: {
+    addresses: string[];
+  }): Promise<ArrayOfTupleOfAddrAndDistributionState> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      distribution_state_list: {
+        addresses,
       },
     });
   };
@@ -235,6 +260,17 @@ export class BankQueryClient implements BankReadOnlyInterface {
     return this.client.queryContractSmart(this.contractAddress, {
       db_assets: {
         address,
+      },
+    });
+  };
+  dbAssetsList = async ({
+    addresses,
+  }: {
+    addresses: string[];
+  }): Promise<ArrayOfTupleOfAddrAndArrayOfArrayOfAssetItem> => {
+    return this.client.queryContractSmart(this.contractAddress, {
+      db_assets_list: {
+        addresses,
       },
     });
   };

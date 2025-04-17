@@ -115,6 +115,10 @@ export type QueryMsg = {
     address?: string | null;
   };
 } | {
+  distribution_state_list: {
+    addresses: string[];
+  };
+} | {
   asset: {
     symbol: string;
   };
@@ -142,6 +146,10 @@ export type QueryMsg = {
 } | {
   db_assets: {
     address: string;
+  };
+} | {
+  db_assets_list: {
+    addresses: string[];
   };
 } | {
   user_info: {
@@ -221,11 +229,13 @@ export interface Config {
   usdc: string;
 }
 export type ArrayOfArrayOfAssetItem = AssetItem[][];
+export type ArrayOfTupleOfAddrAndArrayOfArrayOfAssetItem = [Addr, AssetItem[][]][];
 export interface DistributionState {
   ausdc_price: Decimal;
   counter: number;
   update_date: number;
 }
+export type ArrayOfTupleOfAddrAndDistributionState = [Addr, DistributionState][];
 export type ArrayOfTupleOfuint32AndArrayOfTupleOfStringAndDecimal = [number, [string, Decimal][]][];
 export interface StateResponse {
   capture_mode: boolean;

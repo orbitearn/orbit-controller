@@ -63,9 +63,9 @@ export const CHAIN_CONFIG: ChainConfig = {
               }),
               MIGRATE_MSG: toJson<BankTypes.MigrateMsg>({ version: "0.7.0" }),
               UPDATE_MSG: toJson({}),
-              CODE: 11608,
+              CODE: 11611,
               ADDRESS:
-                "neutron1zq6kd8zzug5pl2fgwl60a4g0fps6um6uvsxmlharr8gy3gwce06s5d6vh5",
+                "neutron1k7pwj4htlkww4yf99uxr40tg72jff7tkfan8frzhqghjxlwdke2sdtsxaj",
             },
           ],
           IBC: [],

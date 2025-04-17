@@ -861,6 +861,16 @@ export async function getCwQueryHelpers(chainId: string, rpc: string) {
     return logAndReturn(res, isDisplayed);
   }
 
+  async function cwQueryDistributionStateList(
+    addressList: string[],
+    isDisplayed: boolean = false
+  ) {
+    const res = await bankQueryClient.distributionStateList({
+      addresses: addressList,
+    });
+    return logAndReturn(res, isDisplayed);
+  }
+
   async function cwQueryAsset(symbol: string, isDisplayed: boolean = false) {
     const res = await bankQueryClient.asset({ symbol });
     return logAndReturn(res, isDisplayed);
@@ -911,6 +921,14 @@ export async function getCwQueryHelpers(chainId: string, rpc: string) {
     isDisplayed: boolean = false
   ) {
     const res = await bankQueryClient.dbAssets({ address });
+    return logAndReturn(res, isDisplayed);
+  }
+
+  async function cwQueryDbAssetsList(
+    addressList: string[],
+    isDisplayed: boolean = false
+  ) {
+    const res = await bankQueryClient.dbAssetsList({ addresses: addressList });
     return logAndReturn(res, isDisplayed);
   }
 
@@ -1083,11 +1101,13 @@ export async function getCwQueryHelpers(chainId: string, rpc: string) {
       cwQueryConfig,
       cwQueryState,
       cwQueryDistributionState,
+      cwQueryDistributionStateList,
       cwQueryAsset,
       pQueryAssetList,
       cwQueryAusdcPrice,
       cwQueryAppInfo,
       cwQueryDbAssets,
+      cwQueryDbAssetsList,
       cwQueryUserInfo,
       pQueryUserInfoList,
       pQueryUserCounterList,

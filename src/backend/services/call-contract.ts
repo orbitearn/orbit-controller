@@ -1,5 +1,4 @@
 import { getSigner } from "../account/signer";
-import { floor, getLast, l, li, Request, wait } from "../../common/utils";
 import { readFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
 import { ENCODING, PATH_TO_CONFIG_JSON } from "./utils";
@@ -7,6 +6,7 @@ import { getChainOptionById } from "../../common/config/config-utils";
 import { MONGODB, ORBIT_CONTROLLER, USER_SEED, BASE_URL } from "../envs";
 import { DatabaseClient } from "../db/client";
 import { BANK, CHAIN_ID, ROUTE } from "../constants";
+import { getUpdateStateList, updateUserData } from "../helpers";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,
@@ -15,9 +15,19 @@ import {
   getCwExecHelpers,
   getCwQueryHelpers,
 } from "../../common/account/cw-helpers";
+import {
+  floor,
+  getLast,
+  l,
+  li,
+  numberFrom,
+  Request,
+  wait,
+} from "../../common/utils";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 const req = new Request({ baseURL: BASE_URL + "/api" });
+// const req = new Request({ baseURL: "http://127.0.0.1:4000" + "/api" });
 
 async function main() {
   try {
@@ -49,6 +59,29 @@ async function main() {
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
 
+    await h.bank.cwClaimAssets(gasPrice);
+    return;
+
+    const bankAddress =
+      "neutron1ckvacpufrxuulkwp9uhua2fe5k9h9l20c2ut6au56vjs5q2ae0csu5t4er";
+
+    const userCounterList = await bank.pQueryUserCounterList(
+      BANK.PAGINATION.USER_COUNTER
+    );
+    const { counter: appCounter } = await bank.cwQueryDistributionState({});
+
+    const usersToUpdate = getUpdateStateList(
+      appCounter,
+      BANK.MAX_COUNTER_DIFF,
+      BANK.UPDATE_STATE_LIST.LIMIT,
+      userCounterList
+    );
+
+    await dbClient.connect();
+    await updateUserData(CHAIN_ID, RPC, usersToUpdate, bankAddress);
+    await dbClient.disconnect();
+    return;
+
     // const userInfoList = await bank.pQueryUserInfoList(
     //   {},
     //   BANK.PAGINATION_AMOUNT
@@ -56,25 +89,25 @@ async function main() {
     // li(userInfoList.length);
     // return;
 
-    const params = {
-      address: owner,
-      from: 1742700000,
-      to: 1742838234,
-    };
+    // const params = {
+    //   address: owner,
+    //   from: 1742700000,
+    //   to: 1742838234,
+    // };
 
-    const res = await req.get(ROUTE.GET_AVERAGE_ENTRY_PRICE, { params });
-    li(res);
-    return;
+    // const res = await req.get(ROUTE.GET_AVERAGE_ENTRY_PRICE, { params });
+    // li(res);
+    // return;
 
     // const { usdc } = await bank.cwQueryConfig();
     // await h.bank.cwDepositUsdc(
-    //   10_000 * 1e6,
+    //   numberFrom(10_000 * 1e6),
     //   { native: { denom: usdc } },
     //   gasPrice
     // );
 
     // await h.bank.cwEnableDca(
-    //   0.5,
+    //   numberFrom(0.5),
     //   [
     //     {
     //       symbol:
@@ -87,10 +120,15 @@ async function main() {
     //       weight: "0.25",
     //     },
     //   ],
-    //   { swaps: 5 },
+    //   { swaps: 100 },
     //   gasPrice
     // );
     // await bank.cwQueryUserInfo(owner, {}, true);
+    // return;
+
+    // await req.post(ROUTE.UPDATE_USER_ASSETS, {
+    //   addressList: [owner],
+    // });
 
     // // every user action must be wrapped with dbHandlerWrapper
     // const dbHandlerWrapper = await getDbHandlerWrapper(
@@ -125,9 +163,6 @@ async function main() {
     //       gasPrice
     //     )
     // );
-
-    // check user state
-    await bank.cwQueryUserInfo(owner, {}, true);
   } catch (error) {
     l(error);
   }

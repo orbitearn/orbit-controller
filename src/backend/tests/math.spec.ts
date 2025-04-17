@@ -1,5 +1,6 @@
 import { IAppDataSchema, IUserDataSchema } from "../db/types";
 import { numberFrom } from "../../common/utils";
+import { getUpdateStateList } from "../helpers";
 import {
   dateStringToEpochUTC,
   epochToDateStringUTC,
@@ -255,5 +256,28 @@ describe("UI data math", () => {
     );
 
     expect(yieldRate).toStrictEqual(expected);
+  });
+
+  test("getUpdateStateList default", () => {
+    const appCounter: number = 6;
+    const maxCounterDiff: number = 3;
+    const maxUpdateStateList: number = 2;
+    const userCounterList: [string, number][] = [
+      ["alice", 2],
+      ["bob", 1],
+      ["john", 0],
+      ["kate", 4],
+    ];
+
+    const expected: string[] = ["john", "bob"];
+
+    const updateStateList = getUpdateStateList(
+      appCounter,
+      maxCounterDiff,
+      maxUpdateStateList,
+      userCounterList
+    );
+
+    expect(updateStateList).toStrictEqual(expected);
   });
 });

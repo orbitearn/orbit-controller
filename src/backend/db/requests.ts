@@ -147,6 +147,38 @@ export class UserRequest {
     }
   }
 
+  static async addMultipleDataList(
+    addressAndDataList: [string, TimestampData[]][]
+  ): Promise<IUserDataDocument[]> {
+    try {
+      const documentsToInsert: Array<{
+        address: string;
+        asset: string;
+        amount: number;
+        timestamp: Date;
+      }> = [];
+
+      for (const [address, dataList] of addressAndDataList) {
+        for (const { timestamp, assetList } of dataList) {
+          const dateTimestamp = toDate(timestamp);
+
+          for (const { asset, amount } of assetList) {
+            documentsToInsert.push({
+              address,
+              asset,
+              amount,
+              timestamp: dateTimestamp,
+            });
+          }
+        }
+      }
+
+      return await UserDataModel.insertMany(documentsToInsert);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   static async getDataByTimestamp(
     address: string,
     timestamp: Date | number
