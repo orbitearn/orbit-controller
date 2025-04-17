@@ -28,14 +28,14 @@ export const BANK = {
     USER_COUNTER: 200,
     ASSET_LIST: 100,
   },
-  MAX_COUNTER_DIFF: 3, // 1 week for 8h distribution period
+  MAX_COUNTER_DIFF: 2, // 1 week for 8h distribution period
   UPDATE_STATE_LIST: {
-    MIN: 3, // lower threshold
+    MIN: 1, // lower threshold
     LIMIT: 5, // limit per tx
   },
   UPDATE_STATE_TIME_MARGIN: 30, // seconds
-  DISTRIBUTION_PERIOD: 10 * 60, // seconds
-  START_DATE_MINUTES: 5,
+  DISTRIBUTION_PERIOD: 5 * 60, // seconds
+  START_DATE_MINUTES: 20,
   CYCLE_COOLDOWN: 5, // seconds
 };
 

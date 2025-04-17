@@ -96,17 +96,17 @@ async function main() {
     //       weight: "0.25",
     //     },
     //   ],
-    //   { swaps: 5 },
+    //   { swaps: 10 },
     //   gasPrice
     // );
     // await bank.cwQueryUserInfo(owner, {}, true);
 
-    // await h.bank.cwClaimAssets(gasPrice);
-    // return;
+    await h.bank.cwClaimAssets(gasPrice);
+    return;
 
-    await req.post(ROUTE.UPDATE_USER_ASSETS, {
-      addressList: [owner],
-    });
+    // await req.post(ROUTE.UPDATE_USER_ASSETS, {
+    //   addressList: [owner],
+    // });
 
     // // every user action must be wrapped with dbHandlerWrapper
     // const dbHandlerWrapper = await getDbHandlerWrapper(

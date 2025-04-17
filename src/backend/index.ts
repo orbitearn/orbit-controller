@@ -134,6 +134,11 @@ app.listen(PORT, async () => {
   try {
     await dbClient.connect();
     const timestamp = (await AppRequest.getDataByLastCounter())?.timestamp;
+
+    if (!timestamp) {
+      throw new Error();
+    }
+
     scriptStartTimestamp =
       dateToTimestamp(timestamp) + BANK.DISTRIBUTION_PERIOD;
   } catch (_) {
@@ -148,17 +153,17 @@ app.listen(PORT, async () => {
   console.clear();
   l(`\n✔️ Server is running on PORT: ${PORT}`);
 
+  li({
+    scriptStartTimestamp: epochToDateStringUTC(scriptStartTimestamp),
+    nextUpdateDate: epochToDateStringUTC(nextUpdateDate),
+  });
+
   await wait((scriptStartTimestamp - blockTime) * MS_PER_SECOND);
   l(
     `\n✔️ Script is running since: ${epochToDateStringUTC(
       getBlockTime(blockTimeOffset)
     )}`
   );
-
-  li({
-    scriptStartTimestamp: epochToDateStringUTC(scriptStartTimestamp),
-    nextUpdateDate: epochToDateStringUTC(nextUpdateDate),
-  });
 
   // service to claim and swap orbit rewards and save data in db
   let isAusdcPriceUpdated = true;
@@ -180,6 +185,8 @@ app.listen(PORT, async () => {
         BANK.UPDATE_STATE_LIST.LIMIT,
         userCounterList
       );
+
+      li({ usersToUpdate });
     } catch (error) {
       l(error);
     }
@@ -199,6 +206,7 @@ app.listen(PORT, async () => {
     ) {
       try {
         await h.bank.cwUpdateUserState(usersToUpdate, gasPrice);
+        l("user state is updated");
         // update user assets in db
         await updateUserData(
           dbClient,
@@ -207,6 +215,7 @@ app.listen(PORT, async () => {
           usersToUpdate,
           bankAddress
         );
+        l("user db data is updated");
       } catch (error) {
         l(error);
       }
