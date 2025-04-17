@@ -1,5 +1,5 @@
 {
-  "name": "equinox-voter-controller",
+  "name": "orbit-controller",
   "version": "1.1.0",
   "description": "",
   "main": "./src/backend/index.ts",
@@ -17,15 +17,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EclipsePad/equinox-voter-controller"
+    "url": "git+https://github.com/orbitearn/orbit-controller"
   },
   "keywords": [],
   "author": "M. Daeva",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/EclipsePad/equinox-voter-controller/issues"
+    "url": "https://github.com/orbitearn/orbit-controller/issues"
   },
-  "homepage": "https://github.com/EclipsePad/equinox-voter-controller#readme",
+  "homepage": "https://github.com/orbitearn/orbit-controller#readme",
   "dependencies": {
     "@chain-registry/types": "^0.18.0",
     "@cosmjs/cosmwasm-stargate": "^0.32.2",
@@ -41,6 +41,7 @@
     "express-rate-limit": "^7.4.1",
     "helmet": "^8.0.0",
     "localtunnel": "^2.0.2",
+    "mathjs": "^14.4.0",
     "mongodb": "^6.12.0",
     "mongoose": "5.10.19",
     "ts-node": "^10.9.2",

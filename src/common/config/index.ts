@@ -1,12 +1,20 @@
 import { ChainConfig } from "../../common/interfaces";
 import { $, toJson } from "./config-utils";
+import * as MinterTypes from "../codegen/Minter.types";
+import * as BankTypes from "../codegen/Bank.types";
 
 export type NetworkName = "NEUTRON";
-export type Wasm = "bank.wasm";
-export type Label = "bank";
+export type Wasm = "bank.wasm" | "minter.wasm";
+export type Label = "bank" | "minter";
 
 export const ADDRESS = {
-  WORKER: "",
+  CONTROLLER: "neutron1lwrna9hj3awewqr8ryx2wlpdc2dcgq7asd5na9",
+};
+
+export const TOKEN = {
+  USDC: "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/nobleUSDC",
+  aUSDC:
+    "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/aUSDC",
 };
 
 /**
@@ -35,14 +43,29 @@ export const CHAIN_CONFIG: ChainConfig = {
           STORE_CODE_GAS_MULTIPLIER: 21.5,
           CONTRACTS: [
             {
-              WASM: "bank.wasm",
-              LABEL: "bank",
+              WASM: "minter.wasm",
+              LABEL: "minter",
               INIT_MSG: toJson({}),
               MIGRATE_MSG: toJson({}),
               UPDATE_MSG: toJson({}),
-              CODE: 11275,
+              CODE: 7430,
               ADDRESS:
-                "neutron14zx2vdrnsy9shky0w865uuymgn03w96n79sskjl5958jspwp673ssrgea3",
+                "neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6",
+            },
+
+            {
+              WASM: "bank.wasm",
+              LABEL: "bank",
+              INIT_MSG: toJson<BankTypes.InstantiateMsg>({
+                ausdc: TOKEN.aUSDC,
+                usdc: TOKEN.USDC,
+                controller: ADDRESS.CONTROLLER,
+              }),
+              MIGRATE_MSG: toJson<BankTypes.MigrateMsg>({ version: "0.7.0" }),
+              UPDATE_MSG: toJson({}),
+              CODE: 11611,
+              ADDRESS:
+                "neutron1k7pwj4htlkww4yf99uxr40tg72jff7tkfan8frzhqghjxlwdke2sdtsxaj",
             },
           ],
           IBC: [],

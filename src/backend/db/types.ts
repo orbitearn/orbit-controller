@@ -1,6 +1,4 @@
 import { Document, SchemaOptions } from "mongoose";
-import { MS_PER_SECOND } from "../constants";
-import { floor } from "../../common/utils";
 
 export type AssetPrice = {
   asset: string;
@@ -38,16 +36,4 @@ export function getSchemaOptions(collection: string): SchemaOptions {
     strict: true,
     collection,
   };
-}
-
-export function dateToTimestamp(date?: Date): number {
-  return floor((date?.getTime() || 0) / MS_PER_SECOND);
-}
-
-function timestampToDate(timestamp: number): Date {
-  return new Date(timestamp * MS_PER_SECOND);
-}
-
-export function toDate(value: Date | number): Date {
-  return typeof value === "number" ? timestampToDate(value) : value;
 }

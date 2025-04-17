@@ -5,12 +5,12 @@
 */
 
 export type Decimal = string;
-export type Uint128 = string;
+export type Uint256 = string;
 export interface InstantiateMsg {
-  ausdc?: string | null;
+  ausdc: string;
   controller?: string | null;
   fee_rate?: Decimal | null;
-  total_usdc_limit?: Uint128 | null;
+  total_usdc_limit?: Uint256 | null;
   usdc?: string | null;
 }
 export type ExecuteMsg = {
@@ -19,13 +19,13 @@ export type ExecuteMsg = {
   deposit_usdc: {};
 } | {
   withdraw_ausdc: {
-    ausdc_amount?: Uint128 | null;
+    ausdc_amount?: Uint256 | null;
   };
 } | {
   deposit_ausdc: {};
 } | {
   withdraw_usdc: {
-    ausdc_amount?: Uint128 | null;
+    ausdc_amount?: Uint256 | null;
   };
 } | {
   enable_dca: {
@@ -40,16 +40,24 @@ export type ExecuteMsg = {
 } | {
   claim_and_swap: {
     assets: AssetItem[];
-    fee_amount: Uint128;
+    fee_amount: Uint256;
     prices: [string, Decimal][];
-    rewards: Uint128;
-    usdc_yield: Uint128;
+    rewards: Uint256;
+    usdc_yield: Uint256;
   };
 } | {
   register_asset: {
     asset: CurrencyForTokenUnverified;
     price: Decimal;
   };
+} | {
+  update_user_state: {
+    addresses: string[];
+  };
+} | {
+  enable_capture: {};
+} | {
+  disable_capture: {};
 } | {
   accept_admin_role: {};
 } | {
@@ -58,7 +66,7 @@ export type ExecuteMsg = {
     ausdc?: string | null;
     controller?: string | null;
     fee_rate?: Decimal | null;
-    total_usdc_limit?: Uint128 | null;
+    total_usdc_limit?: Uint256 | null;
     usdc?: string | null;
   };
 } | {
@@ -70,6 +78,7 @@ export type ExecuteMsg = {
     value: Decimal;
   };
 };
+export type Uint128 = string;
 export type Binary = string;
 export type TokenUnverified = {
   native: {
@@ -90,7 +99,7 @@ export interface WeightItem {
   weight: Decimal;
 }
 export interface AssetItem {
-  amount: Uint128;
+  amount: Uint256;
   symbol: string;
 }
 export interface CurrencyForTokenUnverified {
@@ -100,10 +109,14 @@ export interface CurrencyForTokenUnverified {
 export type QueryMsg = {
   config: {};
 } | {
-  pause_state: {};
+  state: {};
 } | {
   distribution_state: {
     address?: string | null;
+  };
+} | {
+  distribution_state_list: {
+    addresses: string[];
   };
 } | {
   asset: {
@@ -117,10 +130,26 @@ export type QueryMsg = {
 } | {
   ausdc_price: {};
 } | {
+  price_set: {
+    amount: number;
+    start_from?: number | null;
+  };
+} | {
+  storages: {};
+} | {
+  user_storages: {
+    address: string;
+    dca: boolean;
+  };
+} | {
   app_info: {};
 } | {
   db_assets: {
     address: string;
+  };
+} | {
+  db_assets_list: {
+    addresses: string[];
   };
 } | {
   user_info: {
@@ -131,6 +160,11 @@ export type QueryMsg = {
   user_info_list: {
     amount: number;
     ausdc_price_next?: Decimal | null;
+    start_from?: string | null;
+  };
+} | {
+  user_counter_list: {
+    amount: number;
     start_from?: string | null;
   };
 } | {
@@ -151,20 +185,20 @@ export interface MigrateMsg {
 }
 export interface AppInfoResponse {
   ausdc: AusdcInfo;
-  deposited_usdc: Uint128;
-  usdc_gross: Uint128;
-  usdc_net: Uint128;
+  deposited_usdc: Uint256;
+  usdc_gross: Uint256;
+  usdc_net: Uint256;
   yield_accumulated: YieldInfo;
 }
 export interface AusdcInfo {
-  balance: Uint128;
-  minted: Uint128;
-  unclaimed: Uint128;
+  balance: Uint256;
+  minted: Uint256;
+  unclaimed: Uint256;
 }
 export interface YieldInfo {
   assets: AssetItem[];
-  total: Uint128;
-  usdc: Uint128;
+  total: Uint256;
+  usdc: Uint256;
 }
 export type Token = {
   native: {
@@ -182,8 +216,8 @@ export interface CurrencyForToken {
 }
 export type ArrayOfCurrencyForToken = CurrencyForToken[];
 export interface BalancesResponse {
-  ausdc: Uint128;
-  usdc: Uint128;
+  ausdc: Uint256;
+  usdc: Uint256;
 }
 export type Uint64 = number;
 export interface Config {
@@ -191,23 +225,37 @@ export interface Config {
   ausdc: string;
   controller: Addr;
   fee_rate: Decimal;
-  total_usdc_limit: Uint128;
+  total_usdc_limit: Uint256;
   usdc: string;
 }
 export type ArrayOfArrayOfAssetItem = AssetItem[][];
+export type ArrayOfTupleOfAddrAndArrayOfArrayOfAssetItem = [Addr, AssetItem[][]][];
 export interface DistributionState {
   ausdc_price: Decimal;
   counter: number;
   update_date: number;
 }
-export type Boolean = boolean;
+export type ArrayOfTupleOfAddrAndDistributionState = [Addr, DistributionState][];
+export type ArrayOfTupleOfuint32AndArrayOfTupleOfStringAndDecimal = [number, [string, Decimal][]][];
+export interface StateResponse {
+  capture_mode: boolean;
+  is_paused: boolean;
+}
+export interface StoragesResponse {
+  ausdc_minted: Uint256;
+  ausdc_minted_pre: Uint256;
+  usdc_pool_gross: Uint256;
+  usdc_pool_net: Uint256;
+  usdc_pool_net_pre: Uint256;
+}
+export type ArrayOfTupleOfAddrAndUint32 = [Addr, number][];
 export interface UserInfoResponse {
   address: Addr;
   ausdc: AusdcInfo;
   dca: DcaResponse;
-  deposited_usdc: Uint128;
-  fee_next: Uint128;
-  usdc: Uint128;
+  deposited_usdc: Uint256;
+  fee_next: Uint256;
+  usdc: Uint256;
   user_yield: UserYield;
 }
 export interface DcaResponse {
@@ -223,3 +271,8 @@ export interface UserYield {
   pending: YieldInfo;
 }
 export type ArrayOfUserInfoResponse = UserInfoResponse[];
+export interface UserStoragesResponse {
+  ausdc_minted: Uint256;
+  ausdc_minted_pre: Uint256;
+  dca_pre?: DcaResponse | null;
+}

@@ -166,7 +166,7 @@ GET requests:
 
 POST requests:
 
-`/update-user-assets` - writes to DB users assets bought in streaming (calculated dynamically). If there is no assets to add it will handle corresponding error preserving successful response. Request parameters: `address` (required, string) - user's wallet
+`/update-user-assets` - writes to DB users assets bought in streaming (calculated dynamically). If there is no assets to add it will handle corresponding error preserving successful response. Request parameters: `addressList` (required, string[]) - list of users
 
 <a id="distribution-period"></a> *[DISTRIBUTION_PERIOD](https://github.com/EclipsePad/orbit-controller/blob/main/src/backend/constants.ts#L10)
 

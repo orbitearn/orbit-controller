@@ -9,9 +9,9 @@ import {
   ChainItem,
 } from "../interfaces";
 
-const $ = (value: string): any => `!${value}!` as any;
+export const $ = (value: string): any => `!${value}!` as any;
 
-function toJson<T>(obj: T): string {
+export function toJson<T>(obj: T): string {
   return JSON.stringify(obj);
 }
 
@@ -114,7 +114,7 @@ function findTemplates(text: string): string[] {
 
 type MsgType = "instantiate" | "update" | "migrate";
 
-function replaceTemplates(
+export function replaceTemplates(
   chainId: string,
   configJsonObj: ChainConfig,
   config: ChainConfig,
@@ -189,14 +189,14 @@ function replaceTemplates(
   return configJsonObj;
 }
 
-function getChain(chainConfig: ChainConfig, name: string) {
+export function getChain(chainConfig: ChainConfig, name: string) {
   const chain = chainConfig.CHAINS.find((x) => x.NAME === name);
   if (!chain) throw new Error(`Chain "${name}" is not found!`);
 
   return chain;
 }
 
-function getChainOption(
+export function getChainOption(
   chainConfig: ChainConfig,
   name: string,
   type: ChainType
@@ -210,7 +210,7 @@ function getChainOption(
   return option;
 }
 
-function getChainOptionById(chainConfig: ChainConfig, chainId: string) {
+export function getChainOptionById(chainConfig: ChainConfig, chainId: string) {
   let targetOption: ChainOption | undefined;
   let name: string | undefined;
   let prefix: string | undefined;
@@ -233,7 +233,7 @@ function getChainOptionById(chainConfig: ChainConfig, chainId: string) {
   return { NAME: name, PREFIX: prefix, OPTION: targetOption };
 }
 
-function getContract(
+export function getContract(
   chainConfig: ChainConfig,
   name: string,
   type: ChainType,
@@ -246,28 +246,9 @@ function getContract(
   return contract;
 }
 
-function getContractByWasm(contracts: ContractInfo[], wasm: Wasm) {
-  const contract = contracts.find((x) => x.WASM === wasm);
-  if (!contract) throw new Error(`${wasm} is not found!`);
-
-  return contract;
-}
-
-function getContractByLabel(contracts: ContractInfo[], label: Label) {
+export function getContractByLabel(contracts: ContractInfo[], label: Label) {
   const contract = contracts.find((x) => x.LABEL === label);
   if (!contract) throw new Error(`${label} is not found!`);
 
   return contract;
 }
-
-export {
-  $,
-  toJson,
-  replaceTemplates,
-  getChain,
-  getChainOption,
-  getContract,
-  getChainOptionById,
-  getContractByWasm,
-  getContractByLabel,
-};

@@ -1,12 +1,12 @@
 import { AssetItem } from "../../common/codegen/Bank.types";
 import { getLast } from "../../common/utils";
+import { toDate } from "../services/utils";
 import { AppDataModel, UserDataModel } from "./models";
 import {
   AssetPrice,
   IAppDataDocument,
   IUserDataDocument,
   TimestampData,
-  toDate,
 } from "./types";
 
 export class AppRequest {
@@ -99,7 +99,7 @@ export class UserRequest {
     address: string,
     assetList: AssetItem[],
     timestamp: Date | number
-  ): Promise<IUserDataDocument> {
+  ): Promise<IUserDataDocument | undefined> {
     try {
       const date = toDate(timestamp);
       const documents = assetList.map(({ symbol, amount }) => ({
@@ -138,6 +138,38 @@ export class UserRequest {
             amount,
             timestamp: dateTimestamp,
           });
+        }
+      }
+
+      return await UserDataModel.insertMany(documentsToInsert);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async addMultipleDataList(
+    addressAndDataList: [string, TimestampData[]][]
+  ): Promise<IUserDataDocument[]> {
+    try {
+      const documentsToInsert: Array<{
+        address: string;
+        asset: string;
+        amount: number;
+        timestamp: Date;
+      }> = [];
+
+      for (const [address, dataList] of addressAndDataList) {
+        for (const { timestamp, assetList } of dataList) {
+          const dateTimestamp = toDate(timestamp);
+
+          for (const { asset, amount } of assetList) {
+            documentsToInsert.push({
+              address,
+              asset,
+              amount,
+              timestamp: dateTimestamp,
+            });
+          }
         }
       }
 

@@ -1,4 +1,4 @@
-import { l, li } from "../utils";
+import { l, li, numberFrom } from "../utils";
 import { getSgClient, signAndBroadcastWrapper } from "./clients";
 import { Tendermint37Client, toSeconds } from "@cosmjs/tendermint-rpc";
 import { VoteOption } from "cosmjs-types/cosmos/gov/v1beta1/gov";
@@ -21,7 +21,7 @@ import {
   MsgTransferEncodeObject,
 } from "@cosmjs/stargate";
 
-async function getSgExecHelpers(
+export async function getSgExecHelpers(
   rpc: string,
   owner: string,
   signer: (OfflineSigner & OfflineDirectSigner) | DirectSecp256k1HdWallet
@@ -48,7 +48,7 @@ async function getSgExecHelpers(
 
   async function sgMultiSend(
     denom: string,
-    recipientAndAmountList: [string, number][],
+    recipientAndAmountList: [string, math.BigNumber][],
     gasPrice: string
   ) {
     const msgs: MsgSendEncodeObject[] = recipientAndAmountList.map(
@@ -57,7 +57,7 @@ async function getSgExecHelpers(
         value: {
           fromAddress: owner,
           toAddress: address,
-          amount: [coin(amount, denom)],
+          amount: [coin(amount.toFixed(), denom)],
         },
       })
     );
@@ -69,7 +69,7 @@ async function getSgExecHelpers(
 
   async function sgDelegate(
     operatorAddress: string,
-    amount: number,
+    amount: math.BigNumber,
     denom: string,
     gasPrice: string
   ) {
@@ -78,7 +78,7 @@ async function getSgExecHelpers(
       value: {
         delegatorAddress: owner,
         validatorAddress: operatorAddress,
-        amount: coin(amount, denom),
+        amount: coin(amount.toFixed(), denom),
       },
     };
 
@@ -108,7 +108,7 @@ async function getSgExecHelpers(
 
   async function sgIbcHookCall(
     contractAddress: string,
-    amount: number,
+    amount: math.BigNumber,
     denom: string,
     msg: any,
     sourcePort: string,
@@ -128,7 +128,7 @@ async function getSgExecHelpers(
     const ibcMsg: MsgTransferEncodeObject = {
       typeUrl: "/ibc.applications.transfer.v1.MsgTransfer",
       value: {
-        token: coin(amount, denom),
+        token: coin(amount.toFixed(), denom),
         sender: owner,
         receiver: contractAddress,
         sourcePort,
@@ -152,7 +152,7 @@ async function getSgExecHelpers(
   };
 }
 
-async function getSgQueryHelpers(rpc: string) {
+export async function getSgQueryHelpers(rpc: string) {
   const tmClient = await Tendermint37Client.connect(rpc);
   const queryClient = QueryClient.withExtensions(tmClient);
   const bankExtension = setupBankExtension(queryClient);
@@ -201,7 +201,7 @@ async function getSgQueryHelpers(rpc: string) {
     } = await tmClient.block();
 
     const { seconds, nanos } = toSeconds(time);
-    const res = nanos + seconds * 1e9;
+    const res = numberFrom(nanos).plus(numberFrom(seconds).mul(1e9)).toNumber();
 
     return res;
   }
@@ -214,5 +214,3 @@ async function getSgQueryHelpers(rpc: string) {
     getTimeInNanos,
   };
 }
-
-export { getSgExecHelpers, getSgQueryHelpers };

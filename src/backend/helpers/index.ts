@@ -1,20 +1,31 @@
-import { DeliverTxResponse } from "@cosmjs/stargate";
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { AssetItem, Token } from "../../common/codegen/Bank.types";
 import { TokenInfo } from "../../common/interfaces";
-import { l, Request } from "../../common/utils/index";
-import { AssetAmount, dateToTimestamp, TimestampData } from "../db/types";
-import { DatabaseClient } from "../db/client";
 import { AppRequest, UserRequest } from "../db/requests";
+import { dateToTimestamp } from "../services/utils";
+import * as math from "mathjs";
+import { BANK, DECIMALS_DEFAULT } from "../constants";
+import {
+  AssetAmount,
+  IAppDataSchema,
+  IUserDataSchema,
+  TimestampData,
+} from "../db/types";
+import {
+  DECIMAL_PLACES,
+  dedupVector,
+  l,
+  numberFrom,
+  Request,
+} from "../../common/utils/index";
 
 export interface PriceItem {
-  price: string;
+  price: math.BigNumber;
   symbol: string;
 }
 
-const baseURL = "https://api.astroport.fi/api";
-
 export async function getAllPrices(symbols?: string[]): Promise<PriceItem[]> {
+  const baseURL = "https://api.astroport.fi/api";
   const route = "/tokens";
   const req = new Request({ baseURL });
 
@@ -29,24 +40,23 @@ export async function getAllPrices(symbols?: string[]): Promise<PriceItem[]> {
         continue;
       }
 
-      prices.push({ symbol: denom, price: priceUSD.toString() });
+      prices.push({ symbol: denom, price: numberFrom(priceUSD) });
     }
   } catch (_) {}
 
   // remove duplications calculating average prices
-  let denoms = [...new Set(prices.map((x) => x.symbol))];
+  let denoms = dedupVector(prices.map((x) => x.symbol));
   denoms = symbols ? denoms.filter((x) => symbols.includes(x)) : denoms;
 
   return denoms.map((denom) => {
     const priceList = prices
       .filter(({ symbol }) => symbol === denom)
-      .map((x) => Number(x.price));
-    const averagePrice =
-      priceList.reduce((acc, cur) => acc + cur, 0) / priceList.length;
+      .map((x) => x.price);
+    const averagePrice = math.mean(priceList);
 
     return {
       symbol: denom,
-      price: averagePrice.toString(),
+      price: averagePrice,
     };
   });
 }
@@ -55,113 +65,94 @@ export function getTokenSymbol(token: Token): string {
   return "native" in token ? token.native.denom : token.cw20.address;
 }
 
-export async function getDbHandlerWrapper(
-  dbClient: DatabaseClient,
-  chainId: string,
-  rpc: string,
-  owner: string
-): Promise<
-  (
-    fn: () => Promise<DeliverTxResponse>
-  ) => Promise<DeliverTxResponse | undefined>
-> {
-  const { bank } = await getCwQueryHelpers(chainId, rpc);
-
-  return async (
-    fn: () => Promise<DeliverTxResponse>
-  ): Promise<DeliverTxResponse | undefined> => {
-    let dataList: TimestampData[] = [];
-    let res: DeliverTxResponse | undefined = undefined;
-
-    await dbClient.connect();
-    try {
-      const dbAssets = await bank.cwQueryDbAssets(owner);
-
-      const userDistributionState = await bank.cwQueryDistributionState({
-        address: owner,
-      });
-      const distributionState = await bank.cwQueryDistributionState({});
-
-      const dateTo = distributionState.update_date;
-      const timestamp = (
-        await AppRequest.getDataByCounter(userDistributionState.counter)
-      )?.timestamp;
-      const dateFrom = dateToTimestamp(timestamp) || dateTo;
-      const appData = await AppRequest.getDataInTimestampRange(
-        dateFrom,
-        dateTo
-      );
-      if (appData.length !== dbAssets.length) {
-        throw new Error("Unequal data arrays!");
-      }
-
-      dataList = dbAssets.map((assets, i) => {
-        const { timestamp } = appData[i];
-        const assetList: AssetAmount[] = assets.map(({ amount, symbol }) => ({
-          asset: symbol,
-          amount: Number(amount),
-        }));
-
-        return { timestamp, assetList };
-      });
-    } catch (e) {
-      l(e);
-    }
-
-    try {
-      // user action
-      res = await fn();
-
-      if (dataList.length) {
-        await UserRequest.addDataList(owner, dataList);
-        l("Prices are stored in DB");
-      }
-    } catch (e) {
-      l(e);
-    }
-    await dbClient.disconnect();
-
-    return res;
-  };
+interface UserDataListItem {
+  user: string;
+  userData: IUserDataSchema[];
+  appData: IAppDataSchema[];
+  dbAssets: AssetItem[][];
 }
 
 export async function updateUserData(
-  dbClient: DatabaseClient,
   chainId: string,
   rpc: string,
-  owner: string
+  userList: string[],
+  bankAddress: string
 ): Promise<void> {
-  const { bank } = await getCwQueryHelpers(chainId, rpc);
+  let addressAndDataList: [string, TimestampData[]][] = [];
 
-  let dataList: TimestampData[] = [];
-
-  await dbClient.connect();
   // get user data from the contract
-  try {
-    const dbAssets = await bank.cwQueryDbAssets(owner);
+  const { bank } = await getCwQueryHelpers(chainId, rpc);
+  const dbAssetsList = await bank.cwQueryDbAssetsList(userList);
+  const assetList = await bank.pQueryAssetList(BANK.PAGINATION.ASSET_LIST);
 
-    const userDistributionState = await bank.cwQueryDistributionState({
-      address: owner,
-    });
-    const distributionState = await bank.cwQueryDistributionState({});
+  const distributionStateList = await bank.cwQueryDistributionStateList([
+    ...userList,
+    bankAddress,
+  ]);
+  const userDistributionStateList = distributionStateList.filter(
+    ([address]) => address !== bankAddress
+  );
+  const distributionState = distributionStateList.find(
+    ([address]) => address === bankAddress
+  );
 
-    const dateTo = distributionState.update_date;
-    const timestamp = (
-      await AppRequest.getDataByCounter(userDistributionState.counter)
-    )?.timestamp;
-    const dateFrom = dateToTimestamp(timestamp) || dateTo;
+  const dateTo = distributionState?.[1]?.update_date || 0;
+  const lastAppCounter = distributionState?.[1]?.counter;
+
+  let userDataList: UserDataListItem[] = [];
+
+  for (const [user, { counter }] of userDistributionStateList) {
+    const [{ timestamp }] = await AppRequest.getDataInCounterRange(
+      counter,
+      lastAppCounter || counter + 1
+    );
+    const dateFrom =
+      dateToTimestamp(timestamp) ||
+      dateTo - BANK.DISTRIBUTION_PERIOD * BANK.MAX_COUNTER_DIFF;
     const userData = await UserRequest.getDataInTimestampRange(
-      owner,
+      user,
       dateFrom,
       dateTo
     );
+    const appData = await AppRequest.getDataInTimestampRange(dateFrom, dateTo);
+    const dbAssets =
+      dbAssetsList.find(([address]) => address === user)?.[1] || [];
 
-    // get exactly what must be added
+    userDataList.push({ user, userData, appData, dbAssets });
+  }
+
+  // get decimals for unique asset symbol list
+  const symbolAndDecimalsList: [string, number][] = assetList.map((x) => [
+    getTokenSymbol(x.token),
+    x.decimals,
+  ]);
+
+  // get exactly what must be added
+  let dbAssetsToAddList: UserDataListItem[] = [];
+
+  for (const { user, userData, appData, dbAssets } of userDataList) {
     const dbAssetsToAdd = dbAssets.reduce((acc, cur) => {
-      const assetsToAdd = cur.filter(
+      // assetsForDb amounts must be divided according to its decimals to store in db amounts as ts numbers with 18 decimal places
+      const assetsForDb: AssetItem[] = cur.map((x) => {
+        const decimals =
+          symbolAndDecimalsList.find(([s, _d]) => s === x.symbol)?.[1] ||
+          DECIMALS_DEFAULT;
+
+        const divider = numberFrom(10).pow(decimals);
+        const amountDec = numberFrom(x.amount)
+          .div(divider)
+          .toDecimalPlaces(DECIMAL_PLACES)
+          .toFixed();
+
+        return { amount: amountDec, symbol: x.symbol };
+      });
+
+      const assetsToAdd = assetsForDb.filter(
         (x) =>
           !userData.some(
-            (y) => y.asset === x.symbol && y.amount === Number(x.amount)
+            (y) =>
+              y.asset === x.symbol &&
+              numberFrom(y.amount).equals(numberFrom(x.amount))
           )
       );
 
@@ -171,37 +162,59 @@ export async function updateUserData(
 
       return acc;
     }, [] as AssetItem[][]);
-    if (!dbAssetsToAdd.length) {
-      throw new Error("User data update isn't required!");
+
+    if (dbAssetsToAdd.length) {
+      dbAssetsToAddList.push({
+        user,
+        userData,
+        appData,
+        dbAssets: dbAssetsToAdd,
+      });
     }
-
-    const appData = await AppRequest.getDataInTimestampRange(dateFrom, dateTo);
-    if (appData.length !== dbAssets.length) {
-      throw new Error("Unequal data arrays!");
-    }
-
-    dataList = dbAssetsToAdd.map((assets, i) => {
-      const { timestamp } = appData[i];
-      const assetList: AssetAmount[] = assets.map(({ amount, symbol }) => ({
-        asset: symbol,
-        amount: Number(amount),
-      }));
-
-      return { timestamp, assetList };
-    });
-  } catch (e) {
-    l(e);
   }
 
-  try {
+  for (const { user, appData, dbAssets: dbAssetsToAdd } of dbAssetsToAddList) {
+    const dataList = dbAssetsToAdd
+      .map((assets, i) => {
+        const { timestamp } =
+          appData[appData.length - dbAssetsToAdd.length + i];
+
+        const assetList: AssetAmount[] = assets
+          .map(({ amount, symbol }) => ({
+            asset: symbol,
+            amount: numberFrom(amount).toNumber(),
+          }))
+          .filter((x) => x.amount);
+
+        return { timestamp, assetList };
+      })
+      .filter((x) => x.assetList.length);
+
     if (dataList.length) {
-      await UserRequest.addDataList(owner, dataList);
-      l("Prices are stored in DB");
+      addressAndDataList.push([user, dataList]);
     }
-  } catch (e) {
-    l(e);
   }
-  await dbClient.disconnect();
+
+  if (addressAndDataList.length) {
+    await UserRequest.addMultipleDataList(addressAndDataList);
+    l("Prices are stored in DB");
+  }
+}
+
+// pagination to avoid gas limit problem updating user counters
+export function getUpdateStateList(
+  appCounter: number,
+  maxCounterDiff: number,
+  maxUpdateStateList: number,
+  userCounterList: [string, number][]
+): string[] {
+  const minAppCnt = appCounter - maxCounterDiff;
+
+  return userCounterList
+    .filter(([_, userCnt]) => minAppCnt >= userCnt)
+    .sort(([_userA, cntA], [_userB, cntB]) => cntA - cntB)
+    .map(([user]) => user)
+    .slice(0, maxUpdateStateList);
 }
 
 // TODO: fake logic
@@ -228,14 +241,16 @@ export function getFakeAsset(realAsset: string): string {
   return ASSET_TABLE.find(([real, _fake]) => real === realAsset)?.[1] || "";
 }
 
-export function extractPrices(realPrices: PriceItem[]): [string, number][] {
+export function extractPrices(
+  realPrices: PriceItem[]
+): [string, math.BigNumber][] {
   return realPrices.reduce((acc, cur) => {
     let fake = ASSET_TABLE.find(([real]) => real === cur.symbol)?.[1];
 
     if (fake) {
-      acc.push([fake, Number(cur.price)]);
+      acc.push([fake, cur.price]);
     }
 
     return acc;
-  }, [] as [string, number][]);
+  }, [] as [string, math.BigNumber][]);
 }
