@@ -26,8 +26,8 @@ import {
 } from "../../common/utils";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
-const req = new Request({ baseURL: BASE_URL + "/api" });
-// const req = new Request({ baseURL: "http://127.0.0.1:4000" + "/api" });
+// const req = new Request({ baseURL: BASE_URL + "/api" });
+const req = new Request({ baseURL: "http://127.0.0.1:4000" + "/api" });
 
 async function main() {
   try {
@@ -59,28 +59,28 @@ async function main() {
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
 
-    await h.bank.cwClaimAssets(gasPrice);
-    return;
+    // await h.bank.cwClaimAssets(gasPrice);
+    // return;
 
-    const bankAddress =
-      "neutron1ckvacpufrxuulkwp9uhua2fe5k9h9l20c2ut6au56vjs5q2ae0csu5t4er";
+    // const bankAddress =
+    //   "neutron1ckvacpufrxuulkwp9uhua2fe5k9h9l20c2ut6au56vjs5q2ae0csu5t4er";
 
-    const userCounterList = await bank.pQueryUserCounterList(
-      BANK.PAGINATION.USER_COUNTER
-    );
-    const { counter: appCounter } = await bank.cwQueryDistributionState({});
+    // const userCounterList = await bank.pQueryUserCounterList(
+    //   BANK.PAGINATION.USER_COUNTER
+    // );
+    // const { counter: appCounter } = await bank.cwQueryDistributionState({});
 
-    const usersToUpdate = getUpdateStateList(
-      appCounter,
-      BANK.MAX_COUNTER_DIFF,
-      BANK.UPDATE_STATE_LIST.LIMIT,
-      userCounterList
-    );
+    // const usersToUpdate = getUpdateStateList(
+    //   appCounter,
+    //   BANK.MAX_COUNTER_DIFF,
+    //   BANK.UPDATE_STATE_LIST.LIMIT,
+    //   userCounterList
+    // );
 
-    await dbClient.connect();
-    await updateUserData(CHAIN_ID, RPC, usersToUpdate, bankAddress);
-    await dbClient.disconnect();
-    return;
+    // await dbClient.connect();
+    // await updateUserData(CHAIN_ID, RPC, usersToUpdate, bankAddress);
+    // await dbClient.disconnect();
+    // return;
 
     // const userInfoList = await bank.pQueryUserInfoList(
     //   {},
@@ -99,32 +99,32 @@ async function main() {
     // li(res);
     // return;
 
-    // const { usdc } = await bank.cwQueryConfig();
-    // await h.bank.cwDepositUsdc(
-    //   numberFrom(10_000 * 1e6),
-    //   { native: { denom: usdc } },
-    //   gasPrice
-    // );
+    const { usdc } = await bank.cwQueryConfig();
+    await h.bank.cwDepositUsdc(
+      numberFrom(10_000 * 1e6),
+      { native: { denom: usdc } },
+      gasPrice
+    );
 
-    // await h.bank.cwEnableDca(
-    //   numberFrom(0.5),
-    //   [
-    //     {
-    //       symbol:
-    //         "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
-    //       weight: "0.75",
-    //     },
-    //     {
-    //       symbol:
-    //         "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
-    //       weight: "0.25",
-    //     },
-    //   ],
-    //   { swaps: 100 },
-    //   gasPrice
-    // );
-    // await bank.cwQueryUserInfo(owner, {}, true);
-    // return;
+    await h.bank.cwEnableDca(
+      numberFrom(0.5),
+      [
+        {
+          symbol:
+            "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          weight: "0.75",
+        },
+        {
+          symbol:
+            "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          weight: "0.25",
+        },
+      ],
+      { swaps: 100 },
+      gasPrice
+    );
+    await bank.cwQueryUserInfo(owner, {}, true);
+    return;
 
     // await req.post(ROUTE.UPDATE_USER_ASSETS, {
     //   addressList: [owner],

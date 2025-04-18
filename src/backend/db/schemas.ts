@@ -1,5 +1,10 @@
 import { Schema } from "mongoose";
-import { getSchemaOptions, IAppDataSchema, IUserDataSchema } from "./types";
+import {
+  getSchemaOptions,
+  IAppDataSchema,
+  ILogEntrySchema,
+  IUserDataSchema,
+} from "./types";
 
 const AssetPriceSchema = new Schema(
   {
@@ -72,3 +77,26 @@ export const UserDataSchema = new Schema<IUserDataSchema>(
   getSchemaOptions("user_data")
 ).index({ timestamp: 1 });
 UserDataSchema.index({ address: 1, timestamp: 1 });
+
+export const LogEntrySchema = new Schema<ILogEntrySchema>(
+  {
+    timestamp: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
+    source: {
+      type: String,
+      required: true,
+    },
+    entries: {
+      type: [Schema.Types.Mixed],
+      required: true,
+    },
+    rawContent: {
+      type: String,
+      required: true,
+    },
+  },
+  getSchemaOptions("server_logs")
+).index({ timestamp: 1 });
