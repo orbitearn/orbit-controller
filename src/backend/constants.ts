@@ -17,8 +17,8 @@ export const BANK = {
     MIN: 1, // lower threshold
     LIMIT: 5, // limit per tx
   },
-  UPDATE_STATE_TIME_MARGIN: 30, // seconds
-  DISTRIBUTION_PERIOD: 10 * 60, // seconds
+  UPDATE_STATE_TIME_MARGIN: 60, // seconds
+  DISTRIBUTION_PERIOD: 60 * 60, // seconds
   START_DATE_MINUTES: 0,
   CYCLE_COOLDOWN: 5, // seconds
 };

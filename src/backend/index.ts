@@ -7,31 +7,31 @@ import { readFile } from "fs/promises";
 import * as h from "helmet";
 import { MONGODB, ORBIT_CONTROLLER, PORT, SEED } from "./envs";
 import { ChainConfig } from "../common/interfaces";
+import { getSigner } from "./account/signer";
+import { AppRequest } from "./db/requests";
+import { DatabaseClient } from "./db/client";
+import { BANK, CHAIN_ID } from "./constants";
+import { calcAusdcPrice, calcClaimAndSwapData } from "./helpers/math";
+import { AssetPrice } from "./db/types";
+import * as math from "mathjs";
+import { logger, le } from "./services/logger";
 import {
   getChainOptionById,
   getContractByLabel,
 } from "../common/config/config-utils";
-import { getSigner } from "./account/signer";
-import { AppRequest, UserRequest } from "./db/requests";
-import { DatabaseClient } from "./db/client";
-import { BANK, CHAIN_ID } from "./constants";
+import {
+  getCwExecHelpers,
+  getCwQueryHelpers,
+} from "../common/account/cw-helpers";
 import {
   extractPrices,
   getAllPrices,
   getUpdateStateList,
   updateUserData,
 } from "./helpers";
-import { calcAusdcPrice, calcClaimAndSwapData } from "./helpers/math";
-import { AssetPrice } from "./db/types";
-import * as math from "mathjs";
-import {
-  getCwExecHelpers,
-  getCwQueryHelpers,
-} from "../common/account/cw-helpers";
 import {
   DECIMAL_PLACES,
   decimalFrom,
-  l,
   li,
   numberFrom,
   wait,
@@ -146,12 +146,14 @@ app.listen(PORT, async () => {
   }
   try {
     await dbClient.disconnect();
-  } catch (_) {}
+  } catch (error) {
+    le(error);
+  }
 
   let nextUpdateDate = scriptStartTimestamp;
 
   console.clear();
-  l(`\n✔️ Server is running on PORT: ${PORT}`);
+  le(`\n✔️ Server is running on PORT: ${PORT}`);
 
   // the script should be started earlier to be ready to update just in time
   scriptStartTimestamp -= 5 * BANK.CYCLE_COOLDOWN;
@@ -161,7 +163,7 @@ app.listen(PORT, async () => {
   });
 
   await wait((scriptStartTimestamp - blockTime) * MS_PER_SECOND);
-  l(
+  le(
     `\n✔️ Script is running since: ${epochToDateStringUTC(
       getBlockTime(blockTimeOffset)
     )}`
@@ -188,7 +190,7 @@ app.listen(PORT, async () => {
         userCounterList
       );
     } catch (error) {
-      l(error);
+      le(error);
     }
 
     // get block time, sync clock
@@ -208,18 +210,20 @@ app.listen(PORT, async () => {
         // update user assets in db first!
         await dbClient.connect();
         await updateUserData(CHAIN_ID, RPC, usersToUpdate, bankAddress);
-        l("user db data is updated");
+        le("user db data is updated");
 
         // should be used only in case of updateUserData success!
         await h.bank.cwUpdateUserState(usersToUpdate, gasPrice);
-        l("user state is updated");
+        le("user state is updated");
       } catch (error) {
-        l(error);
+        le(error);
       }
 
       try {
         await dbClient.disconnect();
-      } catch (_) {}
+      } catch (error) {
+        le(error);
+      }
 
       continue;
     }
@@ -253,11 +257,11 @@ app.listen(PORT, async () => {
         priceList,
         gasPrice
       );
-      l("Rewards are distributed");
+      le("Rewards are distributed");
 
       isAusdcPriceUpdated = false;
     } catch (error) {
-      l(error);
+      le(error);
     }
 
     // add asset prices in DB
@@ -281,16 +285,29 @@ app.listen(PORT, async () => {
         try {
           await dbClient.connect();
           await AppRequest.addDataItem(nextUpdateDate, counter, assetPrices);
-          l("Prices are stored in DB");
-        } catch (_) {}
+          le("Prices are stored in DB");
+        } catch (error) {
+          le(error);
+        }
         try {
           await dbClient.disconnect();
-        } catch (_) {}
+        } catch (error) {
+          le(error);
+        }
 
         isAusdcPriceUpdated = true;
       }
-    } catch (error) {}
+    } catch (error) {
+      le(error);
+    }
 
     nextUpdateDate += BANK.DISTRIBUTION_PERIOD;
   }
+});
+
+// Handle graceful shutdown
+process.on("SIGTERM", async () => {
+  logger.info("SIGTERM signal received");
+  await dbClient.disconnect();
+  process.exit(0);
 });

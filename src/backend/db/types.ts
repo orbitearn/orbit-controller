@@ -30,6 +30,14 @@ export interface IUserDataSchema {
 }
 export interface IUserDataDocument extends IUserDataSchema, Document {}
 
+export interface ILogEntrySchema {
+  timestamp: Date;
+  source: string;
+  entries: any[];
+  rawContent: string;
+}
+export interface ILogEntryDocument extends ILogEntrySchema, Document {}
+
 export function getSchemaOptions(collection: string): SchemaOptions {
   return {
     minimize: true,

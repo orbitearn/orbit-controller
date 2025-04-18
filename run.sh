@@ -1,3 +1,3 @@
 #!/bin/bash
-cd ~/equinox-voter-controller
+cd ~/orbit-controller
 yarn run start

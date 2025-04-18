@@ -65,7 +65,7 @@ export const CHAIN_CONFIG: ChainConfig = {
               UPDATE_MSG: toJson({}),
               CODE: 11611,
               ADDRESS:
-                "neutron1k7pwj4htlkww4yf99uxr40tg72jff7tkfan8frzhqghjxlwdke2sdtsxaj",
+                "neutron1k46u6c547lja23rma9c5tlvsvyuaal2w0ndd9el55r3um7hlrtssn82tu0",
             },
           ],
           IBC: [],
