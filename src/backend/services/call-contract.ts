@@ -3,7 +3,6 @@ import { readFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
 import { ENCODING, PATH_TO_CONFIG_JSON } from "./utils";
 import { getChainOptionById } from "../../common/config/config-utils";
-import { MONGODB, ORBIT_CONTROLLER, USER_SEED, BASE_URL } from "../envs";
 import { DatabaseClient } from "../db/client";
 import { BANK, CHAIN_ID, ROUTE } from "../constants";
 import { getUpdateStateList, updateUserData } from "../helpers";
@@ -16,6 +15,14 @@ import {
   getCwQueryHelpers,
 } from "../../common/account/cw-helpers";
 import {
+  MONGODB,
+  ORBIT_CONTROLLER,
+  USER_SEED,
+  BE_PROD_URL,
+  BE_DEV_URL,
+  IS_PROD,
+} from "../envs";
+import {
   floor,
   getLast,
   l,
@@ -26,8 +33,9 @@ import {
 } from "../../common/utils";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
-// const req = new Request({ baseURL: BASE_URL + "/api" });
-const req = new Request({ baseURL: "http://127.0.0.1:4000" + "/api" });
+const req = new Request({
+  baseURL: (IS_PROD ? BE_PROD_URL : BE_DEV_URL) + "/api",
+});
 
 async function main() {
   try {
