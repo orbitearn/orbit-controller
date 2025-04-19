@@ -45,12 +45,26 @@ nano ./config.env
 Enter actual values (replace placeholders <_>)
 
 ```
-PORT=<port>
 SEED=<your_seed_phrase>
 USER_SEED=<your_seed_phrase>
-BASE_URL=http://<server_ip>:<port>
+
 MONGODB=<MongoDB_URI>
 ORBIT_CONTROLLER=<orbit_controller_db_name>
+
+PORT=<port>
+
+LOCAL_IP_LIST=["http://127.0.0.1","http://localhost"]
+LOCAL_PORT_LIST=[3000,4000,5173]
+
+BE_DEV_URL=http://localhost:4000
+BE_TUNNEL_URL=<tunnel_server_url>
+BE_PROD_URL=http://<production_server_ip>:<port>
+
+FE_DEV_URL=<development_server_url>
+FE_STAGE_URL=<staging_server_url>
+FE_PROD_URL=<production_server_url>
+
+IS_PROD=true
 ```
 
 Save the file (Ctrl+X, then Y, then Enter)

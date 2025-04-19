@@ -5,7 +5,6 @@ import { api } from "./routes/api";
 import rateLimit from "express-rate-limit";
 import { readFile } from "fs/promises";
 import * as h from "helmet";
-import { MONGODB, ORBIT_CONTROLLER, PORT, SEED } from "./envs";
 import { ChainConfig } from "../common/interfaces";
 import { getSigner } from "./account/signer";
 import { AppRequest } from "./db/requests";
@@ -32,6 +31,7 @@ import {
 import {
   DECIMAL_PLACES,
   decimalFrom,
+  dedupVector,
   li,
   numberFrom,
   wait,
@@ -46,6 +46,20 @@ import {
   PATH_TO_CONFIG_JSON,
   toDate,
 } from "./services/utils";
+import {
+  MONGODB,
+  ORBIT_CONTROLLER,
+  PORT,
+  SEED,
+  LOCAL_IP_LIST,
+  LOCAL_PORT_LIST,
+  BE_DEV_URL,
+  BE_TUNNEL_URL,
+  BE_PROD_URL,
+  FE_DEV_URL,
+  FE_STAGE_URL,
+  FE_PROD_URL,
+} from "./envs";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
@@ -57,10 +71,40 @@ const limiter = rateLimit({
   handler: (_req, res) => res.send("Request rate is limited"),
 });
 
+const allowedOrigins = dedupVector([
+  ...LOCAL_IP_LIST.flatMap((ip) =>
+    LOCAL_PORT_LIST.map((port) => `${ip}:${port}`)
+  ),
+  BE_DEV_URL,
+  BE_TUNNEL_URL,
+  BE_PROD_URL,
+  FE_DEV_URL,
+  FE_STAGE_URL,
+  FE_PROD_URL,
+]).filter((x) => x);
+
 const app = express()
   .disable("x-powered-by")
   .use(
-    cors(),
+    cors({
+      origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl requests)
+        if (!origin) return callback(null, true);
+
+        // For whitelisted origins
+        if (allowedOrigins.indexOf(origin) !== -1) {
+          return callback(null, true);
+        }
+
+        // For non-whitelisted origins
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      },
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+      credentials: true,
+    }),
     h.crossOriginEmbedderPolicy({ policy: "credentialless" }),
     h.crossOriginOpenerPolicy(),
     h.crossOriginResourcePolicy({ policy: "cross-origin" }),
