@@ -1,4 +1,6 @@
 import express from "express";
+import fs from "fs";
+import https from "https";
 import { text, json } from "body-parser";
 import cors from "cors";
 import { api } from "./routes/api";
@@ -59,6 +61,7 @@ import {
   FE_DEV_URL,
   FE_STAGE_URL,
   FE_PROD_URL,
+  rootPath,
 } from "./envs";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
@@ -122,9 +125,14 @@ const app = express()
     json()
   );
 
+const options = {
+  key: fs.readFileSync(rootPath("src/backend/ssl/key.pem")),
+  cert: fs.readFileSync(rootPath("src/backend/ssl/cert.pem")),
+};
+
 app.use("/api", api);
 
-app.listen(PORT, async () => {
+https.createServer(options, app).listen(PORT, async () => {
   // init
   const configJsonStr = await readFile(PATH_TO_CONFIG_JSON, {
     encoding: ENCODING,
