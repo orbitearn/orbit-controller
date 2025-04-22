@@ -129,11 +129,13 @@ const app = express()
 const options = IS_PROD
   ? {
       key: fs.readFileSync(
-        rootPath("../../etc/letsencrypt/live/backend.orbitearn.com/privkey.pem")
+        rootPath(
+          "../../../etc/letsencrypt/live/backend.orbitearn.com/privkey.pem"
+        )
       ),
       cert: fs.readFileSync(
         rootPath(
-          "../../etc/letsencrypt/live/backend.orbitearn.com/fullchain.pem"
+          "../../../etc/letsencrypt/live/backend.orbitearn.com/fullchain.pem"
         )
       ),
     }
