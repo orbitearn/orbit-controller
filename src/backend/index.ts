@@ -62,6 +62,7 @@ import {
   FE_STAGE_URL,
   FE_PROD_URL,
   rootPath,
+  IS_PROD,
 } from "./envs";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
@@ -125,10 +126,21 @@ const app = express()
     json()
   );
 
-const options = {
-  key: fs.readFileSync(rootPath("src/backend/ssl/key.pem")),
-  cert: fs.readFileSync(rootPath("src/backend/ssl/cert.pem")),
-};
+const options = IS_PROD
+  ? {
+      key: fs.readFileSync(
+        rootPath("../../etc/letsencrypt/live/backend.orbitearn.com/privkey.pem")
+      ),
+      cert: fs.readFileSync(
+        rootPath(
+          "../../etc/letsencrypt/live/backend.orbitearn.com/fullchain.pem"
+        )
+      ),
+    }
+  : {
+      key: fs.readFileSync(rootPath("src/backend/ssl/key.pem")),
+      cert: fs.readFileSync(rootPath("src/backend/ssl/cert.pem")),
+    };
 
 app.use("/api", api);
 
