@@ -18,8 +18,8 @@ export const BANK = {
     LIMIT: 5, // limit per tx
   },
   UPDATE_STATE_TIME_MARGIN: 60, // seconds
-  DISTRIBUTION_PERIOD: 60 * 60, // seconds
-  START_DATE_MINUTES: 0,
+  DISTRIBUTION_PERIOD: 15 * 60, // seconds
+  START_DATE_MINUTES: 30,
   CYCLE_COOLDOWN: 5, // seconds
 };
 
