@@ -130,11 +130,11 @@ const [prodKey, prodCert] = [
   "../../../etc/letsencrypt/live/backend.orbitearn.com/privkey.pem",
   "../../../etc/letsencrypt/live/backend.orbitearn.com/fullchain.pem",
 ];
-const [devKey, devProd] = [
+const [devKey, devCert] = [
   "src/backend/ssl/key.pem",
   "src/backend/ssl/cert.pem",
 ];
-const [key, cert] = IS_PROD ? [prodKey, prodCert] : [devKey, devProd];
+const [key, cert] = IS_PROD ? [prodKey, prodCert] : [devKey, devCert];
 const options = {
   key: fs.readFileSync(rootPath(key)),
   cert: fs.readFileSync(rootPath(cert)),
