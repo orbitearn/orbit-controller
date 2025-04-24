@@ -5,7 +5,7 @@ import {
   getProfit,
   getTest,
   getUserFirstData,
-  getYieldRate,
+  getApr,
   updateUserAssets,
   getAppDataInTimestampRange,
   getUserDataInTimestampRange,
@@ -18,7 +18,7 @@ router
   .get(ROUTE.GET_AVERAGE_ENTRY_PRICE, getAverageEntryPrice)
   .get(ROUTE.GET_PROFIT, getProfit)
   .get(ROUTE.GET_FIRST_DATA, getUserFirstData)
-  .get(ROUTE.GET_YIELD_RATE, getYieldRate)
+  .get(ROUTE.GET_APR, getApr)
   .get(ROUTE.GET_APP_DATA_IN_TIMESTAMP_RANGE, getAppDataInTimestampRange)
   .get(ROUTE.GET_USER_DATA_IN_TIMESTAMP_RANGE, getUserDataInTimestampRange)
 

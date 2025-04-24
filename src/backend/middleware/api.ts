@@ -15,7 +15,7 @@ import { extractPrices, getAllPrices, updateUserData } from "../helpers";
 import {
   calcAverageEntryPriceList,
   calcProfit,
-  calcYieldRate,
+  calcApr,
 } from "../helpers/math";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
@@ -88,12 +88,12 @@ export async function getUserFirstData(address: string) {
   return userFirstData;
 }
 
-export async function getYieldRate(
+export async function getApr(
   from: number,
   to: number,
-  period?: number
+  period: number
 ): Promise<[number, number][]> {
-  let yieldRateList: [number, number][] = [];
+  let aprList: [number, number][] = [];
 
   try {
     const configJsonStr = await readFile(PATH_TO_CONFIG_JSON, {
@@ -112,14 +112,14 @@ export async function getYieldRate(
     await dbClient.connect();
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
-    yieldRateList = calcYieldRate(config.ausdc, appData, period);
+    aprList = calcApr(config.ausdc, appData, period);
   } catch (_) {}
 
   try {
     await dbClient.disconnect();
   } catch (_) {}
 
-  return yieldRateList;
+  return aprList;
 }
 
 export async function getAppDataInTimestampRange(from: number, to: number) {

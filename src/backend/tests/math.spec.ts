@@ -9,7 +9,7 @@ import {
 import {
   calcAverageEntryPriceList,
   calcProfit,
-  calcYieldRate,
+  calcApr,
 } from "../helpers/math";
 
 const TOKEN = {
@@ -217,30 +217,14 @@ describe("UI data math", () => {
     expect(profit).toStrictEqual(expected);
   });
 
-  test("calcYieldRate default", () => {
-    const expected: [number, string][] = [
-      [0.1, "15.04.2025 13:00:00"],
-      [0.2, "15.04.2025 14:00:00"],
-      [0.05, "15.04.2025 15:00:00"],
-      [0.1, "15.04.2025 16:00:00"],
-    ];
-
-    const yieldRate: [number, string][] = calcYieldRate(
-      TOKEN.aUSDC,
-      appData
-    ).map(([y, t]) => [y, epochToDateStringUTC(t)]);
-
-    expect(yieldRate).toStrictEqual(expected);
-  });
-
-  test("calcYieldRate with period", () => {
+  test("calcApr default", () => {
     const period = 7_200; // 2 distributions
     const expected: [number, string][] = [
-      [0.32, "15.04.2025 14:00:00"],
-      [0.155, "15.04.2025 16:00:00"],
+      [140_160, "15.04.2025 14:00:00"], // 32 % in 2 hours or 32 * 365 * 24 / 2 = 140_160 % APR
+      [67_890, "15.04.2025 16:00:00"], // 15.5 % in 2 hours or 15.5 * 365 * 24 / 2 = 67_890 % APR
     ];
 
-    const yieldRate: [number, string][] = calcYieldRate(
+    const yieldRate: [number, string][] = calcApr(
       TOKEN.aUSDC,
       appData,
       period
@@ -249,9 +233,10 @@ describe("UI data math", () => {
     expect(yieldRate).toStrictEqual(expected);
   });
 
-  test("calcYieldRate no app data", () => {
+  test("calcApr no app data", () => {
+    const period = 7_200; // 2 distributions
     const expected: [number, string][] = [];
-    const yieldRate: [number, string][] = calcYieldRate(TOKEN.aUSDC, []).map(
+    const yieldRate: [number, string][] = calcApr(TOKEN.aUSDC, [], period).map(
       ([y, t]) => [y, epochToDateStringUTC(t)]
     );
 

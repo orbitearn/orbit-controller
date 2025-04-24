@@ -132,65 +132,52 @@ export function calcProfit(
   });
 }
 
-// returns [yieldRate, timestamp][]
-export function calcYieldRate(
+// returns [apr, timestamp][]
+export function calcApr(
   ausdcDenom: string,
   appData: IAppDataSchema[],
-  period?: number
+  period: number
 ): [number, number][] {
-  const zero = numberFrom(0);
+  if (appData.length < 2) {
+    return [];
+  }
+
+  const [{ assetPrices: pricesFirst, timestamp: timestampFirst }] = appData;
+  const ausdcPriceFirst = pricesFirst.find((x) => x.asset === ausdcDenom);
+
+  if (!ausdcPriceFirst) {
+    return [];
+  }
+
   const one = numberFrom(1);
-  const ausdcPriceLast =
-    getLast(appData)?.assetPrices?.find((x) => x.asset === ausdcDenom)?.price ||
-    1;
+  const pct = numberFrom(100);
+  const secondsInYear = numberFrom(365 * 24 * 3600);
+  const k = pct.mul(secondsInYear);
 
-  const priceList: [math.BigNumber, number][] = appData.map((x) => {
-    const ausdcPrice =
-      x.assetPrices.find((y) => y.asset === ausdcDenom)?.price ||
-      ausdcPriceLast;
+  let ausdcPricePre = numberFrom(ausdcPriceFirst.price);
+  let timestampPre = dateToTimestamp(timestampFirst);
 
-    return [numberFrom(ausdcPrice), dateToTimestamp(x.timestamp)];
-  });
+  // [apr, timestamp][]
+  let aprListAggregated: [math.BigNumber, number][] = [];
 
-  // [yieldRate, timestamp][]
-  let yieldRateList: [math.BigNumber, number][] = [];
-  let [ausdcPricePre, _] = priceList[0] || [one, 0];
-
-  for (const [ausdcPrice, timestamp] of priceList) {
-    const yieldRate = ausdcPrice.div(ausdcPricePre).sub(one);
-
-    if (yieldRate) {
-      yieldRateList.push([yieldRate, timestamp]);
-      ausdcPricePre = ausdcPrice;
-    }
-  }
-
-  if (!period) {
-    return processYieldRateList(yieldRateList);
-  }
-
-  // [yieldRate, timestamp][]
-  let yieldRateListAggregated: [math.BigNumber, number][] = [];
-  let [yieldRateAcc, timestampPre] = yieldRateList[0] || [zero, 0];
-
-  for (const [yieldRate, timestamp] of yieldRateList) {
-    yieldRateAcc = yieldRateAcc.add(one).mul(yieldRate.add(one)).sub(one);
+  for (const { assetPrices, timestamp: t } of appData) {
+    const ausdcPrice = numberFrom(
+      assetPrices.find((x) => x.asset === ausdcDenom)?.price
+    );
+    const timestamp = dateToTimestamp(t);
 
     if (timestamp - timestampPre >= period) {
-      yieldRateListAggregated.push([yieldRateAcc, timestamp]);
+      const range = numberFrom(timestamp - timestampPre);
+      // apr = 100 % * (price / price_pre - 1) * seconds_in_year / seconds_in_range
+      const apr = ausdcPrice.div(ausdcPricePre).sub(one).mul(k).div(range);
+      aprListAggregated.push([apr, timestamp]);
 
-      yieldRateAcc = zero;
+      ausdcPricePre = ausdcPrice;
       timestampPre = timestamp;
     }
   }
 
-  return processYieldRateList(yieldRateListAggregated);
-}
-
-function processYieldRateList(
-  yieldRateList: [math.BigNumber, number][]
-): [number, number][] {
-  return yieldRateList
+  return aprListAggregated
     .filter(([y, _t]) => !y.isZero())
     .map(([y, t]) => [y.toDecimalPlaces(DECIMAL_PLACES).toNumber(), t]);
 }

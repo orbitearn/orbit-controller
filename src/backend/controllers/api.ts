@@ -4,7 +4,7 @@ import {
   getProfit as _getProfit,
   updateUserAssets as _updateUserAssets,
   getUserFirstData as _getUserFirstData,
-  getYieldRate as _getYieldRate,
+  getApr as _getApr,
   getAppDataInTimestampRange as _getAppDataInTimestampRange,
   getUserDataInTimestampRange as _getUserDataInTimestampRange,
 } from "../middleware/api";
@@ -58,18 +58,22 @@ export async function getUserFirstData(req: Request, res: Response) {
   }
 }
 
-export async function getYieldRate(req: Request, res: Response) {
+export async function getApr(req: Request, res: Response) {
   const from = parseInt(req.query.from as string);
   const to = parseInt(req.query.to as string);
-  const periodRaw = parseInt(req.query.period as any);
-  const period = isNaN(periodRaw) ? 0 : periodRaw;
+  const period = {
+    day: 24 * 3_600,
+    week: 7 * 24 * 3_600,
+    month: 30 * 24 * 3_600,
+    year: 365 * 24 * 3_600,
+  }[req.query.period as string];
 
-  if (isNaN(from) || isNaN(to)) {
+  if (isNaN(from) || isNaN(to) || !period) {
     res
       .status(400)
-      .json({ error: "Valid 'from' and 'to' parameters are required" });
+      .json({ error: "Valid 'from', 'to', 'period' parameters are required" });
   } else {
-    const data = await _getYieldRate(from, to, period);
+    const data = await _getApr(from, to, period);
     res.status(200).json(data);
   }
 }
