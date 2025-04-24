@@ -35,6 +35,8 @@ export interface ILogEntrySchema {
   source: string;
   entries: any[];
   rawContent: string;
+  // use a fixed ID to always update the same record
+  recordId: string;
 }
 export interface ILogEntryDocument extends ILogEntrySchema, Document {}
 

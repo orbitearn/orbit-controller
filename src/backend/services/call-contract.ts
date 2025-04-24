@@ -1,3 +1,4 @@
+import https from "https";
 import { getSigner } from "../account/signer";
 import { readFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
@@ -33,9 +34,13 @@ import {
 } from "../../common/utils";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
-const req = new Request({
-  baseURL: (IS_PROD ? BE_PROD_URL : BE_DEV_URL) + "/api",
-});
+const baseURL = (IS_PROD ? BE_PROD_URL : BE_DEV_URL) + "/api";
+const httpsAgent = IS_PROD
+  ? undefined
+  : new https.Agent({
+      rejectUnauthorized: false,
+    });
+const req = new Request({ baseURL, httpsAgent });
 
 async function main() {
   try {
@@ -66,6 +71,11 @@ async function main() {
     const { getBalance, getAllBalances } = sgQueryHelpers;
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
+
+    await req.post(ROUTE.UPDATE_USER_ASSETS, {
+      addressList: [owner],
+    });
+    return;
 
     // await h.bank.cwClaimAssets(gasPrice);
     // return;
@@ -133,10 +143,6 @@ async function main() {
     );
     await bank.cwQueryUserInfo(owner, {}, true);
     return;
-
-    // await req.post(ROUTE.UPDATE_USER_ASSETS, {
-    //   addressList: [owner],
-    // });
 
     // // every user action must be wrapped with dbHandlerWrapper
     // const dbHandlerWrapper = await getDbHandlerWrapper(

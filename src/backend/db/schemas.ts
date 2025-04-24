@@ -97,6 +97,12 @@ export const LogEntrySchema = new Schema<ILogEntrySchema>(
       type: String,
       required: true,
     },
+    recordId: {
+      type: String,
+      required: true,
+      default: "current_log",
+      index: true,
+    },
   },
   getSchemaOptions("server_logs")
-).index({ timestamp: 1 });
+);

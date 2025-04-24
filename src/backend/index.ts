@@ -126,23 +126,19 @@ const app = express()
     json()
   );
 
-const options = IS_PROD
-  ? {
-      key: fs.readFileSync(
-        rootPath(
-          "../../../etc/letsencrypt/live/backend.orbitearn.com/privkey.pem"
-        )
-      ),
-      cert: fs.readFileSync(
-        rootPath(
-          "../../../etc/letsencrypt/live/backend.orbitearn.com/fullchain.pem"
-        )
-      ),
-    }
-  : {
-      key: fs.readFileSync(rootPath("src/backend/ssl/key.pem")),
-      cert: fs.readFileSync(rootPath("src/backend/ssl/cert.pem")),
-    };
+const [prodKey, prodCert] = [
+  "../../../etc/letsencrypt/live/backend.orbitearn.com/privkey.pem",
+  "../../../etc/letsencrypt/live/backend.orbitearn.com/fullchain.pem",
+];
+const [devKey, devCert] = [
+  "src/backend/ssl/key.pem",
+  "src/backend/ssl/cert.pem",
+];
+const [key, cert] = IS_PROD ? [prodKey, prodCert] : [devKey, devCert];
+const options = {
+  key: fs.readFileSync(rootPath(key)),
+  cert: fs.readFileSync(rootPath(cert)),
+};
 
 app.use("/api", api);
 

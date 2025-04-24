@@ -174,11 +174,9 @@ export async function updateUserData(
   }
 
   for (const { user, appData, dbAssets: dbAssetsToAdd } of dbAssetsToAddList) {
-    const dataList = dbAssetsToAdd
-      .map((assets, i) => {
-        const { timestamp } =
-          appData[appData.length - dbAssetsToAdd.length + i];
-
+    const dataList = dbAssetsToAdd.reduce(
+      (acc, assets, i) => {
+        const index = appData.length - dbAssetsToAdd.length + i;
         const assetList: AssetAmount[] = assets
           .map(({ amount, symbol }) => ({
             asset: symbol,
@@ -186,9 +184,18 @@ export async function updateUserData(
           }))
           .filter((x) => x.amount);
 
-        return { timestamp, assetList };
-      })
-      .filter((x) => x.assetList.length);
+        if (index >= 0 && assetList.length) {
+          const { timestamp } = appData[index];
+          acc.push({ timestamp, assetList });
+        }
+
+        return acc;
+      },
+      [] as {
+        timestamp: Date;
+        assetList: AssetAmount[];
+      }[]
+    );
 
     if (dataList.length) {
       addressAndDataList.push([user, dataList]);
