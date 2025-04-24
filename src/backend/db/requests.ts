@@ -220,6 +220,7 @@ export class LogWatcher {
   private updateTimer: NodeJS.Timeout | null = null;
   private lastUploadedContent: string = "";
   private collectionName: string;
+  private readonly RECORD_ID = "current_log"; // Fixed ID for the single record
 
   constructor(filePath: string, collectionName: string = "server_logs") {
     this.filePath = filePath;
@@ -282,7 +283,7 @@ export class LogWatcher {
   }
 
   /**
-   * Upload log content to MongoDB
+   * Upload log content to MongoDB, replacing previous record
    */
   private async uploadToMongoDB(): Promise<void> {
     try {
@@ -316,16 +317,23 @@ export class LogWatcher {
           ];
         }
 
-        // Create and save the log entry
-        const logEntry = new LogEntryModel({
+        // Create log entry data
+        const logData = {
           timestamp: new Date(),
           source: path.basename(this.filePath),
           entries: logEntries,
           rawContent: fileContent,
-        });
+          recordId: this.RECORD_ID,
+        };
 
-        await logEntry.save();
-        l(`Uploaded log data to MongoDB collection: ${this.collectionName}`);
+        // Update or create the log entry using findOneAndUpdate with upsert
+        await LogEntryModel.findOneAndUpdate(
+          { recordId: this.RECORD_ID },
+          logData,
+          { upsert: true, new: true }
+        );
+
+        l(`Updated log data in MongoDB collection: ${this.collectionName}`);
         this.lastUploadedContent = fileContent;
       } else {
         l("No new content to upload");
