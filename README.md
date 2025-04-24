@@ -172,7 +172,7 @@ GET requests:
 
 `/first-data` - returns first user's data DB record. Request parameters: `address` (required, string) - user's wallet
 
-`/yield-rate` - returns list of yield rate in timestamp period and timestamp period end as `[number, number][]`. Request parameters: `from` (required, number) - first timestamp of the list, `to` (required, number) - last timestamp of the list, `period` (optional, number) - timestamp period of the list
+`/apr` - returns list of APR (%) and timestamp period end as `[number, number][]`. Request parameters: `from` (required, number) - first timestamp of the list, `to` (required, number) - last timestamp of the list, `period` (required, string: "day" | "week" | "month" | "year") - timestamp period of the list
 
 `/app-data-in-timestamp-range` - returns list of streaming asset prices and timestamps as [IAppDataDocument[]](https://github.com/orbitearn/orbit-controller/blob/main/src/backend/db/types.ts#L20-L25). Request parameters: `from` (required, number) - first timestamp of the list, `to` (required, number) - last timestamp of the list
 

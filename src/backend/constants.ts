@@ -46,7 +46,7 @@ export const ROUTE = {
   GET_AVERAGE_ENTRY_PRICE: "/average-entry-price",
   GET_PROFIT: "/profit",
   GET_FIRST_DATA: "/first-data",
-  GET_YIELD_RATE: "/yield-rate",
+  GET_APR: "/apr",
   GET_APP_DATA_IN_TIMESTAMP_RANGE: "/app-data-in-timestamp-range",
   GET_USER_DATA_IN_TIMESTAMP_RANGE: "/user-data-in-timestamp-range",
 
