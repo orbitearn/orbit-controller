@@ -1,22 +1,28 @@
 import { MONGODB, ORBIT_CONTROLLER } from "../envs";
 import { DatabaseClient } from "../db/client";
 import { AppRequest, UserRequest } from "../db/requests";
-import { ENCODING, PATH_TO_CONFIG_JSON } from "../services/utils";
 import { readFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
+import { CHAIN_ID } from "../constants";
+import { getCwQueryHelpers } from "../../common/account/cw-helpers";
+import { IAppDataDocument, IUserDataDocument } from "../db/types";
+import { ENCODING, PATH_TO_CONFIG_JSON } from "../services/utils";
 import {
   getChainOptionById,
   getContractByLabel,
 } from "../../common/config/config-utils";
-import { CHAIN_ID } from "../constants";
-import { getCwQueryHelpers } from "../../common/account/cw-helpers";
-import { IAppDataDocument, IUserDataDocument } from "../db/types";
-import { extractPrices, getAllPrices, updateUserData } from "../helpers";
 import {
   calcAverageEntryPriceList,
   calcProfit,
   calcApr,
 } from "../helpers/math";
+import {
+  getAggregatedAssetList,
+  extractPrices,
+  getAllPrices,
+  updateUserData,
+  UserAsset,
+} from "../helpers";
 
 const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
 
@@ -73,7 +79,9 @@ export async function getProfit(
   return profitList;
 }
 
-export async function getUserFirstData(address: string) {
+export async function getUserFirstData(
+  address: string
+): Promise<IUserDataDocument | null> {
   let userFirstData: IUserDataDocument | null = null;
 
   try {
@@ -122,7 +130,10 @@ export async function getApr(
   return aprList;
 }
 
-export async function getAppDataInTimestampRange(from: number, to: number) {
+export async function getAppDataInTimestampRange(
+  from: number,
+  to: number
+): Promise<IAppDataDocument[]> {
   let appData: IAppDataDocument[] = [];
 
   try {
@@ -140,8 +151,9 @@ export async function getAppDataInTimestampRange(from: number, to: number) {
 export async function getUserDataInTimestampRange(
   address: string,
   from: number,
-  to: number
-) {
+  to: number,
+  period: number
+): Promise<UserAsset[]> {
   let userData: IUserDataDocument[] = [];
 
   try {
@@ -153,10 +165,10 @@ export async function getUserDataInTimestampRange(
     await dbClient.disconnect();
   } catch (_) {}
 
-  return userData;
+  return getAggregatedAssetList(userData, period);
 }
 
-export async function updateUserAssets(addressList: string[]) {
+export async function updateUserAssets(addressList: string[]): Promise<void> {
   try {
     const configJsonStr = await readFile(PATH_TO_CONFIG_JSON, {
       encoding: ENCODING,
