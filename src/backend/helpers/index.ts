@@ -224,6 +224,70 @@ export function getUpdateStateList(
     .slice(0, maxUpdateStateList);
 }
 
+export interface UserAsset {
+  asset: string;
+  samples: AssetSample[];
+}
+
+export interface AssetSample {
+  amount: number;
+  timestamp: Date;
+}
+
+export function getAggregatedAssetList(
+  userData: IUserDataSchema[],
+  period: number
+): UserAsset[] {
+  const zero = numberFrom(0);
+  let userAssetList: UserAsset[] = [];
+
+  const assetList = dedupVector(userData.map((x) => x.asset));
+
+  if (!period) {
+    userAssetList = assetList.map((asset) => ({
+      asset,
+      samples: userData
+        .filter((x) => x.asset === asset)
+        .map((x) => ({ amount: x.amount, timestamp: x.timestamp })),
+    }));
+  } else {
+    for (const asset of assetList) {
+      const sampleList: AssetSample[] = userData
+        .filter((x) => x.asset === asset)
+        .map((x) => ({ amount: x.amount, timestamp: x.timestamp }));
+
+      if (sampleList.length < 2) {
+        continue;
+      }
+
+      const [{ timestamp: timestampFirst }] = sampleList;
+      let amountAcc = zero;
+      let timestampPre = dateToTimestamp(timestampFirst);
+      let sampleListAcc: AssetSample[] = [];
+
+      for (const { amount: a, timestamp: t } of sampleList) {
+        const amount = numberFrom(a);
+        const timestamp = dateToTimestamp(t);
+
+        if (timestamp - timestampPre >= period) {
+          sampleListAcc.push({ amount: amountAcc.toNumber(), timestamp: t });
+
+          amountAcc = zero;
+          timestampPre = timestamp;
+        } else {
+          amountAcc = amountAcc.add(amount);
+        }
+      }
+
+      if (sampleListAcc.length) {
+        userAssetList.push({ asset, samples: sampleListAcc });
+      }
+    }
+  }
+
+  return userAssetList;
+}
+
 // TODO: fake logic
 
 // [real, fake][]

@@ -68,7 +68,7 @@ export async function getApr(req: Request, res: Response) {
     year: 365 * 24 * 3_600,
   }[req.query.period as string];
 
-  if (isNaN(from) || isNaN(to) || !period) {
+  if (isNaN(from) || isNaN(to) || typeof period === "undefined") {
     res
       .status(400)
       .json({ error: "Valid 'from', 'to', 'period' parameters are required" });
@@ -96,15 +96,22 @@ export async function getUserDataInTimestampRange(req: Request, res: Response) {
   const address = req.query.address as string;
   const from = parseInt(req.query.from as string);
   const to = parseInt(req.query.to as string);
+  const period = {
+    none: 0,
+    day: 24 * 3_600,
+    week: 7 * 24 * 3_600,
+    month: 30 * 24 * 3_600,
+    year: 365 * 24 * 3_600,
+  }[req.query.period as string];
 
   if (!address) {
     res.status(400).json({ error: "Address parameter is required" });
-  } else if (isNaN(from) || isNaN(to)) {
+  } else if (isNaN(from) || isNaN(to) || typeof period === "undefined") {
     res
       .status(400)
-      .json({ error: "Valid 'from' and 'to' parameters are required" });
+      .json({ error: "Valid 'from', 'to', 'period' parameters are required" });
   } else {
-    const data = await _getUserDataInTimestampRange(address, from, to);
+    const data = await _getUserDataInTimestampRange(address, from, to, period);
     res.status(200).json(data);
   }
 }

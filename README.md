@@ -176,7 +176,7 @@ GET requests:
 
 `/app-data-in-timestamp-range` - returns list of streaming asset prices and timestamps as [IAppDataDocument[]](https://github.com/orbitearn/orbit-controller/blob/main/src/backend/db/types.ts#L20-L25). Request parameters: `from` (required, number) - first timestamp of the list, `to` (required, number) - last timestamp of the list
 
-`/user-data-in-timestamp-range` - returns list of user's bought in streaming assets and timestamps as [IUserDataDocument[]](https://github.com/orbitearn/orbit-controller/blob/main/src/backend/db/types.ts#L27-L33). Request parameters: `address` (required, string) - user's wallet, `from` (required, number) - first timestamp of the list, `to` (required, number) - last timestamp of the list
+`/user-data-in-timestamp-range` - returns list of user's bought in streaming assets and timestamp period end as [UserAsset[]](https://github.com/orbitearn/orbit-controller/blob/main/src/backend/helpers/index.ts#L227). Request parameters: `address` (required, string) - user's wallet, `from` (required, number) - first timestamp of the list, `to` (required, number) - last timestamp of the list, `period` (required, string: "none" | "day" | "week" | "month" | "year") - timestamp period of the list
 
 POST requests:
 
