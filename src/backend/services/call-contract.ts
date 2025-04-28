@@ -2,17 +2,10 @@ import https from "https";
 import { getSigner } from "../account/signer";
 import { readFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
-import {
-  dateToTimestamp,
-  ENCODING,
-  epochToDateStringUTC,
-  getLocalBlockTime,
-  PATH_TO_CONFIG_JSON,
-} from "./utils";
+import { ENCODING, PATH_TO_CONFIG_JSON } from "./utils";
 import { getChainOptionById } from "../../common/config/config-utils";
 import { DatabaseClient } from "../db/client";
 import { BANK, CHAIN_ID, ROUTE } from "../constants";
-import { getUpdateStateList, updateUserData } from "../helpers";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,
@@ -77,21 +70,6 @@ async function main() {
     const { getBalance, getAllBalances } = sgQueryHelpers;
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
-
-    // https://backend.orbitearn.com:4000/api/profit?address=neutron1q5u23ppwrf7jvns33u9rm2xu8u37wyy64xj4zs&from=0&to=1745825415
-    const params = {
-      address: owner,
-      from: 0,
-      to: 1745825415,
-    };
-
-    for (let i = 0; i < 100; i++) {
-      li({ i, t: epochToDateStringUTC(getLocalBlockTime()) });
-      const pr = await req.get(ROUTE.GET_PROFIT, { params });
-      li(pr);
-    }
-
-    return;
 
     await req.post(ROUTE.UPDATE_USER_ASSETS, {
       addressList: [owner],
