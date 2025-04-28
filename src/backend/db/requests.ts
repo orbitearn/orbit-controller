@@ -195,15 +195,22 @@ export class UserRequest {
   static async getDataInTimestampRange(
     address: string,
     from: Date | number,
-    to: Date | number
+    to: Date | number,
+    excludeAsset?: string
   ): Promise<IUserDataDocument[]> {
-    return await UserDataModel.find({
+    const query: any = {
       address,
       timestamp: {
         $gte: toDate(from),
         $lte: toDate(to),
       },
-    }).sort({ timestamp: 1 });
+    };
+
+    if (excludeAsset) {
+      query.asset = { $ne: excludeAsset };
+    }
+
+    return await UserDataModel.find(query).sort({ timestamp: 1 });
   }
 
   static async getFirstData(

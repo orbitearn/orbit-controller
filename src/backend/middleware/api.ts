@@ -22,11 +22,11 @@ import {
   UserAsset,
 } from "../helpers";
 
-// TODO: remove usdc from the list
 export async function getAverageEntryPrice(
   address: string,
   from: number,
-  to: number
+  to: number,
+  excludeAsset: string
 ): Promise<[string, number][]> {
   let averagePriceList: [string, number][] = [];
 
@@ -34,7 +34,8 @@ export async function getAverageEntryPrice(
     const userData = await UserRequest.getDataInTimestampRange(
       address,
       from,
-      to
+      to,
+      excludeAsset
     );
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
@@ -44,11 +45,11 @@ export async function getAverageEntryPrice(
   return averagePriceList;
 }
 
-// TODO: remove usdc from the list
 export async function getProfit(
   address: string,
   from: number,
-  to: number
+  to: number,
+  excludeAsset: string
 ): Promise<[string, number][]> {
   let profitList: [string, number][] = [];
 
@@ -56,7 +57,8 @@ export async function getProfit(
     const userData = await UserRequest.getDataInTimestampRange(
       address,
       from,
-      to
+      to,
+      excludeAsset
     );
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
