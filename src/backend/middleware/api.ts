@@ -1,5 +1,3 @@
-import { MONGODB, ORBIT_CONTROLLER } from "../envs";
-import { DatabaseClient } from "../db/client";
 import { AppRequest, UserRequest } from "../db/requests";
 import { readFile } from "fs/promises";
 import { ChainConfig } from "../../common/interfaces";
@@ -24,8 +22,7 @@ import {
   UserAsset,
 } from "../helpers";
 
-const dbClient = new DatabaseClient(MONGODB, ORBIT_CONTROLLER);
-
+// TODO: remove usdc from the list
 export async function getAverageEntryPrice(
   address: string,
   from: number,
@@ -34,7 +31,6 @@ export async function getAverageEntryPrice(
   let averagePriceList: [string, number][] = [];
 
   try {
-    await dbClient.connect();
     const userData = await UserRequest.getDataInTimestampRange(
       address,
       from,
@@ -45,13 +41,10 @@ export async function getAverageEntryPrice(
     averagePriceList = calcAverageEntryPriceList(appData, userData);
   } catch (_) {}
 
-  try {
-    await dbClient.disconnect();
-  } catch (_) {}
-
   return averagePriceList;
 }
 
+// TODO: remove usdc from the list
 export async function getProfit(
   address: string,
   from: number,
@@ -60,7 +53,6 @@ export async function getProfit(
   let profitList: [string, number][] = [];
 
   try {
-    await dbClient.connect();
     const userData = await UserRequest.getDataInTimestampRange(
       address,
       from,
@@ -68,12 +60,9 @@ export async function getProfit(
     );
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
+    // TODO: use last prices from appData
     const currentPriceList = extractPrices(await getAllPrices());
     profitList = calcProfit(currentPriceList, appData, userData);
-  } catch (_) {}
-
-  try {
-    await dbClient.disconnect();
   } catch (_) {}
 
   return profitList;
@@ -85,12 +74,7 @@ export async function getUserFirstData(
   let userFirstData: IUserDataDocument | null = null;
 
   try {
-    await dbClient.connect();
     userFirstData = await UserRequest.getFirstData(address);
-  } catch (_) {}
-
-  try {
-    await dbClient.disconnect();
   } catch (_) {}
 
   return userFirstData;
@@ -117,14 +101,9 @@ export async function getApr(
     const { bank } = await getCwQueryHelpers(CHAIN_ID, RPC);
     const config = await bank.cwQueryConfig();
 
-    await dbClient.connect();
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
     aprList = calcApr(config.ausdc, appData, period);
-  } catch (_) {}
-
-  try {
-    await dbClient.disconnect();
   } catch (_) {}
 
   return aprList;
@@ -137,12 +116,7 @@ export async function getAppDataInTimestampRange(
   let appData: IAppDataDocument[] = [];
 
   try {
-    await dbClient.connect();
     appData = await AppRequest.getDataInTimestampRange(from, to);
-  } catch (_) {}
-
-  try {
-    await dbClient.disconnect();
   } catch (_) {}
 
   return appData;
@@ -157,12 +131,7 @@ export async function getUserDataInTimestampRange(
   let userData: IUserDataDocument[] = [];
 
   try {
-    await dbClient.connect();
     userData = await UserRequest.getDataInTimestampRange(address, from, to);
-  } catch (_) {}
-
-  try {
-    await dbClient.disconnect();
   } catch (_) {}
 
   return getAggregatedAssetList(userData, period);
@@ -182,11 +151,6 @@ export async function updateUserAssets(addressList: string[]): Promise<void> {
     } = getChainOptionById(CHAIN_CONFIG, CHAIN_ID);
     const bankAddress = getContractByLabel(CONTRACTS, "bank")?.ADDRESS || "";
 
-    await dbClient.connect();
     await updateUserData(CHAIN_ID, RPC, addressList, bankAddress);
-  } catch (_) {}
-
-  try {
-    await dbClient.disconnect();
   } catch (_) {}
 }

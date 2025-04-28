@@ -58,6 +58,7 @@ export function calcClaimAndSwapData(
   );
 }
 
+// TODO: not to use BN
 // average_entry_price = sum(amount_i * price_i) / sum(amount_i)
 export function calcAverageEntryPriceList(
   appData: IAppDataSchema[],
@@ -97,6 +98,7 @@ export function calcAverageEntryPriceList(
   });
 }
 
+// TODO: not to use BN
 // profit = sum(amount_i * (price - price_i))
 export function calcProfit(
   currentPriceList: [string, math.BigNumber][],

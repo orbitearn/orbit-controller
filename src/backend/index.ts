@@ -206,11 +206,6 @@ https.createServer(options, app).listen(PORT, async () => {
   } catch (_) {
     scriptStartTimestamp = dateToTimestamp(nextTopOfHour);
   }
-  try {
-    await dbClient.disconnect();
-  } catch (error) {
-    le(error);
-  }
 
   let nextUpdateDate = scriptStartTimestamp;
 
@@ -236,6 +231,15 @@ https.createServer(options, app).listen(PORT, async () => {
   while (true) {
     // to limit rpc request frequency
     await wait(BANK.CYCLE_COOLDOWN * MS_PER_SECOND);
+
+    // check the connection and reconnect if it's required
+    if (!dbClient.isConnected()) {
+      try {
+        dbClient.connect();
+      } catch (error) {
+        le(error);
+      }
+    }
 
     let usersToUpdate: string[] = [];
     // check distribution date and user counters
@@ -270,19 +274,12 @@ https.createServer(options, app).listen(PORT, async () => {
     ) {
       try {
         // update user assets in db first!
-        await dbClient.connect();
         await updateUserData(CHAIN_ID, RPC, usersToUpdate, bankAddress);
         le("user db data is updated");
 
         // should be used only in case of updateUserData success!
         await h.bank.cwUpdateUserState(usersToUpdate, gasPrice);
         le("user state is updated");
-      } catch (error) {
-        le(error);
-      }
-
-      try {
-        await dbClient.disconnect();
       } catch (error) {
         le(error);
       }
@@ -345,14 +342,8 @@ https.createServer(options, app).listen(PORT, async () => {
         ];
 
         try {
-          await dbClient.connect();
           await AppRequest.addDataItem(nextUpdateDate, counter, assetPrices);
           le("Prices are stored in DB");
-        } catch (error) {
-          le(error);
-        }
-        try {
-          await dbClient.disconnect();
         } catch (error) {
           le(error);
         }

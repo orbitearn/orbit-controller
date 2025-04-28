@@ -30,4 +30,12 @@ export class DatabaseClient {
     await this.client.disconnect();
     l("Disconnected from MongoDB");
   }
+
+  isConnected() {
+    // 0 = disconnected
+    // 1 = connected
+    // 2 = connecting
+    // 3 = disconnecting
+    return this.client.connection.readyState === 1;
+  }
 }
