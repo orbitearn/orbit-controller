@@ -101,12 +101,14 @@ export function calcAverageEntryPriceList(
 // TODO: not to use BN
 // profit = sum(amount_i * (price - price_i))
 export function calcProfit(
-  currentPriceList: [string, math.BigNumber][],
   appData: IAppDataSchema[],
   userData: IUserDataSchema[]
 ): [string, number][] {
   const assetList: string[] = dedupVector(userData.map((x) => x.asset));
   const zero = numberFrom(0);
+  const currentPriceList: [string, math.BigNumber][] =
+    getLast(appData)?.assetPrices.map((x) => [x.asset, numberFrom(x.price)]) ||
+    [];
 
   return assetList.map((asset) => {
     const productSum = userData.reduce((acc, cur) => {

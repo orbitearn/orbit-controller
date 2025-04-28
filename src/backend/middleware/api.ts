@@ -5,6 +5,7 @@ import { CHAIN_ID } from "../constants";
 import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { IAppDataDocument, IUserDataDocument } from "../db/types";
 import { ENCODING, PATH_TO_CONFIG_JSON } from "../services/utils";
+import { getAggregatedAssetList, updateUserData, UserAsset } from "../helpers";
 import {
   getChainOptionById,
   getContractByLabel,
@@ -14,13 +15,6 @@ import {
   calcProfit,
   calcApr,
 } from "../helpers/math";
-import {
-  getAggregatedAssetList,
-  extractPrices,
-  getAllPrices,
-  updateUserData,
-  UserAsset,
-} from "../helpers";
 
 export async function getAverageEntryPrice(
   address: string,
@@ -62,9 +56,7 @@ export async function getProfit(
     );
     const appData = await AppRequest.getDataInTimestampRange(from, to);
 
-    // TODO: use last prices from appData
-    const currentPriceList = extractPrices(await getAllPrices());
-    profitList = calcProfit(currentPriceList, appData, userData);
+    profitList = calcProfit(appData, userData);
   } catch (_) {}
 
   return profitList;
