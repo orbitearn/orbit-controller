@@ -6,6 +6,7 @@ import {
   dedupVector,
   getLast,
   numberFrom,
+  round,
 } from "../../common/utils";
 
 function calcMergedAssetList(
@@ -58,81 +59,70 @@ export function calcClaimAndSwapData(
   );
 }
 
-// TODO: not to use BN
 // average_entry_price = sum(amount_i * price_i) / sum(amount_i)
 export function calcAverageEntryPriceList(
   appData: IAppDataSchema[],
   userData: IUserDataSchema[]
 ): [string, number][] {
   const assetList: string[] = dedupVector(userData.map((x) => x.asset));
-  const zero = numberFrom(0);
 
+  // regular number was used for faster calculations
   return assetList.map((asset) => {
     const [amountSum, productSum] = userData.reduce(
       ([amountAcc, productAcc], cur) => {
         if (cur.asset === asset) {
-          const timestamp = dateToTimestamp(cur.timestamp);
+          const timestamp = cur.timestamp.getTime();
           const priceList =
-            appData.find((x) => dateToTimestamp(x.timestamp) === timestamp)
+            appData.find((x) => !(x.timestamp.getTime() - timestamp))
               ?.assetPrices || [];
-          const price = numberFrom(
-            priceList.find((x) => x.asset === cur.asset)?.price
-          );
+          const price =
+            priceList.find((x) => x.asset === cur.asset)?.price || 0;
 
-          if (!price.isZero()) {
-            const amount = numberFrom(cur.amount);
-            amountAcc = amountAcc.add(amount);
-            productAcc = productAcc.add(amount.mul(price));
+          if (price) {
+            amountAcc += cur.amount;
+            productAcc += cur.amount * price;
           }
         }
 
         return [amountAcc, productAcc];
       },
-      [zero, zero]
+      [0, 0]
     );
 
-    return [
-      asset,
-      productSum.div(amountSum).toDecimalPlaces(DECIMAL_PLACES).toNumber(),
-    ];
+    return [asset, round(productSum / amountSum, DECIMAL_PLACES)];
   });
 }
 
-// TODO: not to use BN
 // profit = sum(amount_i * (price - price_i))
 export function calcProfit(
   appData: IAppDataSchema[],
   userData: IUserDataSchema[]
 ): [string, number][] {
   const assetList: string[] = dedupVector(userData.map((x) => x.asset));
-  const zero = numberFrom(0);
-  const currentPriceList: [string, math.BigNumber][] =
-    getLast(appData)?.assetPrices.map((x) => [x.asset, numberFrom(x.price)]) ||
-    [];
+  const currentPriceList: [string, number][] =
+    getLast(appData)?.assetPrices.map((x) => [x.asset, x.price]) || [];
 
+  // regular number was used for faster calculations
   return assetList.map((asset) => {
     const productSum = userData.reduce((acc, cur) => {
       if (cur.asset === asset) {
-        const timestamp = dateToTimestamp(cur.timestamp);
+        const timestamp = cur.timestamp.getTime();
         const priceList =
-          appData.find((x) => dateToTimestamp(x.timestamp) === timestamp)
+          appData.find((x) => !(x.timestamp.getTime() - timestamp))
             ?.assetPrices || [];
-        const price = numberFrom(
-          priceList.find((x) => x.asset === cur.asset)?.price
-        );
+        const price = priceList.find((x) => x.asset === cur.asset)?.price || 0;
         const currentPrice =
-          currentPriceList.find(([symbol]) => symbol === asset)?.[1] || zero;
+          currentPriceList.find(([symbol]) => symbol === asset)?.[1] || 0;
 
-        if (!price.isZero() && !currentPrice.isZero()) {
-          const amount = numberFrom(cur.amount);
-          acc = acc.add(amount.mul(currentPrice.sub(price)));
+        if (price && currentPrice) {
+          acc += cur.amount * (currentPrice - price);
         }
       }
 
       return acc;
-    }, zero);
+    }, 0);
 
-    return [asset, productSum.toDecimalPlaces(DECIMAL_PLACES).toNumber()];
+    return [asset, round(productSum, DECIMAL_PLACES)];
   });
 }
 

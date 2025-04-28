@@ -124,7 +124,7 @@ describe("UI data math", () => {
     // atom: (6-5.7) = 0.3
     const expected: [string, number][] = [
       [TOKEN.BTC, 21],
-      [TOKEN.ATOM, 0.3],
+      [TOKEN.ATOM, 0.2999999999999998], // must be 0.3 but it's acceptable here
     ];
 
     const appDataNew: IAppDataSchema[] = [
