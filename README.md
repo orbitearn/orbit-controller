@@ -166,9 +166,9 @@ Base URL is `http://<server_ip>:<port>/api`
 
 GET requests:
 
-`/average-entry-price` - returns captured in [DISTRIBUTION_PERIOD](#distribution-period)* ago list of user's asset and it's average price `[string, number][]`. Request parameters: `address` (required, string) - user's wallet, `from` (required, number) - start timestamp of the calculation period, `to` (required, number) - end timestamp of the calculation period
+`/average-entry-price` - returns captured in [DISTRIBUTION_PERIOD](#distribution-period)* ago list of user's asset and it's average price `[string, number][]`. Request parameters: `address` (required, string) - user's wallet, `from` (required, number) - start timestamp of the calculation period, `to` (required, number) - end timestamp of the calculation period, `excludeAsset` (required, string) - stablecoin used to buy assets
 
-`/profit` - returns captured in [DISTRIBUTION_PERIOD](#distribution-period)* ago list of user's asset and profit based it's current price `[string, number][]`. Request parameters: `address` (required, string) - user's wallet, `from` (required, number) - start timestamp of the calculation period, `to` (required, number) - end timestamp of the calculation period
+`/profit` - returns captured in [DISTRIBUTION_PERIOD](#distribution-period)* ago list of user's asset and profit based it's current price `[string, number][]`. Request parameters: `address` (required, string) - user's wallet, `from` (required, number) - start timestamp of the calculation period, `to` (required, number) - end timestamp of the calculation period, `excludeAsset` (required, string) - stablecoin used to buy assets
 
 `/first-data` - returns first user's data DB record. Request parameters: `address` (required, string) - user's wallet
 

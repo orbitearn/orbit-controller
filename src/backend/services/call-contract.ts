@@ -6,7 +6,6 @@ import { ENCODING, PATH_TO_CONFIG_JSON } from "./utils";
 import { getChainOptionById } from "../../common/config/config-utils";
 import { DatabaseClient } from "../db/client";
 import { BANK, CHAIN_ID, ROUTE } from "../constants";
-import { getUpdateStateList, updateUserData } from "../helpers";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,

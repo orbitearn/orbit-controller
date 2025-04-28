@@ -35,6 +35,11 @@ export function floor(num: number, digits: number = 0): number {
   return Math.floor(k * num) / k;
 }
 
+export function round(num: number, digits: number = 0): number {
+  const k = 10 ** digits;
+  return Math.round(k * num) / k;
+}
+
 export function getLast<T>(arr: T[]): T | undefined {
   return arr[arr.length - 1];
 }

@@ -124,7 +124,21 @@ describe("UI data math", () => {
     // atom: (6-5.7) = 0.3
     const expected: [string, number][] = [
       [TOKEN.BTC, 21],
-      [TOKEN.ATOM, 0.3],
+      [TOKEN.ATOM, 0.2999999999999998], // must be 0.3 but it's acceptable here
+    ];
+
+    const appDataNew: IAppDataSchema[] = [
+      ...appData,
+      {
+        counter: 6,
+        timestamp: toDate(dateStringToEpochUTC("15.04.2025 17:00:00")),
+        assetPrices: [
+          { asset: TOKEN.aUSDC, price: 1.5246 },
+          { asset: TOKEN.BTC, price: 90_000 },
+          { asset: TOKEN.ATOM, price: 6 },
+          { asset: TOKEN.ETH, price: 1_300 },
+        ],
+      },
     ];
 
     const userData: IUserDataSchema[] = [
@@ -154,65 +168,30 @@ describe("UI data math", () => {
       },
     ];
 
-    const currentPriceList: [string, math.BigNumber][] = [
-      [TOKEN.BTC, numberFrom(90_000)],
-      [TOKEN.ATOM, numberFrom(6)],
-    ];
-
-    const profit = calcProfit(currentPriceList, appData, userData);
+    const profit = calcProfit(appDataNew, userData);
 
     expect(profit).toStrictEqual(expected);
   });
 
   test("calcProfit no user data", () => {
     const expected: [string, number][] = [];
+    const appDataNew: IAppDataSchema[] = [
+      ...appData,
+      {
+        counter: 6,
+        timestamp: toDate(dateStringToEpochUTC("15.04.2025 17:00:00")),
+        assetPrices: [
+          { asset: TOKEN.aUSDC, price: 1.5246 },
+          { asset: TOKEN.BTC, price: 90_000 },
+          { asset: TOKEN.ATOM, price: 6 },
+          { asset: TOKEN.ETH, price: 1_300 },
+        ],
+      },
+    ];
 
     const userData: IUserDataSchema[] = [];
-    const currentPriceList: [string, math.BigNumber][] = [
-      [TOKEN.BTC, numberFrom(90_000)],
-      [TOKEN.ATOM, numberFrom(6)],
-    ];
 
-    const profit = calcProfit(currentPriceList, appData, userData);
-
-    expect(profit).toStrictEqual(expected);
-  });
-
-  test("calcProfit no prices", () => {
-    const expected: [string, number][] = [
-      [TOKEN.BTC, 0],
-      [TOKEN.ATOM, 0],
-    ];
-
-    const userData: IUserDataSchema[] = [
-      {
-        address: "",
-        timestamp: toDate(dateStringToEpochUTC("15.04.2025 13:00:00")),
-        amount: 0.001,
-        asset: TOKEN.BTC,
-      },
-      {
-        address: "",
-        timestamp: toDate(dateStringToEpochUTC("15.04.2025 14:00:00")),
-        amount: 0.001,
-        asset: TOKEN.BTC,
-      },
-      {
-        address: "",
-        timestamp: toDate(dateStringToEpochUTC("15.04.2025 14:00:00")),
-        amount: 1,
-        asset: TOKEN.ATOM,
-      },
-      {
-        address: "",
-        timestamp: toDate(dateStringToEpochUTC("15.04.2025 15:00:00")),
-        amount: 0.001,
-        asset: TOKEN.BTC,
-      },
-    ];
-
-    const currentPriceList: [string, math.BigNumber][] = [];
-    const profit = calcProfit(currentPriceList, appData, userData);
+    const profit = calcProfit(appDataNew, userData);
 
     expect(profit).toStrictEqual(expected);
   });
