@@ -11,6 +11,8 @@
     "call": "ts-node ./src/backend/services/call-contract.ts",
     "json": "ts-node ./src/backend/services/generate-json.ts",
     "start": "ts-node --project ./src/backend/tsconfig.json ./src/backend/index.ts",
+    "capture-user-info": "ts-node ./src/backend/services/capture/user-info.ts",
+    "counter-diff": "ts-node ./src/backend/services/capture/counter-diff.ts",
     "dev": "cross-env NODE_ENV=development nodemon",
     "test": "jest"
   },
