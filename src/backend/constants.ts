@@ -8,11 +8,11 @@ export const DECIMALS_DEFAULT = 6;
 // test config
 export const BANK = {
   PAGINATION: {
-    USER_INFO: 3, // from 50
+    USER_INFO: 1, // from 3, // from 50
     USER_COUNTER: 200,
     ASSET_LIST: 100,
   },
-  MAX_COUNTER_DIFF: 10, // from 21
+  MAX_COUNTER_DIFF: 5, // from 10, // from 21
   UPDATE_STATE_LIST: {
     MIN: 1, // lower threshold
     LIMIT: 5, // limit per tx
