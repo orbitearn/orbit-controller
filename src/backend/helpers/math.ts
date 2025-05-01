@@ -151,14 +151,17 @@ export function calcApr(
   let ausdcPricePre = numberFrom(ausdcPriceFirst.price);
   let timestampPre = dateToTimestamp(timestampFirst);
 
+  let ausdcPrice = ausdcPricePre;
+  let timestamp = timestampPre;
+
   // [apr, timestamp][]
   let aprListAggregated: [math.BigNumber, number][] = [];
 
   for (const { assetPrices, timestamp: t } of appData) {
-    const ausdcPrice = numberFrom(
+    ausdcPrice = numberFrom(
       assetPrices.find((x) => x.asset === ausdcDenom)?.price
     );
-    const timestamp = dateToTimestamp(t);
+    timestamp = dateToTimestamp(t);
 
     if (timestamp - timestampPre >= period) {
       const range = numberFrom(timestamp - timestampPre);
@@ -168,6 +171,15 @@ export function calcApr(
 
       ausdcPricePre = ausdcPrice;
       timestampPre = timestamp;
+    }
+  }
+
+  // add initial value
+  if (!aprListAggregated.length) {
+    const range = numberFrom(timestamp - timestampPre);
+    if (!range.isZero()) {
+      const apr = ausdcPrice.div(ausdcPricePre).sub(one).mul(k).div(range);
+      aprListAggregated.push([apr, timestamp]);
     }
   }
 

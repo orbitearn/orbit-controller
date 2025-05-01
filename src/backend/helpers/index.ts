@@ -2,7 +2,7 @@ import { getCwQueryHelpers } from "../../common/account/cw-helpers";
 import { AssetItem, Token } from "../../common/codegen/Bank.types";
 import { TokenInfo } from "../../common/interfaces";
 import { AppRequest, UserRequest } from "../db/requests";
-import { dateToTimestamp } from "../services/utils";
+import { dateToTimestamp, toDate } from "../services/utils";
 import * as math from "mathjs";
 import { BANK, DECIMALS_DEFAULT } from "../constants";
 import {
@@ -277,6 +277,14 @@ export function getAggregatedAssetList(
         } else {
           amountAcc = amountAcc.add(amount);
         }
+      }
+
+      // add initial value
+      if (!amountAcc.isZero()) {
+        sampleListAcc.push({
+          amount: amountAcc.toNumber(),
+          timestamp: toDate(timestampPre + period),
+        });
       }
 
       if (sampleListAcc.length) {
