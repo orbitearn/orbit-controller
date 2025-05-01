@@ -71,6 +71,17 @@ async function main() {
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
 
+    // const res = await req.get(ROUTE.GET_USER_DATA_IN_TIMESTAMP_RANGE, {
+    //   params: {
+    //     address: "neutron12tpkd4ftz73a2ap8s9tmql7f9q9hrczn0283ty",
+    //     from: 1745992758,
+    //     to: 1746079158,
+    //     period: "day",
+    //   },
+    // });
+    // li(res);
+    // return;
+
     await req.post(ROUTE.UPDATE_USER_ASSETS, {
       addressList: [owner],
     });
