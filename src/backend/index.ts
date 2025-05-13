@@ -78,43 +78,64 @@ const limiter = rateLimit({
   handler: (_req, res) => res.send("Request rate is limited"),
 });
 
-const allowedOrigins = dedupVector([
-  ...LOCAL_IP_LIST.flatMap((ip) =>
-    LOCAL_PORT_LIST.map((port) => `${ip}:${port}`)
-  ),
-  BE_DEV_URL,
-  BE_TUNNEL_URL,
-  BE_PROD_URL,
-  FE_DEV_URL,
-  FE_STAGE_URL,
-  FE_PROD_URL,
-  FE_DEV_NEW_URL,
-  FE_STAGE_NEW_URL,
-  FE_PROD_NEW_URL,
-]).filter((x) => x);
+// const allowedOrigins = dedupVector([
+//   ...LOCAL_IP_LIST.flatMap((ip) =>
+//     LOCAL_PORT_LIST.map((port) => `${ip}:${port}`)
+//   ),
+//   BE_DEV_URL,
+//   BE_TUNNEL_URL,
+//   BE_PROD_URL,
+//   FE_DEV_URL,
+//   FE_STAGE_URL,
+//   FE_PROD_URL,
+//   FE_DEV_NEW_URL,
+//   FE_STAGE_NEW_URL,
+//   FE_PROD_NEW_URL,
+// ]).filter((x) => x);
+
+// const app = express()
+//   .disable("x-powered-by")
+//   .use(
+//     cors({
+//       origin: function (origin, callback) {
+//         // Allow requests with no origin (like mobile apps, curl requests)
+//         if (!origin) return callback(null, true);
+
+//         // For whitelisted origins
+//         if (allowedOrigins.indexOf(origin) !== -1) {
+//           return callback(null, true);
+//         }
+
+//         // For non-whitelisted origins
+//         const msg =
+//           "The CORS policy for this site does not allow access from the specified Origin.";
+//         return callback(new Error(msg), false);
+//       },
+//       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+//       allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+//       credentials: true,
+//     }),
+//     h.crossOriginEmbedderPolicy({ policy: "credentialless" }),
+//     h.crossOriginOpenerPolicy(),
+//     h.crossOriginResourcePolicy({ policy: "cross-origin" }),
+//     h.dnsPrefetchControl(),
+//     h.frameguard(),
+//     h.hidePoweredBy(),
+//     h.hsts(),
+//     h.ieNoOpen(),
+//     h.noSniff(),
+//     h.permittedCrossDomainPolicies(),
+//     h.referrerPolicy(),
+//     h.xssFilter(),
+//     limiter,
+//     text(),
+//     json()
+//   );
 
 const app = express()
   .disable("x-powered-by")
   .use(
-    cors({
-      origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps, curl requests)
-        if (!origin) return callback(null, true);
-
-        // For whitelisted origins
-        if (allowedOrigins.indexOf(origin) !== -1) {
-          return callback(null, true);
-        }
-
-        // For non-whitelisted origins
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      },
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-      credentials: true,
-    }),
+    cors(),
     h.crossOriginEmbedderPolicy({ policy: "credentialless" }),
     h.crossOriginOpenerPolicy(),
     h.crossOriginResourcePolicy({ policy: "cross-origin" }),
