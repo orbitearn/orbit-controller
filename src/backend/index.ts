@@ -61,6 +61,9 @@ import {
   FE_DEV_URL,
   FE_STAGE_URL,
   FE_PROD_URL,
+  FE_DEV_NEW_URL,
+  FE_STAGE_NEW_URL,
+  FE_PROD_NEW_URL,
   rootPath,
   IS_PROD,
 } from "./envs";
@@ -85,6 +88,9 @@ const allowedOrigins = dedupVector([
   FE_DEV_URL,
   FE_STAGE_URL,
   FE_PROD_URL,
+  FE_DEV_NEW_URL,
+  FE_STAGE_NEW_URL,
+  FE_PROD_NEW_URL,
 ]).filter((x) => x);
 
 const app = express()
