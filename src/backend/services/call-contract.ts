@@ -6,6 +6,7 @@ import { ENCODING, PATH_TO_CONFIG_JSON } from "./utils";
 import { getChainOptionById } from "../../common/config/config-utils";
 import { DatabaseClient } from "../db/client";
 import { BANK, CHAIN_ID, ROUTE } from "../constants";
+import { UserAsset } from "../helpers";
 import {
   getSgQueryHelpers,
   getSgExecHelpers,
@@ -71,15 +72,55 @@ async function main() {
     const { sgMultiSend, sgSend } = sgExecHelpers;
     console.clear();
 
-    // const res = await req.get(ROUTE.GET_USER_DATA_IN_TIMESTAMP_RANGE, {
-    //   params: {
-    //     address: "neutron12tpkd4ftz73a2ap8s9tmql7f9q9hrczn0283ty",
-    //     from: 1745992758,
-    //     to: 1746079158,
-    //     period: "day",
-    //   },
-    // });
-    // li(res);
+    // const address = "neutron1m3zfzylcdcx0gwnv02kt26y8wnlhq4922t389r";
+    // const from = 0;
+    // const to = 2000000000;
+
+    // const resNone: UserAsset[] = await req.get(
+    //   ROUTE.GET_USER_DATA_IN_TIMESTAMP_RANGE,
+    //   {
+    //     params: {
+    //       address,
+    //       from,
+    //       to,
+    //       period: "none",
+    //     },
+    //   }
+    // );
+
+    // const resDay: UserAsset[] = await req.get(
+    //   ROUTE.GET_USER_DATA_IN_TIMESTAMP_RANGE,
+    //   {
+    //     params: {
+    //       address,
+    //       from,
+    //       to,
+    //       period: "day",
+    //     },
+    //   }
+    // );
+
+    // const ethNone =
+    //   resNone.find(
+    //     (x) =>
+    //       x.asset ===
+    //       "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH"
+    //   )?.samples || [];
+    // const ethDay =
+    //   resDay.find(
+    //     (x) =>
+    //       x.asset ===
+    //       "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH"
+    //   )?.samples || [];
+
+    // const ethNoneSum = ethNone.reduce((acc, cur) => acc + cur.amount, 0);
+    // const ethDaySum = ethDay.reduce((acc, cur) => acc + cur.amount, 0);
+
+    // li({ ethNoneSum, ethDaySum });
+    // li({ ethNone: ethNone.length, ethDay: ethDay.length });
+
+    // li({ ethDay });
+
     // return;
 
     await req.post(ROUTE.UPDATE_USER_ASSETS, {

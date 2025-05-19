@@ -260,30 +260,51 @@ export function getAggregatedAssetList(
         continue;
       }
 
-      const [{ timestamp: timestampFirst }] = sampleList;
-      let amountAcc = zero;
-      let timestampPre = dateToTimestamp(timestampFirst);
+      const [{ timestamp: firstTimestamp }] = sampleList;
+      const firstTimestampValue = dateToTimestamp(firstTimestamp);
+
+      let periodStart = firstTimestampValue;
+      let periodEnd = periodStart + period;
+      let currentPeriodSamples: AssetSample[] = [];
       let sampleListAcc: AssetSample[] = [];
 
-      for (const { amount: a, timestamp: t } of sampleList) {
-        const amount = numberFrom(a);
-        const timestamp = dateToTimestamp(t);
+      // process all samples and group them into periods
+      for (const sample of sampleList) {
+        const sampleTimestamp = dateToTimestamp(sample.timestamp);
 
-        if (timestamp - timestampPre >= period) {
-          sampleListAcc.push({ amount: amountAcc.toNumber(), timestamp: t });
+        // if sample belongs to next period, finalize current period and start a new one
+        while (sampleTimestamp >= periodEnd) {
+          // add accumulated samples for current period
+          if (currentPeriodSamples.length > 0) {
+            const totalAmount = currentPeriodSamples
+              .reduce((sum, s) => sum.add(numberFrom(s.amount)), zero)
+              .toNumber();
 
-          amountAcc = zero;
-          timestampPre = timestamp;
-        } else {
-          amountAcc = amountAcc.add(amount);
+            sampleListAcc.push({
+              amount: totalAmount,
+              timestamp: toDate(periodEnd),
+            });
+          }
+
+          // move to next period
+          periodStart = periodEnd;
+          periodEnd = periodStart + period;
+          currentPeriodSamples = [];
         }
+
+        // add sample to current period
+        currentPeriodSamples.push(sample);
       }
 
-      // add initial value
-      if (!amountAcc.isZero()) {
+      // add final period if there are remaining samples
+      if (currentPeriodSamples.length > 0) {
+        const totalAmount = currentPeriodSamples
+          .reduce((sum, s) => sum.add(numberFrom(s.amount)), zero)
+          .toNumber();
+
         sampleListAcc.push({
-          amount: amountAcc.toNumber(),
-          timestamp: toDate(timestampPre + period),
+          amount: totalAmount,
+          timestamp: toDate(periodEnd),
         });
       }
 
