@@ -1,11 +1,178 @@
 [
   {
-    "address": "neutron12tpkd4ftz73a2ap8s9tmql7f9q9hrczn0283ty",
-    "deposited_usdc": "281355245356",
-    "usdc": "295625808785",
+    "address": "neutron10hvz04hh92xzct5hxnpsn5h2fp3p4ammcg425r",
+    "deposited_usdc": "1204369813",
+    "usdc": "1302500833",
     "ausdc": {
-      "minted": "223001411040",
-      "unclaimed": "223001411040",
+      "minted": "722826190",
+      "unclaimed": "722826190",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.55",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.545454545454545454"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.454545454545454546"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998398
+    },
+    "user_yield": {
+      "next": {
+        "total": "124641228",
+        "usdc": "56088553",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "37392368"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "31160307"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "815555718",
+        "usdc": "367000071",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "238215"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "72578836042528924"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron10p5448h68nmfdrrjzayvjs7u7pm94z45tze6gj",
+    "deposited_usdc": "500000000",
+    "usdc": "737309185",
+    "ausdc": {
+      "minted": "409171630",
+      "unclaimed": "409171630",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "1"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998437
+    },
+    "user_yield": {
+      "next": {
+        "total": "67028108",
+        "usdc": "67028108",
+        "assets": []
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "425189467",
+        "usdc": "339887458",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "37"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "31044767328814883"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron12sh8sqkkz89wldd66892e9e6jyv0lnh60sh05w",
+    "deposited_usdc": "981230158151",
+    "usdc": "1125654011869",
+    "ausdc": {
+      "minted": "624684591608",
+      "unclaimed": "624684591608",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999313
+    },
+    "user_yield": {
+      "next": {
+        "total": "102332182897",
+        "usdc": "102332182897",
+        "assets": []
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "25199392503",
+        "usdc": "25199392503",
+        "assets": []
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron12tpkd4ftz73a2ap8s9tmql7f9q9hrczn0283ty",
+    "deposited_usdc": "660163024163",
+    "usdc": "741037249416",
+    "ausdc": {
+      "minted": "411240529183",
+      "unclaimed": "411240529183",
       "balance": "0"
     },
     "dca": {
@@ -21,20 +188,20 @@
         }
       ],
       "initial_swaps": 1000000,
-      "remaining_swaps": 1000000
+      "remaining_swaps": 999683
     },
     "user_yield": {
       "next": {
-        "total": "28154838932",
-        "usdc": "14077419466",
+        "total": "70574976135",
+        "usdc": "35287488067",
         "assets": [
           {
             "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
-            "amount": "7038709733"
+            "amount": "17643744034"
           },
           {
             "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
-            "amount": "7038709733"
+            "amount": "17643744034"
           }
         ]
       },
@@ -49,20 +216,933 @@
         "assets": []
       },
       "accumulated_plus_pending": {
+        "total": "7161023323",
+        "usdc": "3580511662",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1682388"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "603410064186211422"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron13plmd4urnf678msct0vvtg40lpxn375zyssy3f",
+    "deposited_usdc": "141000000",
+    "usdc": "148305349",
+    "ausdc": {
+      "minted": "82302435",
+      "unclaimed": "82302435",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.43",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.046511627906976744"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.953488372093023256"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999346
+    },
+    "user_yield": {
+      "next": {
+        "total": "14030780",
+        "usdc": "7997545",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "280616"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "5752620"
+          }
+        ]
+      },
+      "last": {
         "total": "0",
         "usdc": "0",
         "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "62737817",
+        "usdc": "35760560",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1214"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "8624275441790993"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron149wcr3eezx5gxxawpxm5elw3p87me4wwsp0yxa",
+    "deposited_usdc": "3660000",
+    "usdc": "3227939",
+    "ausdc": {
+      "minted": "1791353",
+      "unclaimed": "1791353",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.75",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "1"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998767
+    },
+    "user_yield": {
+      "next": {
+        "total": "314921",
+        "usdc": "78730",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "236191"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "2191262",
+        "usdc": "547813",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1604"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron15asrnnkxpzru89pccwx9jqvgdyhxlafenumr0g",
+    "deposited_usdc": "29752511675",
+    "usdc": "32654520977",
+    "ausdc": {
+      "minted": "18121710477",
+      "unclaimed": "18121710477",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.55",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.545454545454545454"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.454545454545454546"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999619
+    },
+    "user_yield": {
+      "next": {
+        "total": "3124834543",
+        "usdc": "1406175544",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "937450363"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "781208636"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "2946323396",
+        "usdc": "1325845530",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "851210"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "243685744262882878"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron15awfh4njmyk4a90kw76gj7e69nawm3kw3d8g49",
+    "deposited_usdc": "50000000000",
+    "usdc": "36042642263",
+    "ausdc": {
+      "minted": "20001957107",
+      "unclaimed": "20001957107",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "1",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998403
+    },
+    "user_yield": {
+      "next": {
+        "total": "3604264226",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1802132113"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "1802132113"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "30186698567",
+        "usdc": "14176455",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "14654818"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "5330069522780363144"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron15lzckt89lnudwc5mpl3spqsws4khtycyfvyshc",
+    "deposited_usdc": "34258180000",
+    "usdc": "38294143420",
+    "ausdc": {
+      "minted": "21251433470",
+      "unclaimed": "21251433470",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.5",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999448
+    },
+    "user_yield": {
+      "next": {
+        "total": "3647061278",
+        "usdc": "1823530639",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "911765320"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "911765320"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "13761270875",
+        "usdc": "6757062545",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "3401584"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "1235857202582302082"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron15w7fzgct20zjxzh07eh00nek2ld4z7y946h8lp",
+    "deposited_usdc": "80014700000",
+    "usdc": "84183626148",
+    "ausdc": {
+      "minted": "46717920041",
+      "unclaimed": "46717920041",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.75",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.666666666666666666"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.333333333333333334"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999958
+    },
+    "user_yield": {
+      "next": {
+        "total": "8213036697",
+        "usdc": "2053259174",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "4106518349"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "2053259174"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "8453280771",
+        "usdc": "2105223069",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "4048470"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "690908723648497958"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron17hfd809avtf2qz9kzapf83rhu55dzuluqcamez",
+    "deposited_usdc": "5500000001",
+    "usdc": "4801621298",
+    "ausdc": {
+      "minted": "2664672100",
+      "unclaimed": "2664672100",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "1",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.45"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.55"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999660
+    },
+    "user_yield": {
+      "next": {
+        "total": "480162129",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "216072958"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "264089171"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "1919123386",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "990174"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "322888157535683639"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron17k22my0ut4qumcpslteuv32956r4jmyp2z4xtd",
+    "deposited_usdc": "32103949770",
+    "usdc": "34911611043",
+    "ausdc": {
+      "minted": "19374288420",
+      "unclaimed": "19374288420",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.8",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.4375"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5625"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999986
+    },
+    "user_yield": {
+      "next": {
+        "total": "3422706965",
+        "usdc": "684541393",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1197947438"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "1540218134"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "86850743",
+        "usdc": "17370149",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "29490"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "13506508986383880"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron17k2karllrd0vuq7qfeccmsk7vrfa96tv0yy5j7",
+    "deposited_usdc": "31256320000",
+    "usdc": "34012161305",
+    "ausdc": {
+      "minted": "18875136472",
+      "unclaimed": "18875136472",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.6",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.583333333333333333"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.416666666666666667"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999895
+    },
+    "user_yield": {
+      "next": {
+        "total": "3270400125",
+        "usdc": "1308160050",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1144640044"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "817600031"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "3040036263",
+        "usdc": "1431100224",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "808318"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "253413975670686354"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron18kwx00lhmptgsqmghyuyewnqsw9a45vwmzfhcf",
+    "deposited_usdc": "184499583649",
+    "usdc": "200397868970",
+    "ausdc": {
+      "minted": "111211313260",
+      "unclaimed": "111211313260",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.3",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999873
+    },
+    "user_yield": {
+      "next": {
+        "total": "18728772801",
+        "usdc": "13110140961",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "2809315920"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "2809315920"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "5691102330",
+        "usdc": "3983771629",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "813319"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "285805338693707585"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron18mgj6w322m4agfekvdn5fynfypnn2mmeagcp6u",
+    "deposited_usdc": "10000000000",
+    "usdc": "8777861419",
+    "ausdc": {
+      "minted": "4871296791",
+      "unclaimed": "4871296791",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.77",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.51948051948051948"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.48051948051948052"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998460
+    },
+    "user_yield": {
+      "next": {
+        "total": "858050970",
+        "usdc": "197351723",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "343220388"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "317478859"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "6618481644",
+        "usdc": "1522250772",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "2576339"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "870235241272138958"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron18tnusz5r6emg8uk2a988zq685a5gpfxummzr7m",
+    "deposited_usdc": "30000000000",
+    "usdc": "23642713500",
+    "ausdc": {
+      "minted": "13120584719",
+      "unclaimed": "13120584719",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.9",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998504
+    },
+    "user_yield": {
+      "next": {
+        "total": "2340862722",
+        "usdc": "234086272",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1053388225"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "1053388225"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "19869691385",
+        "usdc": "1978344677",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "8726194"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "3212579670925846417"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron19a6hy4ykej8qj5pj5ph9xalf3em2hd8nsmy2u4",
+    "deposited_usdc": "40000000000",
+    "usdc": "35838643756",
+    "ausdc": {
+      "minted": "19888747610",
+      "unclaimed": "19888747610",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.75",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.333333333333333333"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.666666666666666667"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998525
+    },
+    "user_yield": {
+      "next": {
+        "total": "3496453049",
+        "usdc": "874113262",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "874113262"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "1748226525"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "27556157686",
+        "usdc": "6821123010",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "5003805542163375966"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "6626665"
+          }
+        ]
       }
     },
     "fee_next": "0"
   },
   {
     "address": "neutron1amk728nk29levurrmtn9ykr9m7fu3eflu7k7f8",
-    "deposited_usdc": "13213528616",
-    "usdc": "14271175786",
+    "deposited_usdc": "35112261586",
+    "usdc": "54710064696",
     "ausdc": {
-      "minted": "10765272324",
-      "unclaimed": "10765272324",
+      "minted": "30361491241",
+      "unclaimed": "30361491241",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.1",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "1"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998696
+    },
+    "user_yield": {
+      "next": {
+        "total": "5019271990",
+        "usdc": "4517344791",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "501927199"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "31573473890",
+        "usdc": "27437904502",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "438768069952053185"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "3077307"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1au342rrkx42rzz32k3tj23e9h76fxqfwzss8s6",
+    "deposited_usdc": "39900000001",
+    "usdc": "55203065702",
+    "ausdc": {
+      "minted": "30635083418",
+      "unclaimed": "30635083418",
       "balance": "0"
     },
     "dca": {
@@ -74,16 +1154,16 @@
         }
       ],
       "initial_swaps": 1000000,
-      "remaining_swaps": 999984
+      "remaining_swaps": 998408
     },
     "user_yield": {
       "next": {
-        "total": "1327551236",
-        "usdc": "995663427",
+        "total": "5135168903",
+        "usdc": "3851376677",
         "assets": [
           {
             "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
-            "amount": "331887809"
+            "amount": "1283792226"
           }
         ]
       },
@@ -98,12 +1178,12 @@
         "assets": []
       },
       "accumulated_plus_pending": {
-        "total": "44546881",
-        "usdc": "30382555",
+        "total": "33161854500",
+        "usdc": "24846390876",
         "assets": [
           {
             "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
-            "amount": "14999"
+            "amount": "8102780"
           }
         ]
       }
@@ -111,12 +1191,371 @@
     "fee_next": "0"
   },
   {
-    "address": "neutron1lwrna9hj3awewqr8ryx2wlpdc2dcgq7asd5na9",
-    "deposited_usdc": "8713475952",
-    "usdc": "9149179414",
+    "address": "neutron1cmd3533dwvrd33q3wnqvry6r2f20wnfe5e4a2k",
+    "deposited_usdc": "15976560000",
+    "usdc": "17801767377",
     "ausdc": {
-      "minted": "6901562240",
-      "unclaimed": "6901562240",
+      "minted": "9879136632",
+      "unclaimed": "9879136632",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.35",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "1"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999215
+    },
+    "user_yield": {
+      "next": {
+        "total": "1671527453",
+        "usdc": "1086492845",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "585034609"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "8725817459",
+        "usdc": "5372453833",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "2873004"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "158241676093681410"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1cnzcqss00dv09kpwqmuxkqssevr7u77j75gyhd",
+    "deposited_usdc": "38412000000",
+    "usdc": "34750983512",
+    "ausdc": {
+      "minted": "19285147758",
+      "unclaimed": "19285147758",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.75",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.533333333333333333"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.466666666666666667"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998382
+    },
+    "user_yield": {
+      "next": {
+        "total": "3390339855",
+        "usdc": "847584964",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1356135942"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "1186618949"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "27830519352",
+        "usdc": "6957629838",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "10870969"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "3523203836748238484"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1crgpeqf6lfakv4aehlms7aqmmpaatafdfaaewa",
+    "deposited_usdc": "29999990001",
+    "usdc": "35113213851",
+    "ausdc": {
+      "minted": "19486168417",
+      "unclaimed": "19486168417",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.25",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "1"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999346
+    },
+    "user_yield": {
+      "next": {
+        "total": "3266345474",
+        "usdc": "2449759106",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "816586369"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "11947533152",
+        "usdc": "8488291991",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "459601"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "1023114625243996085"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1dnm4rt7c69nhk64xww2z9klqr73zu7wlyrvs3r",
+    "deposited_usdc": "29999997774",
+    "usdc": "32112706077",
+    "ausdc": {
+      "minted": "17821028904",
+      "unclaimed": "17821028904",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.6",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999028
+    },
+    "user_yield": {
+      "next": {
+        "total": "3087760200",
+        "usdc": "1235104080",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "926328060"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "926328060"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "17677931693",
+        "usdc": "7071172677",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "5094966"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "1769945996111600296"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1etp8gy9ue2h58sdmflqm05claq58e9fmk439lc",
+    "deposited_usdc": "325662520000",
+    "usdc": "361065709847",
+    "ausdc": {
+      "minted": "200374345155",
+      "unclaimed": "200374345155",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.111111111111111111"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.888888888888888889"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999136
+    },
+    "user_yield": {
+      "next": {
+        "total": "32824155441",
+        "usdc": "32824155441",
+        "assets": []
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "24602891810",
+        "usdc": "2495333695",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "2362757"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "8101768636660304303"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1ev02crc36675xd8s029qh7wg3wjtfk37784aeh",
+    "deposited_usdc": "9500000000",
+    "usdc": "12879946816",
+    "ausdc": {
+      "minted": "7147759642",
+      "unclaimed": "7147759642",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.25",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "1"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998503
+    },
+    "user_yield": {
+      "next": {
+        "total": "1198134588",
+        "usdc": "898600941",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "299533647"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "7519415512",
+        "usdc": "5639561632",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1829230"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1fxefk834cduypnqxfzac5d2f6d499a84yje3qj",
+    "deposited_usdc": "10000000000",
+    "usdc": "11165591743",
+    "ausdc": {
+      "minted": "6196373881",
+      "unclaimed": "6196373881",
       "balance": "0"
     },
     "dca": {
@@ -132,20 +1571,398 @@
         }
       ],
       "initial_swaps": 1000000,
-      "remaining_swaps": 1000000
+      "remaining_swaps": 998450
     },
     "user_yield": {
       "next": {
-        "total": "871350420",
-        "usdc": "435675210",
+        "total": "1063389689",
+        "usdc": "531694845",
         "assets": [
           {
             "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
-            "amount": "217837605"
+            "amount": "265847422"
           },
           {
             "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
-            "amount": "217837605"
+            "amount": "265847422"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "7574468216",
+        "usdc": "3788366782",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1846238"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "678453409049977842"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1h2ay8awsa26zftfyjdc2f2y00uywfqfl94hpdt",
+    "deposited_usdc": "15527380000",
+    "usdc": "15527379999",
+    "ausdc": {
+      "minted": "8616959502",
+      "unclaimed": "8616959502",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "1",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999647
+    },
+    "user_yield": {
+      "next": {
+        "total": "1552738000",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "776369000"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "776369000"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "1380124261",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "664029"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "228458861243852531"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1h2zamtnpkxztllx2tywy5tde56850v07hxctwe",
+    "deposited_usdc": "5000000000",
+    "usdc": "5299998635",
+    "ausdc": {
+      "minted": "2941247886",
+      "unclaimed": "2941247886",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.75",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.666666666666666666"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.333333333333333334"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999466
+    },
+    "user_yield": {
+      "next": {
+        "total": "517073037",
+        "usdc": "129268259",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "258536519"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "129268259"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "677661655",
+        "usdc": "169415414",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "323694"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "54950324748670485"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1hvhhlds6k4c894956day0mglgrdnqrksyavddp",
+    "deposited_usdc": "20000000000",
+    "usdc": "15688340739",
+    "ausdc": {
+      "minted": "8706285079",
+      "unclaimed": "8706285079",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.9",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.222222222222222222"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.777777777777777778"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998735
+    },
+    "user_yield": {
+      "next": {
+        "total": "1553301063",
+        "usdc": "155330106",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "310660213"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1087310744"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "12229536992",
+        "usdc": "1243233092",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "933389236445913909"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "8121508"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1jf6qvq7dlvt0plgnw6j56h3hka96meataxtsll",
+    "deposited_usdc": "20000000000",
+    "usdc": "33703545473",
+    "ausdc": {
+      "minted": "18703869322",
+      "unclaimed": "18703869322",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998381
+    },
+    "user_yield": {
+      "next": {
+        "total": "3063958679",
+        "usdc": "3063958679",
+        "assets": []
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "17820964223",
+        "usdc": "17820964223",
+        "assets": []
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1kxkp0mhk2m6mqu2jd8gqegzg9us6nlns5mpg5k",
+    "deposited_usdc": "22940080000",
+    "usdc": "23522751604",
+    "ausdc": {
+      "minted": "13054011556",
+      "unclaimed": "13054011556",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.6",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999888
+    },
+    "user_yield": {
+      "next": {
+        "total": "2261803039",
+        "usdc": "904721215",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "678540912"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "678540912"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "7505507336",
+        "usdc": "3407970181",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1952506"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "692059217618911304"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1lk3p0h9hyl3gyhcrrkqm02l44ussatpwufse8q",
+    "deposited_usdc": "1875000000",
+    "usdc": "1970246545",
+    "ausdc": {
+      "minted": "1093393392",
+      "unclaimed": "1093393392",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.5",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.6"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.4"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999994
+    },
+    "user_yield": {
+      "next": {
+        "total": "187642528",
+        "usdc": "93821264",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "56292758"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "37528506"
           }
         ]
       },
@@ -168,12 +1985,532 @@
     "fee_next": "0"
   },
   {
+    "address": "neutron1lynr3f7zqhpcwacvatewcwj0ar5q9sgxxpy074",
+    "deposited_usdc": "10000000000",
+    "usdc": "10979150109",
+    "ausdc": {
+      "minted": "6092907616",
+      "unclaimed": "6092907616",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.5",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998568
+    },
+    "user_yield": {
+      "next": {
+        "total": "1045633344",
+        "usdc": "522816672",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "261408336"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "261408336"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "7103652462",
+        "usdc": "3551826234",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1727083"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "628882658947303945"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1m3zfzylcdcx0gwnv02kt26y8wnlhq4922t389r",
+    "deposited_usdc": "19681210000",
+    "usdc": "18047160715",
+    "ausdc": {
+      "minted": "10015318297",
+      "unclaimed": "10015318297",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.75",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.666666666666666666"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.333333333333333334"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999808
+    },
+    "user_yield": {
+      "next": {
+        "total": "1760698606",
+        "usdc": "440174652",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "880349303"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "440174652"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "14447012634",
+        "usdc": "3648534921",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "7026593"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "1316666505225708844"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1m57pnvdg9wpeue4arfwk756r6nflsnhld0rnr4",
+    "deposited_usdc": "2000000000",
+    "usdc": "2075133416",
+    "ausdc": {
+      "minted": "1151600631",
+      "unclaimed": "1151600631",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.5",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998962
+    },
+    "user_yield": {
+      "next": {
+        "total": "197631753",
+        "usdc": "98815877",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "49407938"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "49407938"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "1127541914",
+        "usdc": "563770953",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "270669"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "94433360264781405"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1ne9nuv8zf4494gymhac8mvwdjq38mslakcrz64",
+    "deposited_usdc": "9498645626",
+    "usdc": "10678545043",
+    "ausdc": {
+      "minted": "5926086061",
+      "unclaimed": "5926086061",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.5",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998395
+    },
+    "user_yield": {
+      "next": {
+        "total": "1017004289",
+        "usdc": "508502145",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "254251072"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "254251072"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "7408019968",
+        "usdc": "3704009988",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "666461237428138323"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1806657"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1nuplvkxnwpal40kpjt5ygv9864g2grqd55rjt0",
+    "deposited_usdc": "6000000000",
+    "usdc": "5315787132",
+    "ausdc": {
+      "minted": "2950009753",
+      "unclaimed": "2950009753",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.75",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "1"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998676
+    },
+    "user_yield": {
+      "next": {
+        "total": "518613379",
+        "usdc": "129653345",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "388960034"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "4045350536",
+        "usdc": "945427956",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "2887952"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "59129863149789642"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1nxlpfwdke5vy2c0g0lt6z4nsww3d8yy7a83akd",
+    "deposited_usdc": "3333000000",
+    "usdc": "3333000005",
+    "ausdc": {
+      "minted": "1849656933",
+      "unclaimed": "1849656933",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "1",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999461
+    },
+    "user_yield": {
+      "next": {
+        "total": "333300000",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "166650000"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "166650000"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "443967484",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "71904200081548853"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "212018"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1pfd9uke5sg4zt5vpwhuat4s32jm6akpk0wd8az",
+    "deposited_usdc": "10000000000",
+    "usdc": "13696828449",
+    "ausdc": {
+      "minted": "7601090207",
+      "unclaimed": "7601090207",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.25",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.8"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.2"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998457
+    },
+    "user_yield": {
+      "next": {
+        "total": "1274123576",
+        "usdc": "955592682",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "254824715"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "63706179"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "8105701013",
+        "usdc": "6079275763",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1579274"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "144576230915001195"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1pzkhkehytgcdtf568ht48cdpktna3nydqrzmx6",
+    "deposited_usdc": "11000000000",
+    "usdc": "7929380962",
+    "ausdc": {
+      "minted": "4400430377",
+      "unclaimed": "4400430377",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "1",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.6"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.4"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998493
+    },
+    "user_yield": {
+      "next": {
+        "total": "792938096",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "475762858"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "317175238"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "6954782724",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "4067687"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "996211929800110558"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
     "address": "neutron1q5u23ppwrf7jvns33u9rm2xu8u37wyy64xj4zs",
     "deposited_usdc": "10000000000",
-    "usdc": "11561225584",
+    "usdc": "17744524546",
     "ausdc": {
-      "minted": "8721057303",
-      "unclaimed": "8721057303",
+      "minted": "9847369576",
+      "unclaimed": "9847369576",
       "balance": "0"
     },
     "dca": {
@@ -188,21 +2525,78 @@
           "weight": "0.25"
         }
       ],
-      "initial_swaps": 1000000,
-      "remaining_swaps": 999469
+      "initial_swaps": 100,
+      "remaining_swaps": 0
     },
     "user_yield": {
       "next": {
-        "total": "1101069103",
-        "usdc": "550534552",
+        "total": "1613138595",
+        "usdc": "1613138595",
+        "assets": []
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "10059626978",
+        "usdc": "9904592476",
         "assets": [
           {
             "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
-            "amount": "412900914"
+            "amount": "118958"
           },
           {
             "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
-            "amount": "137633638"
+            "amount": "17360025617257154"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1qqn6uw83z8erf4a9dmt5fjvmxalpshdhzt90u6",
+    "deposited_usdc": "6250000000",
+    "usdc": "5394258081",
+    "ausdc": {
+      "minted": "2993557408",
+      "unclaimed": "2993557408",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.8",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.6875"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.3125"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998449
+    },
+    "user_yield": {
+      "next": {
+        "total": "528848831",
+        "usdc": "105769766",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "290866857"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "132212208"
           }
         ]
       },
@@ -217,16 +2611,892 @@
         "assets": []
       },
       "accumulated_plus_pending": {
-        "total": "1961270394",
-        "usdc": "1010691031",
+        "total": "4338880938",
+        "usdc": "867776186",
         "assets": [
           {
             "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
-            "amount": "750117"
+            "amount": "2329824"
           },
           {
             "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
-            "amount": "109238924606899107"
+            "amount": "390841054502653796"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1rkxwm6ghtz0fdqdltpffcaqcs8aec9j6wngz22",
+    "deposited_usdc": "17500010001",
+    "usdc": "18390166703",
+    "ausdc": {
+      "minted": "10205670353",
+      "unclaimed": "10205670353",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.5",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999147
+    },
+    "user_yield": {
+      "next": {
+        "total": "1751444448",
+        "usdc": "875722224",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "437861112"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "437861112"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "10388265652",
+        "usdc": "5194132827",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "761577585513860055"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "2805904"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1rnmalymsf2nph9yl7n5lnkghf446jr37vvn4tx",
+    "deposited_usdc": "10000000000",
+    "usdc": "8662702935",
+    "ausdc": {
+      "minted": "4807389294",
+      "unclaimed": "4807389294",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.8",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.6875"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.3125"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 998389
+    },
+    "user_yield": {
+      "next": {
+        "total": "849284601",
+        "usdc": "169856920",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "467106531"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "212321150"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "7141202503",
+        "usdc": "1430521071",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "3834877"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "646246823794187506"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1rxw8wng2cn0hkvq3yjc7nrgc7rfdffjafuq0vs",
+    "deposited_usdc": "17500000000",
+    "usdc": "21063470072",
+    "ausdc": {
+      "minted": "11689226939",
+      "unclaimed": "11689226939",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.520833333333333333"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.479166666666666667"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999655
+    },
+    "user_yield": {
+      "next": {
+        "total": "1914860916",
+        "usdc": "1914860916",
+        "assets": []
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "4825966811",
+        "usdc": "3199317561",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1584838"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "664248939520815"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1s7de2s920cv9yxge2s2k2sd606663fcsnhn8qa",
+    "deposited_usdc": "5801000001",
+    "usdc": "5696724341",
+    "ausdc": {
+      "minted": "3161411838",
+      "unclaimed": "3161411838",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.5",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999346
+    },
+    "user_yield": {
+      "next": {
+        "total": "542545175",
+        "usdc": "271272588",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "135636294"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "135636294"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "2487405858",
+        "usdc": "1243702926",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "208554480753948630"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "602191"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1s9rvp8rmdthc4d23728jwqaqce7w0cqgektwur",
+    "deposited_usdc": "500000000",
+    "usdc": "558332428",
+    "ausdc": {
+      "minted": "309848018",
+      "unclaimed": "309848018",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.5",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999512
+    },
+    "user_yield": {
+      "next": {
+        "total": "53174516",
+        "usdc": "26587258",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "13293629"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "13293629"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "62413150",
+        "usdc": "31206577",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "15012"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "5116745725171103"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1trkq34l29cespl2llx6j0nxjgng7dau9g62ps9",
+    "deposited_usdc": "129999998695",
+    "usdc": "122546789017",
+    "ausdc": {
+      "minted": "68007656032",
+      "unclaimed": "68007656032",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.33",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.30303030303030303"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.69696969696969697"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999797
+    },
+    "user_yield": {
+      "next": {
+        "total": "11485172353",
+        "usdc": "7695065477",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1148517235"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "2641589641"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "6677386737",
+        "usdc": "4658470264",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "668466"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "443868558702949038"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1tycyyf6vnfeypaklt2vhmlp28l9kh8keh3n3pz",
+    "deposited_usdc": "4064390001",
+    "usdc": "3757064745",
+    "ausdc": {
+      "minted": "2084992752",
+      "unclaimed": "2084992752",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.77",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.636363636363636363"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.363636363636363637"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999701
+    },
+    "user_yield": {
+      "next": {
+        "total": "367259506",
+        "usdc": "84469686",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "179957158"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "102832662"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "268852503",
+        "usdc": "61836075",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "126678"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "24986070180531018"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1wnsunxchuc85fmp4kc8r7wdktqcfyvfn6facs3",
+    "deposited_usdc": "11966709855",
+    "usdc": "13103122745",
+    "ausdc": {
+      "minted": "7271611698",
+      "unclaimed": "7271611698",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.5",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999705
+    },
+    "user_yield": {
+      "next": {
+        "total": "1247916452",
+        "usdc": "623958226",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "311979113"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "311979113"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "914596786",
+        "usdc": "457298391",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "219881"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "75947794158098789"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1wpc54elgqththylrf9l898hrl884e8e06x8frl",
+    "deposited_usdc": "27480460000",
+    "usdc": "27117030752",
+    "ausdc": {
+      "minted": "15048666022",
+      "unclaimed": "15048666022",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.8",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.75"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.25"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999967
+    },
+    "user_yield": {
+      "next": {
+        "total": "2658532426",
+        "usdc": "531706485",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1595119456"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "531706485"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "4741547536",
+        "usdc": "950917164",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "2550569"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "425066565737809509"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1wxypx5wdn9xq3t7n0nv8ax3ax9wuqyf90rqqee",
+    "deposited_usdc": "30000000000",
+    "usdc": "40084389321",
+    "ausdc": {
+      "minted": "22244935041",
+      "unclaimed": "22244935041",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0",
+      "weights": [],
+      "initial_swaps": 0,
+      "remaining_swaps": 0
+    },
+    "user_yield": {
+      "next": {
+        "total": "3644035393",
+        "usdc": "3644035393",
+        "assets": []
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "14981328610",
+        "usdc": "14981328610",
+        "assets": []
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1xdqevc3nyppwyeyuker2yjpmyvydhpdf4gatf8",
+    "deposited_usdc": "421981241316",
+    "usdc": "326557112384",
+    "ausdc": {
+      "minted": "181223710159",
+      "unclaimed": "181223710159",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "1",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999989
+    },
+    "user_yield": {
+      "next": {
+        "total": "32655711238",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "16327855619"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "16327855619"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "172349369570",
+        "usdc": "1806538812",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "82117408"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "28491815503089642297"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1xkqde9a03qf7d4037lv2gl3njpztyd7dffre6t",
+    "deposited_usdc": "23854141532",
+    "usdc": "21569218000",
+    "ausdc": {
+      "minted": "11969893054",
+      "unclaimed": "11969893054",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.7",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "1"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999132
+    },
+    "user_yield": {
+      "next": {
+        "total": "2094098834",
+        "usdc": "628229650",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "1465869184"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "11806981755",
+        "usdc": "3542094522",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "7960252"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1yy38qnfv4y95vjlsukq5thvampm5haf002rxpk",
+    "deposited_usdc": "15000000000",
+    "usdc": "10853247574",
+    "ausdc": {
+      "minted": "6023037680",
+      "unclaimed": "6023037680",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "1",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.5"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.5"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999029
+    },
+    "user_yield": {
+      "next": {
+        "total": "1085324757",
+        "usdc": "0",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "542662379"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "542662379"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "7471058429",
+        "usdc": "43362359",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "3568087"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "1241620540484277841"
+          }
+        ]
+      }
+    },
+    "fee_next": "0"
+  },
+  {
+    "address": "neutron1yyvzs8whmjcyzph38pmdgf0hnd9g3d2vxw47v8",
+    "deposited_usdc": "130000000000",
+    "usdc": "128882816327",
+    "ausdc": {
+      "minted": "71523850698",
+      "unclaimed": "71523850698",
+      "balance": "0"
+    },
+    "dca": {
+      "fraction": "0.8",
+      "weights": [
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+          "weight": "0.375"
+        },
+        {
+          "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+          "weight": "0.625"
+        }
+      ],
+      "initial_swaps": 1000000,
+      "remaining_swaps": 999316
+    },
+    "user_yield": {
+      "next": {
+        "total": "12635570228",
+        "usdc": "2527114046",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "3790671068"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "6317785114"
+          }
+        ]
+      },
+      "last": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "pending": {
+        "total": "0",
+        "usdc": "0",
+        "assets": []
+      },
+      "accumulated_plus_pending": {
+        "total": "23546374809",
+        "usdc": "4710040375",
+        "assets": [
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/wstETH",
+            "amount": "2341224010656742486"
+          },
+          {
+            "symbol": "factory/neutron1lh2w8ne2scnc7jve38ymr3xelyw5gt2l34flxf8mpeptwg3u575setmke6/axlWBTC",
+            "amount": "11343050"
           }
         ]
       }
